@@ -2,21 +2,41 @@ using UnityEngine;
 
 public class WeaponPickup : MonoBehaviour
 {
-    private GunHolder gunHolder;
     public string weaponName;
+    private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
-        gunHolder = FindAnyObjectByType<GunHolder>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        //UpdateSprite();
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void Start()
     {
-        if (collision.CompareTag("Player"))
+        UpdateSprite();
+    }
+    public void SetWeapon(string name)
+    {
+        weaponName = name;
+        UpdateSprite();
+    }
+
+    private void UpdateSprite()
+    {
+        if (spriteRenderer == null) return;
+
+        // Load the sprite from Resources/WeaponIcons folder
+        //print(weaponName);
+        Sprite weaponSprite = Resources.Load<Sprite>("WeaponIcons/" + weaponName);
+        if (weaponSprite != null)
         {
-           // gunHolder.EquipGun(weaponName);
-           // Destroy(gameObject);
+            spriteRenderer.sprite = weaponSprite;
+        }
+        else
+        {
+            Debug.LogWarning($"Sprite for weapon '{weaponName}' not found in Resources/WeaponIcons/");
         }
     }
 }
+
 
 

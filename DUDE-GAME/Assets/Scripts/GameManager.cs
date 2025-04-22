@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [Header("PlayersStatus")]
-    [SerializeField] private int playersTaken = 0;
+    [SerializeField] private int playersActive = 0;
     [Header("Player Conditions")]
     [SerializeField] public bool playerSyncAtack = false;
     [SerializeField] public bool playerIsHit;

@@ -54,6 +54,8 @@ public class GunHolder : MonoBehaviour
 
         foreach (GameObject gun in allGuns)
         {
+            print(gun.name);
+            print(gunName);
             if (gun.name == gunName)
             {
                 currentGun = gun;
