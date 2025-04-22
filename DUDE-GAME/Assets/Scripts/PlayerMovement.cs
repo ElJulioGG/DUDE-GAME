@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
         var input = GetComponent<PlayerInput>();
        // Debug.Log("Current action map: " + input.currentActionMap);
     }

@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     [Header("PlayersStatus")]
     [SerializeField] private int playersActive = 0;
+    [SerializeField] private bool playersCanMove = true;
+
     [Header("Player Conditions")]
     [SerializeField] public bool playerSyncAtack = false;
     [SerializeField] public bool playerIsHit;
