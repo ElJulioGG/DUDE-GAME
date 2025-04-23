@@ -6,24 +6,19 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [Header("PlayersStatus")]
-    [SerializeField] private int playersActive = 0;
-    [SerializeField] private bool playersCanMove = true;
+    [SerializeField] public int playersActive = 0;
+    [SerializeField] public bool playersCanMove = true;
 
-    [Header("Player Conditions")]
-    [SerializeField] public bool playerSyncAtack = false;
-    [SerializeField] public bool playerIsHit;
-    [SerializeField] public bool playerInvinsibility;
-    [SerializeField] public int currentPlayerWeapon = 0;
-    [SerializeField] public bool playerDied;
-    [SerializeField] public bool playerCanInput = true;
-    [SerializeField] public bool playerCanMove = true;
-    [SerializeField] public bool weaponChange = true;
-    [SerializeField] public bool playerCanAtack = true;
-    [SerializeField] public bool playerIsShadow = false;
-    [SerializeField] public bool playerIsInDialog = false;
-    [SerializeField] public bool playerCanDialog = false;
-    [SerializeField] public bool playerCanAlchemy = false;
-    [SerializeField] public bool playerPiercingShot = false;
+    [Header("Player Stats")]
+    [SerializeField] public int player1Score = 0;
+    [SerializeField] public int player2Score = 0;
+    [SerializeField] public int player3Score = 0;
+    [SerializeField] public int player4Score = 0;
+
+    [SerializeField] public Sprite player1Icon;
+    [SerializeField] public Sprite player2Icon;
+    [SerializeField] public Sprite player3Icon;
+    [SerializeField] public Sprite player4Icon;
 
 
     [SerializeField] public bool defendingBase = false;

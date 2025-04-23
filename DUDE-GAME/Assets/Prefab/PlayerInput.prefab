@@ -75,7 +75,19 @@ MonoBehaviour:
     m_ActionId: c9cc2978-8fb5-4771-964a-2b7c2898a8fd
     m_ActionName: 'Player/Move[/XInputControllerWindows/leftStick/up,/DualSenseGamepadHID/leftStick/up,/XInputControllerWindows/leftStick/down,/DualSenseGamepadHID/leftStick/down,/XInputControllerWindows/leftStick/left,/DualSenseGamepadHID/leftStick/left,/XInputControllerWindows/leftStick/right,/DualSenseGamepadHID/leftStick/right]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3782642315383537071}
+        m_TargetAssemblyTypeName: PlayerInputHandler, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 2f8518b3-ec68-472d-b57b-8a34e60a67fb
     m_ActionName: Player/Interact
   m_NeverAutoSwitchControlSchemes: 0

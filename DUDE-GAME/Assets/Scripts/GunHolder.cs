@@ -6,28 +6,42 @@ public class GunHolder : MonoBehaviour
     [SerializeField] private Transform weaponHolder;
     [SerializeField] private GameObject[] allGuns;
     [SerializeField] private GameObject dropPrefab;
+    [SerializeField] private PlayerMovement pw;
 
     private GameObject currentGun;
     private WeaponPickup nearbyPickup;
     private bool hasGun = false;
+    private int playerIndex;
+    public void Start()
+    {
+        playerIndex = pw.getPlayerIndex();
+    }
+    public void SetPlayerIndex(int index)
+    {
+        playerIndex = index;
+    }
 
+    public int GetPlayerIndex()
+    {
+        return playerIndex;
+    }
     void Update()
     {
-        if (Gamepad.current == null) return;
+        //if (Gamepad.current == null) return;
 
-        if (Gamepad.current.buttonNorth.wasPressedThisFrame)
-        {
-            if (nearbyPickup != null && !hasGun)
-            {
-                EquipGun(nearbyPickup.weaponName);
-                Destroy(nearbyPickup.gameObject);
-                nearbyPickup = null;
-            }
-            else if (hasGun)
-            {
-                DropCurrentGun();
-            }
-        }
+        //if (Gamepad.current.buttonNorth.wasPressedThisFrame)
+        //{
+        //    //if (nearbyPickup != null && !hasGun)
+        //    //{
+        //    //    EquipGun(nearbyPickup.weaponName);
+        //    //    Destroy(nearbyPickup.gameObject);
+        //    //    nearbyPickup = null;
+        //    //}
+        //    //else if (hasGun)
+        //    //{
+        //    //    DropCurrentGun();
+        //    //}
+        //}
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -79,6 +93,19 @@ public class GunHolder : MonoBehaviour
         currentGun.SetActive(false);
         currentGun = null;
         hasGun = false;
+    }
+    public void HandlePickDrop()
+    {
+        if (nearbyPickup != null && !hasGun)
+        {
+            EquipGun(nearbyPickup.weaponName);
+            Destroy(nearbyPickup.gameObject);
+            nearbyPickup = null;
+        }
+        else if (hasGun)
+        {
+            DropCurrentGun();
+        }
     }
 }
 
