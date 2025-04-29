@@ -6,7 +6,7 @@ public class GunHolder : MonoBehaviour
     [SerializeField] private Transform weaponHolder;
     [SerializeField] private GameObject[] allGuns;
     [SerializeField] private GameObject dropPrefab;
-    [SerializeField] private PlayerMovement pw;
+    [SerializeField] private PlayerStats playerStats;
 
     private GameObject currentGun;
     private WeaponPickup nearbyPickup;
@@ -14,7 +14,7 @@ public class GunHolder : MonoBehaviour
     private int playerIndex;
     public void Start()
     {
-        playerIndex = pw.getPlayerIndex();
+        playerIndex = playerStats.GetPlayerIndex();
     }
     public void SetPlayerIndex(int index)
     {
