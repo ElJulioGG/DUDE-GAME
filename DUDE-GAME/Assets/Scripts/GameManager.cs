@@ -20,6 +20,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] public Sprite player3Icon;
     [SerializeField] public Sprite player4Icon;
 
+    //0 = no power, 1 = instakill, 2 = doublePoints, 3 = OpenFire, 4 = MaxAmmo, 5 = fireSale, 6 = kaboom, 7 = carpinter, 8 = death machine
+    [SerializeField] public Sprite[] powerUpIcons; 
+    [SerializeField] public int player1Power = 0;
+    [SerializeField] public int player2Power = 0;
+    [SerializeField] public int player3Power = 0;
+    [SerializeField] public int player4Power = 0;
 
     [SerializeField] public bool defendingBase = false;
     [SerializeField] public bool exploringAndFighting = false;

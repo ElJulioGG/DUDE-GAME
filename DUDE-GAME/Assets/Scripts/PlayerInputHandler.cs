@@ -4,10 +4,10 @@ using System.Linq;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    private PlayerMovement playerMovement;
-    private PlayerStats playerStats;
-    private GunHolder gunHolder;
-    private PlayerInput playerInput;
+    public PlayerMovement playerMovement;
+    public PlayerStats playerStats;
+    public GunHolder gunHolder;
+    public PlayerInput playerInput;
 
     void Awake()
     {
@@ -28,7 +28,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (playerMovement != null)
+        if ((playerMovement != null)&& GameManager.instance.playersCanMove)
         {
             playerMovement.SetInputVector(context.ReadValue<Vector2>());
         }
