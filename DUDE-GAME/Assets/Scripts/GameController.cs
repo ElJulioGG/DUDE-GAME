@@ -8,7 +8,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject[] players;
     [SerializeField] private Animator transitionAnim;
     public GameObject[] UIIntroObjects; // Assign in inspector
-
+    public bool matchEnded = false;
+    [SerializeField] public int pointsToGive = 1;
 
  
 
@@ -72,6 +73,30 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!matchEnded)
+        {
+            int aliveCount = 0;
+            PlayerStats lastAlivePlayer = null;
+
+            foreach (PlayerStats player in playerStats)
+            {
+                if (player.playerAlive)
+                {
+                    aliveCount++;
+                    lastAlivePlayer = player;
+                    print(lastAlivePlayer);
+                    print(aliveCount);
+                }
+            }
+
+            // If only one player is alive, give points and end the match
+            if (aliveCount == 1 && lastAlivePlayer != null)
+            {
+                StartCoroutine(lastAlivePlayer.AddPointsAfterDelay(pointsToGive));
+                matchEnded = true;
+                Debug.Log("Match ended. Points awarded.");
+            }
+        }
     }
+
 }
