@@ -1,0 +1,243 @@
+fileFormatVersion: 2
+guid: 8b59b707c0a6b3a41a60c557064e4581
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5216769606859500917
+    second: Words_0
+  - first:
+      213: -1963702539796757817
+    second: Words_1
+  - first:
+      213: -2096214663393848964
+    second: Words_2
+  - first:
+      213: -5427448313768164191
+    second: Words_3
+  - first:
+      213: -8206153021064857541
+    second: Words_4
+  - first:
+      213: 3244999107534209782
+    second: Words_5
+  - first:
+      213: 9111187522439686525
+    second: Words_6
+  - first:
+      213: 3634632419617956432
+    second: Words_7
+  - first:
+      213: -3842656829050981326
+    second: Words_8
+  - first:
+      213: 3155227854623535023
+    second: Words_9
+  - first:
+      213: 6470850648655168448
+    second: Words_10
+  - first:
+      213: -8191989874048921072
+    second: Words_11
+  - first:
+      213: 5104999900922364974
+    second: Words_12
+  - first:
+      213: 2391445088453177094
+    second: Words_13
+  - first:
+      213: -6311074298438235943
+    second: Words_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Words_0
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 696
+        width: 263
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b82d514aeaf4a97b0800000000000000
+      internalID: -5216769606859500917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Words_4
+      rect:
+        serializedVersion: 2
+        x: 722
+        y: 516
+        width: 423
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b383eee2e43ed1e80800000000000000
+      internalID: -8206153021064857541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Words_11
+      rect:
+        serializedVersion: 2
+        x: 821
+        y: 336
+        width: 224
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01297b1dc94305e80800000000000000
+      internalID: -8191989874048921072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: f752130d6c860f643bb7a2bde4c1e717
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Words_0: -5216769606859500917
+      Words_1: -1963702539796757817
+      Words_10: 6470850648655168448
+      Words_11: -8191989874048921072
+      Words_12: 5104999900922364974
+      Words_13: 2391445088453177094
+      Words_14: -6311074298438235943
+      Words_2: -2096214663393848964
+      Words_3: -5427448313768164191
+      Words_4: -8206153021064857541
+      Words_5: 3244999107534209782
+      Words_6: 9111187522439686525
+      Words_7: 3634632419617956432
+      Words_8: -3842656829050981326
+      Words_9: 3155227854623535023
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
