@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -46,5 +47,25 @@ public class SimpleSceneManager : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
+    } 
+        public void LoadNextSceneAfterDelay()
+    {
+        StartCoroutine(LoadNextSceneCoroutine(5f)); // Espera 5 segundos
+    }
+
+    private IEnumerator LoadNextSceneCoroutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.LogWarning("No hay más escenas en el Build Settings.");
+        }
     }
 }

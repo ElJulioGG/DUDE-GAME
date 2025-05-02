@@ -4,6 +4,8 @@ using UnityEngine.Events;
 
 public class AnimationHelper
 {
+    private const float SlideOffsetMultiplier = 1.75f; 
+
     public static IEnumerator ZoomIn(RectTransform Transform, float Speed, UnityEvent OnEnd)
     {
         float time = 0;
@@ -73,19 +75,19 @@ public class AnimationHelper
         switch (Direction)
         {
             case Direction.UP:
-                startPosition = new Vector2(0, -Screen.height);
+                startPosition = new Vector2(0, -Screen.height * SlideOffsetMultiplier);
                 break;
             case Direction.RIGHT:
-                startPosition = new Vector2(-Screen.width, 0);
+                startPosition = new Vector2(-Screen.width * SlideOffsetMultiplier, 0);
                 break;
             case Direction.DOWN:
-                startPosition = new Vector2(0, Screen.height);
+                startPosition = new Vector2(0, Screen.height * SlideOffsetMultiplier);
                 break;
             case Direction.LEFT:
-                startPosition = new Vector2(Screen.width, 0);
+                startPosition = new Vector2(Screen.width * SlideOffsetMultiplier, 0);
                 break;
             default:
-                startPosition = new Vector2(0, -Screen.height);
+                startPosition = new Vector2(0, -Screen.height * SlideOffsetMultiplier);
                 break;
         }
 
@@ -107,19 +109,19 @@ public class AnimationHelper
         switch (Direction)
         {
             case Direction.UP:
-                endPosition = new Vector2(0, Screen.height);
+                endPosition = new Vector2(0, Screen.height * SlideOffsetMultiplier);
                 break;
             case Direction.RIGHT:
-                endPosition = new Vector2(Screen.width, 0);
+                endPosition = new Vector2(Screen.width * SlideOffsetMultiplier, 0);
                 break;
             case Direction.DOWN:
-                endPosition = new Vector2(0, -Screen.height);
+                endPosition = new Vector2(0, -Screen.height * SlideOffsetMultiplier);
                 break;
             case Direction.LEFT:
-                endPosition = new Vector2(-Screen.width, 0);
+                endPosition = new Vector2(-Screen.width * SlideOffsetMultiplier*SlideOffsetMultiplier, 0);
                 break;
             default:
-                endPosition = new Vector2(0, Screen.height);
+                endPosition = new Vector2(0, Screen.height * SlideOffsetMultiplier);
                 break;
         }
 
