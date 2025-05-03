@@ -8,6 +8,7 @@ public class PlayerStats : MonoBehaviour
     public int baseHealth = 200;
     [SerializeField] private int points = 0;
     public bool playerAlive = true;
+    [SerializeField] private GameObject[] bloodSplatterPrefabs; // Size 4, one for each player
 
     void Start()
     {
@@ -25,33 +26,46 @@ public class PlayerStats : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
 
-        if (playerAlive)
-        {
-            switch (playerIndex)
-            {
-                case 0:
-                    GameManager.instance.player1Score += pointsToAdd; 
-                    break;
-                case 1:
-                    GameManager.instance.player2Score += pointsToAdd;
-                    break;
-                case 2:
-                    GameManager.instance.player3Score += pointsToAdd;
-                    break;
-                case 3:
-                    GameManager.instance.player4Score += pointsToAdd;
-                    break;
-            }
-            points += pointsToAdd;
-            
-            Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
-        }
-        else
+        if (!playerAlive)
         {
             Debug.Log($"Player {playerIndex} is not alive. No points awarded.");
+            yield break;
         }
+
+        switch (playerIndex)
+        {
+            case 0:
+                GameManager.instance.player1Score += pointsToAdd;
+                break;
+            case 1:
+                GameManager.instance.player2Score += pointsToAdd;
+                break;
+            case 2:
+                GameManager.instance.player3Score += pointsToAdd;
+                break;
+            case 3:
+                GameManager.instance.player4Score += pointsToAdd;
+                break;
+            default:
+                Debug.LogWarning("Invalid playerIndex. Points not awarded.");
+                yield break;
+        }
+
+        points += pointsToAdd;
+
+        Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
     }
 
+    public void TakeDamage(int damageAmount)
+    {
+        if (!playerAlive) return;
+
+        health -= damageAmount;
+        if (health <= 0 && playerAlive)
+        {
+            KillPlayer();
+        }
+    }
     public void SetPlayerHealth(int newHealth)
     {
         health = newHealth;
@@ -69,20 +83,34 @@ public class PlayerStats : MonoBehaviour
 
     void Update()
     {
-        if (health <= 0 && playerAlive)
-        {
-            KillPlayer();
-        }
+        //if (health <= 0 && playerAlive)
+        //{
+        //    KillPlayer();
+        //}
     }
 
     public void KillPlayer()
     {
         playerAlive = false;
         gameObject.SetActive(false);
-        // instantiate blood
+
+        // Play death sound
+        SoundFXManager.instance.PlaySoundByName("Death", transform, 0.6f, 1.5f);
+
+        // Instantiate blood splatter specific to the player index
+        if (playerIndex >= 0 && playerIndex < bloodSplatterPrefabs.Length)
+        {
+            Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+            Instantiate(bloodSplatterPrefabs[playerIndex], transform.position, randomRotation);
+        }
+        else
+        {
+            Debug.LogWarning($"No blood splatter prefab assigned for playerIndex {playerIndex}.");
+        }
         // instantiate corpse
         // instantiate particles
     }
+
 
     public void Respawn()
     {

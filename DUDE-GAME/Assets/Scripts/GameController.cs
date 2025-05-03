@@ -84,19 +84,22 @@ public class GameController : MonoBehaviour
                 {
                     aliveCount++;
                     lastAlivePlayer = player;
-                    print(lastAlivePlayer);
-                    print(aliveCount);
                 }
             }
 
-            // If only one player is alive, give points and end the match
             if (aliveCount == 1 && lastAlivePlayer != null)
             {
-                StartCoroutine(lastAlivePlayer.AddPointsAfterDelay(pointsToGive));
-                matchEnded = true;
-                Debug.Log("Match ended. Points awarded.");
+                matchEnded = true; // Set this FIRST to avoid repeated triggers
+                StartCoroutine(HandleLastPlayerWin(lastAlivePlayer));
             }
         }
     }
+    IEnumerator HandleLastPlayerWin(PlayerStats winner)
+    {
+        yield return winner.AddPointsAfterDelay(pointsToGive);
+        Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
+        // You can trigger end screen or restart logic here if needed
+    }
+
 
 }
