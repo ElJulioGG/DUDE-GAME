@@ -26,7 +26,7 @@ public class CursorDetection : MonoBehaviour {
     void Update () {
 
         //CONFIRM
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.JoystickButton1))
         {
             if (currentCharacter != null)
             {
@@ -36,7 +36,7 @@ public class CursorDetection : MonoBehaviour {
         }
 
         //CANCEL
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.JoystickButton2))
         {
             SmashCSS.instance.confirmedCharacter = null;
             TokenFollow(true);
