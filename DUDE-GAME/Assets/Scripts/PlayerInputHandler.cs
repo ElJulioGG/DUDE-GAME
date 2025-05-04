@@ -34,6 +34,14 @@ public class PlayerInputHandler : MonoBehaviour
             playerMovement.SetInputVector(context.ReadValue<Vector2>());
         }
     }
+    public void OnAim(InputAction.CallbackContext context)
+    {
+        if (gunHolder != null)
+        {
+            Vector2 aimDirection = context.ReadValue<Vector2>();
+            gunHolder.SetAimDirection(aimDirection);
+        }
+    }
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (context.performed && gunHolder != null)
@@ -73,5 +81,13 @@ public class PlayerInputHandler : MonoBehaviour
             gunHolder.HandlePickDrop();
         }
     }
+    public void OnShoot(InputAction.CallbackContext context)
+    {
+        if (context.performed && gunHolder != null)
+        {
+            gunHolder.HandleShoot();
+        }
+    }
+
 
 }

@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -11,11 +12,14 @@ public class GameController : MonoBehaviour
     public GameObject[] maps;
     public bool matchEnded = false;
     [SerializeField] public int pointsToGive = 1;
+    [SerializeField] private GameObject pointsCanvasPrefab; // Assign in inspector
+    private GameObject activePointsCanvas; // Keep track of current active canvas
+    
 
     public void NextMatch()
     {
         GameManager.instance.playersCanMove = false;
-
+        RemovePointsCanvas();
         // Destroy all blood splatters
         foreach (GameObject splatter in PlayerStats.allSplatters)
         {
@@ -38,8 +42,37 @@ public class GameController : MonoBehaviour
     }
 
 
+    // Only if you’re using TextMeshPro
 
-    public void AssignPlayerPositions()
+public void ShowPointsCanvas(Transform winnerTransform, int points)
+{
+    if (pointsCanvasPrefab == null)
+    {
+        Debug.LogWarning("Points Canvas Prefab is not assigned!");
+        return;
+    }
+
+    activePointsCanvas = Instantiate(pointsCanvasPrefab, winnerTransform);
+    activePointsCanvas.transform.localPosition = Vector3.up * 1f; // Offset above player
+
+    // If using TMPro
+    TMP_Text tmp = activePointsCanvas.GetComponentInChildren<TMP_Text>();
+    if (tmp != null)
+    {
+        tmp.text = $"+{points}";
+    }
+}
+
+public void RemovePointsCanvas()
+{
+    if (activePointsCanvas != null)
+    {
+        Destroy(activePointsCanvas);
+        activePointsCanvas = null;
+    }
+}
+
+public void AssignPlayerPositions()
     {
         for (int i = 0; i < players.Length; i++)
         {
@@ -121,11 +154,14 @@ public class GameController : MonoBehaviour
             }
         }
     }
+
     IEnumerator HandleLastPlayerWin(PlayerStats winner)
     {
         yield return winner.AddPointsAfterDelay(pointsToGive);
+        ShowPointsCanvas(winner.transform, pointsToGive);
+
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(2f);
         transitionAnim.SetTrigger("FadeIn");
         yield return new WaitForSeconds(1f);
         NextMatch();

@@ -61,6 +61,8 @@ public class GunHolder : MonoBehaviour
         }
     }
 
+    private WeaponBase currentWeaponScript;
+
     public void EquipGun(string gunName)
     {
         if (currentGun != null)
@@ -68,13 +70,12 @@ public class GunHolder : MonoBehaviour
 
         foreach (GameObject gun in allGuns)
         {
-            print(gun.name);
-            print(gunName);
             if (gun.name == gunName)
             {
                 currentGun = gun;
                 currentGun.SetActive(true);
                 currentGun.transform.SetParent(weaponHolder, false);
+                currentWeaponScript = currentGun.GetComponent<WeaponBase>();
                 hasGun = true;
                 return;
             }
@@ -82,6 +83,7 @@ public class GunHolder : MonoBehaviour
 
         Debug.LogWarning("Gun not found: " + gunName);
     }
+
 
     public void DropCurrentGun()
     {
@@ -92,8 +94,10 @@ public class GunHolder : MonoBehaviour
 
         currentGun.SetActive(false);
         currentGun = null;
+        currentWeaponScript = null;
         hasGun = false;
     }
+
     public void HandlePickDrop()
     {
         if (nearbyPickup != null && !hasGun)
@@ -107,5 +111,21 @@ public class GunHolder : MonoBehaviour
             DropCurrentGun();
         }
     }
+
+    public void HandleShoot()
+    {
+        if (hasGun && currentWeaponScript != null)
+        {
+            currentWeaponScript.Shoot();
+        }
+    }
+    public void SetAimDirection(Vector2 direction)
+    {
+        if (hasGun && currentWeaponScript != null)
+        {
+            currentWeaponScript.SetAimDirection(direction);
+        }
+    }
+
 }
 

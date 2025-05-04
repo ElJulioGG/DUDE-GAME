@@ -29,7 +29,7 @@ public class PlayerStats : MonoBehaviour
 
     public IEnumerator AddPointsAfterDelay(int pointsToAdd)
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2.5f);
 
         if (!playerAlive)
         {
@@ -39,6 +39,7 @@ public class PlayerStats : MonoBehaviour
 
         switch (playerIndex)
         {
+
             case 0:
                 GameManager.instance.player1Score += pointsToAdd;
                 break;
@@ -57,7 +58,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         points += pointsToAdd;
-
+        SoundFXManager.instance.PlaySoundByName("Bell", transform, 0.7f, 1.3f);
         Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
     }
 
