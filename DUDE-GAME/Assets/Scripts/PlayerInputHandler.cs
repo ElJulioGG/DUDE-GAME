@@ -8,11 +8,12 @@ public class PlayerInputHandler : MonoBehaviour
     public PlayerStats playerStats;
     public GunHolder gunHolder;
     public PlayerInput playerInput;
+    public int index;
 
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
-        int index = playerInput.playerIndex;
+        index = playerInput.playerIndex;
 
         // Link Stats
         var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);

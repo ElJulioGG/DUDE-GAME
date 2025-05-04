@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -9,6 +10,10 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private int points = 0;
     public bool playerAlive = true;
     [SerializeField] private GameObject[] bloodSplatterPrefabs; // Size 4, one for each player
+    public static List<GameObject> allSplatters = new List<GameObject>();
+
+    [SerializeField] private GunHolder gunHolder;
+
 
     void Start()
     {
@@ -92,6 +97,7 @@ public class PlayerStats : MonoBehaviour
     public void KillPlayer()
     {
         playerAlive = false;
+        gunHolder.DropCurrentGun();
         gameObject.SetActive(false);
 
         // Play death sound
@@ -101,7 +107,8 @@ public class PlayerStats : MonoBehaviour
         if (playerIndex >= 0 && playerIndex < bloodSplatterPrefabs.Length)
         {
             Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
-            Instantiate(bloodSplatterPrefabs[playerIndex], transform.position, randomRotation);
+            GameObject splatter = Instantiate(bloodSplatterPrefabs[playerIndex], transform.position, randomRotation);
+            allSplatters.Add(splatter);
         }
         else
         {

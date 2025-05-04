@@ -8,10 +8,36 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject[] players;
     [SerializeField] private Animator transitionAnim;
     public GameObject[] UIIntroObjects; // Assign in inspector
+    public GameObject[] maps;
     public bool matchEnded = false;
     [SerializeField] public int pointsToGive = 1;
 
- 
+    public void NextMatch()
+    {
+        GameManager.instance.playersCanMove = false;
+
+        // Destroy all blood splatters
+        foreach (GameObject splatter in PlayerStats.allSplatters)
+        {
+            if (splatter != null)
+                Destroy(splatter);
+        }
+        PlayerStats.allSplatters.Clear();
+        SelectRandomMap();
+        // Respawn players
+        foreach (PlayerStats player in playerStats)
+        {
+            player.Respawn();
+        }
+
+        matchEnded = false;
+
+        transitionAnim.SetTrigger("FadeOut");
+        AssignPlayerPositions();
+        Invoke("StartGame", 0.5f);
+    }
+
+
 
     public void AssignPlayerPositions()
     {
@@ -51,7 +77,7 @@ public class GameController : MonoBehaviour
            
             if (i == UIIntroObjects.Length - 1)
             {
-                GameManager.instance.playersCanMove = true;
+                //GameManager.instance.playersCanMove = true;
             }
             float waitTime = (i == UIIntroObjects.Length - 1) ? 1.5f : 1f;
             yield return new WaitForSeconds(waitTime);
@@ -63,7 +89,7 @@ public class GameController : MonoBehaviour
     }
     void Start()
     {
-
+        SelectRandomMap();
         GameManager.instance.playersCanMove = false;
         transitionAnim.SetTrigger("FadeOut");
         AssignPlayerPositions();
@@ -91,6 +117,7 @@ public class GameController : MonoBehaviour
             {
                 matchEnded = true; // Set this FIRST to avoid repeated triggers
                 StartCoroutine(HandleLastPlayerWin(lastAlivePlayer));
+                
             }
         }
     }
@@ -98,8 +125,32 @@ public class GameController : MonoBehaviour
     {
         yield return winner.AddPointsAfterDelay(pointsToGive);
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
+        yield return new WaitForSeconds(5f);
+        transitionAnim.SetTrigger("FadeIn");
+        yield return new WaitForSeconds(1f);
+        NextMatch();
         // You can trigger end screen or restart logic here if needed
     }
+    public void SelectRandomMap()
+    {
+        if (maps == null || maps.Length == 0)
+        {
+            Debug.LogWarning("No maps assigned");
+            return;
+        }
 
+        int randomIndex = Random.Range(0, maps.Length);
+
+        for (int i = 0; i < maps.Length; i++)
+        {
+            bool shouldBeActive = (i == randomIndex);
+            if (maps[i].activeSelf != shouldBeActive)
+            {
+                maps[i].SetActive(shouldBeActive);
+            }
+        }
+
+        Debug.Log($"Random map selected: {maps[randomIndex].name}");
+    }
 
 }
