@@ -33,8 +33,17 @@ public class WeaponBase : MonoBehaviour
 
         lastShootTime = Time.time;
 
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-        Bullet bulletScript = bullet.GetComponent<Bullet>();
-        bulletScript.SetDirection(aimDirection);
+        // Calculate rotation based on aim direction
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
+
+        // Instantiate bullet facing the direction it's aiming
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, bulletRotation);
+
+        //// Set its movement direction
+        //Bullet1 bulletScript = bullet.GetComponent<Bullet1>();
+        //bulletScript.SetDirection(aimDirection);
     }
+
+
 }
