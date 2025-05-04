@@ -10,22 +10,29 @@ public class FadeTranDT : MonoBehaviour
     [Header("Duración del fade")]
     public float fadeDuration = 1f;
 
+    [Header("GameObject a desactivar")]
+    public GameObject image;
+
     void Start()
     {
         // Fade hacia transparencia (0 = invisible)
         FadeOut();
-
-        // Si quieres hacer un fade in después de unos segundos:
-        // Invoke("FadeIn", 3f);
     }
 
     public void FadeOut()
     {
-        uiImage.DOFade(0f, fadeDuration); // Desaparece
+        uiImage.DOFade(0f, fadeDuration).OnComplete(() =>
+        {
+            image.SetActive(false);
+        });
     }
 
     public void FadeIn()
     {
-        uiImage.DOFade(1f, fadeDuration); // Aparece
+        image.SetActive(true); // Asegúrate de activarlo antes del fade in
+        uiImage.DOFade(1f, fadeDuration).OnComplete(() =>
+        {
+            image.SetActive(false); // También puedes cambiar esto si no quieres desactivarlo tras el fade in
+        });
     }
 }
