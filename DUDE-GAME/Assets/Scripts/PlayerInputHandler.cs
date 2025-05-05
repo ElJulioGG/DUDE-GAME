@@ -33,6 +33,10 @@ public class PlayerInputHandler : MonoBehaviour
         {
             playerMovement.SetInputVector(context.ReadValue<Vector2>());
         }
+        else
+        {
+            playerMovement.SetInputVector(Vector2.zero);
+        }
     }
     public void OnAim(InputAction.CallbackContext context)
     {

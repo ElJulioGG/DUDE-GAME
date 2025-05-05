@@ -122,6 +122,7 @@ public class PlayerStats : MonoBehaviour
 
     public void Respawn()
     {
+        gunHolder.DropCurrentGun();
         health = baseHealth;
         playerAlive = true;
         gameObject.SetActive(true);

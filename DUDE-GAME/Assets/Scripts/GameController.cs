@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -110,13 +111,14 @@ public void AssignPlayerPositions()
            
             if (i == UIIntroObjects.Length - 1)
             {
-                //GameManager.instance.playersCanMove = true;
+                GameManager.instance.playersCanMove = true;
             }
             float waitTime = (i == UIIntroObjects.Length - 1) ? 1.5f : 1f;
             yield return new WaitForSeconds(waitTime);
 
             // Deactivate the current object
             UIIntroObjects[i].SetActive(false);
+            
         }
         GameManager.instance.playersCanMove = true;
     }
@@ -188,5 +190,14 @@ public void AssignPlayerPositions()
 
         Debug.Log($"Random map selected: {maps[randomIndex].name}");
     }
-
+    public void Instakill()
+    {
+        foreach (PlayerStats player in playerStats)
+        {
+            if (player.playerAlive)
+            {
+                player.SetPlayerHealth(1);
+            }
+        }
+    }
 }

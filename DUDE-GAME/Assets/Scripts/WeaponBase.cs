@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class WeaponBase : MonoBehaviour
 {
+    private Rigidbody2D playerRb;
     public GameObject bulletPrefab;
     public Transform firePoint; // Create an empty child called "FirePoint" where bullets come from
     public float shootCooldown = 0.25f;
     private float lastShootTime;
+    [SerializeField] private float recoilForce = 5f; // Amount of recoil force applied to the player when shooting
 
     private Vector2 aimDirection = Vector2.right; // Default aim direction
 
@@ -29,21 +31,25 @@ public class WeaponBase : MonoBehaviour
 
     public virtual void Shoot()
     {
+        playerRb = GetComponentInParent<Rigidbody2D>();
         if (Time.time < lastShootTime + shootCooldown) return;
 
         lastShootTime = Time.time;
 
-        // Calculate rotation based on aim direction
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
 
-        // Instantiate bullet facing the direction it's aiming
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, bulletRotation);
 
-        //// Set its movement direction
-        //Bullet1 bulletScript = bullet.GetComponent<Bullet1>();
-        //bulletScript.SetDirection(aimDirection);
+        SoundFXManager.instance.PlaySoundByName("RailGunShot", transform, 0.8f, 1.1f);
+
+        if (playerRb != null)
+        {
+            playerRb.AddForce(-aimDirection * recoilForce, ForceMode2D.Impulse);
+            print("shot");
+        }
     }
+
 
 
 }

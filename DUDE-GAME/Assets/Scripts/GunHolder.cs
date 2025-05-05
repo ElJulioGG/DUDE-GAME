@@ -66,15 +66,16 @@ public class GunHolder : MonoBehaviour
     public void EquipGun(string gunName)
     {
         if (currentGun != null)
-            currentGun.SetActive(false);
-
-        foreach (GameObject gun in allGuns)
         {
-            if (gun.name == gunName)
+            Destroy(currentGun);
+            currentWeaponScript = null;
+        }
+
+        foreach (GameObject gunPrefab in allGuns)
+        {
+            if (gunPrefab.name == gunName)
             {
-                currentGun = gun;
-                currentGun.SetActive(true);
-                currentGun.transform.SetParent(weaponHolder, false);
+                currentGun = Instantiate(gunPrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
                 currentWeaponScript = currentGun.GetComponent<WeaponBase>();
                 hasGun = true;
                 return;
@@ -85,14 +86,15 @@ public class GunHolder : MonoBehaviour
     }
 
 
+
     public void DropCurrentGun()
     {
         if (currentGun == null) return;
 
         GameObject drop = Instantiate(dropPrefab, transform.position, Quaternion.identity);
-        drop.GetComponent<WeaponPickup>().weaponName = currentGun.name;
+        drop.GetComponent<WeaponPickup>().weaponName = currentGun.name.Replace("(Clone)", "").Trim();
 
-        currentGun.SetActive(false);
+        Destroy(currentGun);
         currentGun = null;
         currentWeaponScript = null;
         hasGun = false;
