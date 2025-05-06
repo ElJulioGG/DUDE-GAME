@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      dudeGame_Shotty_0: 8356373866930346531
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

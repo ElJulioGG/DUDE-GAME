@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 6df11f4e792cd9048aeac2b17a8d249e
+guid: 5bbb586a6bc6c1a429dcfa51a25cadfb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3615542597057785438
-    second: dudeGame_Cerberus_0
+      213: -6131099249007033293
+    second: Mano_seleccionador_morado_0
+  - first:
+      213: 8688386514158053161
+    second: Mano_seleccionador_morado_1
+  - first:
+      213: -4915448294817665025
+    second: Mano_seleccionador_morado_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +43,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,7 +54,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -75,7 +81,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +106,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dudeGame_Cerberus_0
+      name: Mano_seleccionador_morado_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 11
-        width: 27
-        height: 12
+        x: 21
+        y: 1253
+        width: 702
+        height: 483
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +121,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e5e2ce706dcfc2230800000000000000
-      internalID: 3615542597057785438
+      spriteID: 334854c87b5f9eaa0800000000000000
+      internalID: -6131099249007033293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mano_seleccionador_morado_1
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 947
+        width: 599
+        height: 403
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9276fa76089539870800000000000000
+      internalID: 8688386514158053161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mano_seleccionador_morado_2
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 670
+        width: 622
+        height: 294
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fffe79ba1d1d8cbb0800000000000000
+      internalID: -4915448294817665025
       vertices: []
       indices: 
       edges: []
@@ -135,7 +185,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dudeGame_Cerberus_0: 3615542597057785438
+      Mano_seleccionador_morado_0: -6131099249007033293
+      Mano_seleccionador_morado_1: 8688386514158053161
+      Mano_seleccionador_morado_2: -4915448294817665025
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

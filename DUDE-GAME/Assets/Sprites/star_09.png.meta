@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6df11f4e792cd9048aeac2b17a8d249e
+guid: 199d25eded9729c4f8d6630ec731a26c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3615542597057785438
-    second: dudeGame_Cerberus_0
+      213: -6897342630389892985
+    second: star_09_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -46,9 +46,9 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dudeGame_Cerberus_0
+      name: star_09_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 11
-        width: 27
-        height: 12
+        x: 38
+        y: 4
+        width: 436
+        height: 506
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e5e2ce706dcfc2230800000000000000
-      internalID: 3615542597057785438
+      spriteID: 788b37ddb67b740a0800000000000000
+      internalID: -6897342630389892985
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dudeGame_Cerberus_0: 3615542597057785438
+      star_09_0: -6897342630389892985
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
