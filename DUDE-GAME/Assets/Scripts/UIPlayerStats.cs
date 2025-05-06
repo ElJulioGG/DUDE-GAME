@@ -16,22 +16,22 @@ public class UIPlayerStats : MonoBehaviour
             case 0:
                 playerPointsText.text = GameManager.instance.player1Score.ToString();
                 playerIcon.sprite = GameManager.instance.player1Icon;
-                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player1Power];
+                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player1PowerUp];
                 break;
             case 1:
                 playerPointsText.text = GameManager.instance.player2Score.ToString();
                 playerIcon.sprite = GameManager.instance.player2Icon;
-                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player2Power];
+                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player2PowerUp];
                 break;
             case 2:
                 playerPointsText.text = GameManager.instance.player3Score.ToString();
                 playerIcon.sprite = GameManager.instance.player3Icon;
-                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player3Power];
+                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player3PowerUp];
                 break;
             case 3:
                 playerPointsText.text = GameManager.instance.player4Score.ToString();
                 playerIcon.sprite = GameManager.instance.player4Icon;
-                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player4Power];
+                playerPowerIcon.sprite = GameManager.instance.powerUpIcons[GameManager.instance.player4PowerUp];
                 break;
         }
     }

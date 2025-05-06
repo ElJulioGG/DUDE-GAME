@@ -92,6 +92,20 @@ public class PlayerInputHandler : MonoBehaviour
             gunHolder.HandleShoot();
         }
     }
+    public void OnReload(InputAction.CallbackContext context)
+    {
+        if (context.performed && gunHolder != null)
+        {
+            //gunHolder.HandleReload();
+        }
+    }
+    public void OnPowerUp(InputAction.CallbackContext context)
+    {
+        if (playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
+        {
+            playerStats.usingPowerUp = true;
+        }
+    }
 
 
 }

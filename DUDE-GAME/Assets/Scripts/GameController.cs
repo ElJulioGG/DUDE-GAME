@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class GameController : MonoBehaviour
     [SerializeField] public int pointsToGive = 1;
     [SerializeField] private GameObject pointsCanvasPrefab; // Assign in inspector
     private GameObject activePointsCanvas; // Keep track of current active canvas
-    
+    private int currentPowerUp;
 
     public void NextMatch()
     {
+        pointsToGive = 1;
+        SelectRandomMap();
         GameManager.instance.playersCanMove = false;
         RemovePointsCanvas();
         // Destroy all blood splatters
@@ -28,7 +31,7 @@ public class GameController : MonoBehaviour
                 Destroy(splatter);
         }
         PlayerStats.allSplatters.Clear();
-        SelectRandomMap();
+        
         // Respawn players
         foreach (PlayerStats player in playerStats)
         {
@@ -36,8 +39,6 @@ public class GameController : MonoBehaviour
         }
 
         matchEnded = false;
-
-        transitionAnim.SetTrigger("FadeOut");
         AssignPlayerPositions();
         Invoke("StartGame", 0.5f);
     }
@@ -98,6 +99,7 @@ public void AssignPlayerPositions()
 
     IEnumerator MatchBegin()
     {
+        transitionAnim.SetTrigger("FadeOut");
         foreach (PlayerStats player in playerStats)
         {
             player.SetPlayerHealth(player.baseHealth);
@@ -111,7 +113,26 @@ public void AssignPlayerPositions()
            
             if (i == UIIntroObjects.Length - 1)
             {
+                SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
+                if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
+                {
+                    SoundFXManager.instance.PlaySoundByName("BattleLoop", transform, 0.1f, 1f,true);
+                }
+               
                 GameManager.instance.playersCanMove = true;
+
+            }
+            if (i == UIIntroObjects.Length - 2)
+            {
+                SoundFXManager.instance.PlaySoundByName("1", transform, 0.6f, 0.9f);
+            }
+            if (i == UIIntroObjects.Length - 3)
+            {
+                SoundFXManager.instance.PlaySoundByName("2", transform, 0.6f, 0.9f);
+            }
+            if (i == UIIntroObjects.Length - 4)
+            {
+                SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
             }
             float waitTime = (i == UIIntroObjects.Length - 1) ? 1.5f : 1f;
             yield return new WaitForSeconds(waitTime);
@@ -124,9 +145,14 @@ public void AssignPlayerPositions()
     }
     void Start()
     {
+        if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
+        {
+            SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.1f, 1f);
+        }
+        //SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.6f, 1f);
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
-        transitionAnim.SetTrigger("FadeOut");
+        
         AssignPlayerPositions();
         Invoke("StartGame", 0.5f);
     }
@@ -134,6 +160,12 @@ public void AssignPlayerPositions()
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            // Correct method call
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
         if (!matchEnded)
         {
             int aliveCount = 0;
@@ -154,9 +186,82 @@ public void AssignPlayerPositions()
                 StartCoroutine(HandleLastPlayerWin(lastAlivePlayer));
                 
             }
+
+            
+
         }
     }
+    private void FixedUpdate()
+    {
+        if (playerStats[0].usingPowerUp)
+        {
+            TriggerPowerUp(playerStats[0].playerIndex);
+            playerStats[0].usingPowerUp = false;
+        }
+        if (playerStats[1].usingPowerUp)
+        {
+            TriggerPowerUp(playerStats[1].playerIndex);
+            playerStats[1].usingPowerUp = false;
+        }
+        if (playerStats[2].usingPowerUp)
+        {
+            TriggerPowerUp(playerStats[2].playerIndex);
+            playerStats[2].usingPowerUp = false;
+        }
+        if (playerStats[3].usingPowerUp)
+        {
+            TriggerPowerUp(playerStats[3].playerIndex);
+            playerStats[3].usingPowerUp = false;
+        }
+    }
+    private void TriggerPowerUp(int playerIndex)
+    {
+        switch (playerIndex)
+        {
+            case 0:
+                currentPowerUp = GameManager.instance.player1PowerUp;
+                GameManager.instance.player1PowerUp = 0;
+                break;
+            case 1:
+                currentPowerUp = GameManager.instance.player2PowerUp;
+                GameManager.instance.player2PowerUp = 0;
+                break;
+            case 2:
+                currentPowerUp = GameManager.instance.player3PowerUp;
+                GameManager.instance.player3PowerUp = 0;
+                break;
+            case 3:
+                currentPowerUp = GameManager.instance.player4PowerUp;
+                GameManager.instance.player4PowerUp = 0;
+                break;
+        }
+        switch (currentPowerUp)//0 = no power, 1 = instakill, 2 = doublePoints, 3 = OpenFire, 4 = MaxAmmo, 5 = fireSale, 6 = kaboom, 7 = carpinter, 8 = death machine
+        {
+            case 0:
+                //play funny sound
+                SoundFXManager.instance.PlaySoundByName("NoPowerUp", transform, 1f, 1f);
+                break;
+            case 1:
+                Instakill();
+                break;
+            case 2:
+                DoublePoints();
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
 
+        }
+    }
     IEnumerator HandleLastPlayerWin(PlayerStats winner)
     {
         yield return winner.AddPointsAfterDelay(pointsToGive);
@@ -165,7 +270,7 @@ public void AssignPlayerPositions()
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
         yield return new WaitForSeconds(2f);
         transitionAnim.SetTrigger("FadeIn");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         NextMatch();
         // You can trigger end screen or restart logic here if needed
     }
@@ -192,6 +297,7 @@ public void AssignPlayerPositions()
     }
     public void Instakill()
     {
+        SoundFXManager.instance.PlaySoundByName("Instakill", transform, 0.9f, 0.9f);
         foreach (PlayerStats player in playerStats)
         {
             if (player.playerAlive)
@@ -199,5 +305,10 @@ public void AssignPlayerPositions()
                 player.SetPlayerHealth(1);
             }
         }
+    }
+    public void DoublePoints()
+    {
+        SoundFXManager.instance.PlaySoundByName("DoublePoints", transform, 0.9f, 0.9f);
+        pointsToGive = pointsToGive*2;
     }
 }

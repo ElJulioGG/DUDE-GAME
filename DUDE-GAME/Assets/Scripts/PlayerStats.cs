@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [SerializeField] private int playerIndex = 0;
+    [SerializeField] public int playerIndex = 0;
     [SerializeField] private int health = 200;
     public int baseHealth = 200;
     [SerializeField] private int points = 0;
     public bool playerAlive = true;
     [SerializeField] private GameObject[] bloodSplatterPrefabs; // Size 4, one for each player
     public static List<GameObject> allSplatters = new List<GameObject>();
-
+    [SerializeField] public bool usingPowerUp;
     [SerializeField] private GunHolder gunHolder;
 
 
@@ -67,6 +67,7 @@ public class PlayerStats : MonoBehaviour
         if (!playerAlive) return;
 
         health -= damageAmount;
+        SoundFXManager.instance.PlaySoundByName("PlayerHit", transform, 1f, 0.8f);
         if (health <= 0 && playerAlive)
         {
             KillPlayer();
@@ -87,6 +88,13 @@ public class PlayerStats : MonoBehaviour
         return playerIndex;
     }
 
+    public void UsePowerUp()
+    {
+        if (playerAlive && !usingPowerUp)
+        {
+            usingPowerUp = true;
+        }
+    }
     void Update()
     {
         //if (health <= 0 && playerAlive)

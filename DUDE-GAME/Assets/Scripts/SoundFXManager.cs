@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public class SoundFXManager : MonoBehaviour
 
     private Dictionary<string, AudioClip> clipLookup;
     private Dictionary<string, Queue<AudioSource>> audioSourcePool;
+    private Dictionary<string, List<AudioSource>> activeSources;
 
     private void Awake()
     {
@@ -19,10 +21,11 @@ public class SoundFXManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             InitializeClipLookup();
             audioSourcePool = new Dictionary<string, Queue<AudioSource>>();
+            activeSources = new Dictionary<string, List<AudioSource>>();
         }
         else
         {
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
     }
 
@@ -38,7 +41,7 @@ public class SoundFXManager : MonoBehaviour
         }
     }
 
-    public void PlaySoundByName(string clipName, Transform spawnTransform, float volume = 1f, float pitch = 1f)
+    public void PlaySoundByName(string clipName, Transform spawnTransform, float volume = 1f, float pitch = 1f, bool loop = false)
     {
         if (!clipLookup.TryGetValue(clipName, out AudioClip clipToPlay))
         {
@@ -50,9 +53,18 @@ public class SoundFXManager : MonoBehaviour
         source.clip = clipToPlay;
         source.volume = volume;
         source.pitch = pitch;
+        source.loop = loop;
         source.Play();
 
-        StartCoroutine(ReturnToPoolAfterPlay(source, clipName, clipToPlay.length));
+        if (!activeSources.ContainsKey(clipName))
+            activeSources[clipName] = new List<AudioSource>();
+
+        activeSources[clipName].Add(source);
+
+        if (!loop)
+        {
+            StartCoroutine(ReturnToPoolAfterPlay(source, clipName, clipToPlay.length));
+        }
     }
 
     private AudioSource GetAudioSourceFromPool(string clipName, Vector3 position)
@@ -79,11 +91,50 @@ public class SoundFXManager : MonoBehaviour
         return source;
     }
 
-    private System.Collections.IEnumerator ReturnToPoolAfterPlay(AudioSource source, string clipName, float delay)
+    private IEnumerator ReturnToPoolAfterPlay(AudioSource source, string clipName, float delay)
     {
         yield return new WaitForSeconds(delay);
+        if (activeSources.ContainsKey(clipName))
+            activeSources[clipName].Remove(source);
+
         source.Stop();
+        source.loop = false;
         source.gameObject.SetActive(false);
         audioSourcePool[clipName].Enqueue(source);
     }
+
+    public void StopSoundByName(string clipName)
+    {
+        if (!activeSources.ContainsKey(clipName)) return;
+
+        foreach (var source in activeSources[clipName])
+        {
+            if (source != null && source.isPlaying)
+            {
+                source.Stop();
+                source.loop = false;
+                source.gameObject.SetActive(false);
+
+                if (!audioSourcePool.ContainsKey(clipName))
+                    audioSourcePool[clipName] = new Queue<AudioSource>();
+
+                audioSourcePool[clipName].Enqueue(source);
+            }
+        }
+
+        activeSources[clipName].Clear();
+    }
+    public bool IsSoundPlaying(string clipName)
+    {
+        if (activeSources.TryGetValue(clipName, out List<AudioSource> sources))
+        {
+            foreach (var source in sources)
+            {
+                if (source != null && source.isPlaying)
+                    return true;
+            }
+        }
+        return false;
+    }
+
 }
