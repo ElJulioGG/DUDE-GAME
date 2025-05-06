@@ -654,7 +654,7 @@ GameObject:
   - component: {fileID: 136832393}
   m_Layer: 0
   m_Name: Tilemap
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15472,6 +15472,7 @@ MonoBehaviour:
   - {fileID: 6399865242554538441, guid: bb4d5d4d87f002e44a2aa46970b0cbfa, type: 3}
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: 0cdaad9b930de58499cfce321ecccdff, type: 3}
+  - {fileID: 8538949434422602325, guid: a6d41f943112ef942ba5c87c22776877, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 400758497}
 --- !u!61 &400758500
@@ -15571,6 +15572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playersActive: 2
   playersCanMove: 1
+  unlimitedBullets: 0
   player1Score: 0
   player2Score: 0
   player3Score: 0
@@ -16620,6 +16622,7 @@ MonoBehaviour:
   - {fileID: 6399865242554538441, guid: bb4d5d4d87f002e44a2aa46970b0cbfa, type: 3}
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: 0cdaad9b930de58499cfce321ecccdff, type: 3}
+  - {fileID: 8538949434422602325, guid: a6d41f943112ef942ba5c87c22776877, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 721735405}
 --- !u!58 &721735404
@@ -17534,6 +17537,7 @@ MonoBehaviour:
   - {fileID: 6399865242554538441, guid: bb4d5d4d87f002e44a2aa46970b0cbfa, type: 3}
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: 0cdaad9b930de58499cfce321ecccdff, type: 3}
+  - {fileID: 8538949434422602325, guid: a6d41f943112ef942ba5c87c22776877, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1023068225}
 --- !u!61 &1023068228
@@ -17721,7 +17725,7 @@ GameObject:
   - component: {fileID: 1115478549}
   m_Layer: 0
   m_Name: Tilemap
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -20551,6 +20555,7 @@ MonoBehaviour:
   - {fileID: 6399865242554538441, guid: bb4d5d4d87f002e44a2aa46970b0cbfa, type: 3}
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: 0cdaad9b930de58499cfce321ecccdff, type: 3}
+  - {fileID: 8538949434422602325, guid: a6d41f943112ef942ba5c87c22776877, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1315720000}
 --- !u!61 &1315720003
@@ -34176,11 +34181,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1927349438615682599, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -17.98
+      value: -12.55
       objectReference: {fileID: 0}
     - target: {fileID: 1927349438615682599, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.56
+      value: -0.12
       objectReference: {fileID: 0}
     - target: {fileID: 1927349438615682599, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_LocalPosition.z
@@ -34216,7 +34221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3863841231958471329, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: weaponName
-      value: RAILGUN
+      value: PNK-64
       objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
