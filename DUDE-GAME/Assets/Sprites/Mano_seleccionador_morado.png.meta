@@ -109,10 +109,10 @@ TextureImporter:
       name: Mano_seleccionador_morado_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 1253
-        width: 702
-        height: 483
+        x: 164
+        y: 1392
+        width: 700
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,10 +131,10 @@ TextureImporter:
       name: Mano_seleccionador_morado_1
       rect:
         serializedVersion: 2
-        x: 27
-        y: 947
-        width: 599
-        height: 403
+        x: 39
+        y: 924
+        width: 700
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -153,10 +153,10 @@ TextureImporter:
       name: Mano_seleccionador_morado_2
       rect:
         serializedVersion: 2
-        x: 16
-        y: 670
-        width: 622
-        height: 294
+        x: 74
+        y: 450
+        width: 700
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -175,7 +175,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 947ad17ba941572488c1abcbedcb1dd8
     internalID: 0
     vertices: []
     indices: 

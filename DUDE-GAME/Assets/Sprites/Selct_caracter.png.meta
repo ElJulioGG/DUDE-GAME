@@ -115,10 +115,10 @@ TextureImporter:
       name: Selct_caracter_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 1527
-        width: 376
-        height: 376
+        x: 307
+        y: 1506
+        width: 374
+        height: 374
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,10 +137,10 @@ TextureImporter:
       name: Selct_caracter_1
       rect:
         serializedVersion: 2
-        x: 435
-        y: 1635
-        width: 373
-        height: 217
+        x: 124
+        y: 1052
+        width: 700
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -159,10 +159,10 @@ TextureImporter:
       name: Selct_caracter_2
       rect:
         serializedVersion: 2
-        x: 21
-        y: 1253
-        width: 702
-        height: 381
+        x: 163
+        y: 567
+        width: 700
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -181,10 +181,10 @@ TextureImporter:
       name: Selct_caracter_3
       rect:
         serializedVersion: 2
-        x: 27
-        y: 947
-        width: 599
-        height: 403
+        x: 156
+        y: 45
+        width: 700
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -199,33 +199,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Selct_caracter_4
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 670
-        width: 622
-        height: 294
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a43eb03cb0f611cc0800000000000000
-      internalID: -3742087719060511926
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 6600a5e497696d440ab85247893bb2b3
     internalID: 0
     vertices: []
     indices: 
@@ -239,7 +217,6 @@ TextureImporter:
       Selct_caracter_1: 4938009094996174768
       Selct_caracter_2: 6531670325068860135
       Selct_caracter_3: 2125369443113583502
-      Selct_caracter_4: -3742087719060511926
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
