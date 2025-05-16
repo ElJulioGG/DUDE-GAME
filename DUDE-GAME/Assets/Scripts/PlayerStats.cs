@@ -106,7 +106,7 @@ public class PlayerStats : MonoBehaviour
     public void KillPlayer()
     {
         playerAlive = false;
-        gunHolder.DropCurrentGun();
+        gunHolder.DropCurrentWeapon();
         gameObject.SetActive(false);
 
         // Play death sound
@@ -127,10 +127,18 @@ public class PlayerStats : MonoBehaviour
         // instantiate particles
     }
 
-
+    public void ApplyKnockback(Vector2 origin, float force)
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            Vector2 knockDirection = (transform.position - (Vector3)origin).normalized;
+            rb.AddForce(knockDirection * force, ForceMode2D.Impulse);
+        }
+    }
     public void Respawn()
     {
-        gunHolder.DropCurrentGun();
+        gunHolder.DropCurrentWeapon();
         health = baseHealth;
         playerAlive = true;
         gameObject.SetActive(true);

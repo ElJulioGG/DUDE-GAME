@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class WeaponPickup : MonoBehaviour
 {
+
     public string weaponName;
     private SpriteRenderer spriteRenderer;
 

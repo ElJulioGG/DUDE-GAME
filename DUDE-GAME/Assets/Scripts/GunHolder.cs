@@ -4,18 +4,34 @@ using UnityEngine.InputSystem;
 public class GunHolder : MonoBehaviour
 {
     [SerializeField] private Transform weaponHolder;
-    [SerializeField] private GameObject[] allGuns;
+    [SerializeField] private GameObject[] allWeapons;
     [SerializeField] private GameObject dropPrefab;
     [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private GameObject defaultMeleePrefab;
 
-    private GameObject currentGun;
+    private GameObject currentWeapon;
+    private GameObject defaultMeleeWeapon;
+
+    private WeaponBase currentGunScript;
+    private MeleeWeaponBase currentMeleeScript;
+    private MeleeWeaponBase defaultMeleeScript;
+
     private WeaponPickup nearbyPickup;
-    private bool hasGun = false;
+    private bool hasWeapon = false;
     private int playerIndex;
+
     public void Start()
     {
         playerIndex = playerStats.GetPlayerIndex();
+
+        if (defaultMeleePrefab != null)
+        {
+            defaultMeleeWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+            defaultMeleeScript = defaultMeleeWeapon.GetComponent<MeleeWeaponBase>();
+            hasWeapon = false; // Start with default weapon, but don't count as "equipped"
+        }
     }
+
     public void SetPlayerIndex(int index)
     {
         playerIndex = index;
@@ -24,24 +40,6 @@ public class GunHolder : MonoBehaviour
     public int GetPlayerIndex()
     {
         return playerIndex;
-    }
-    void Update()
-    {
-        //if (Gamepad.current == null) return;
-
-        //if (Gamepad.current.buttonNorth.wasPressedThisFrame)
-        //{
-        //    //if (nearbyPickup != null && !hasGun)
-        //    //{
-        //    //    EquipGun(nearbyPickup.weaponName);
-        //    //    Destroy(nearbyPickup.gameObject);
-        //    //    nearbyPickup = null;
-        //    //}
-        //    //else if (hasGun)
-        //    //{
-        //    //    DropCurrentGun();
-        //    //}
-        //}
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -61,73 +59,95 @@ public class GunHolder : MonoBehaviour
         }
     }
 
-    private WeaponBase currentWeaponScript;
-
-    public void EquipGun(string gunName)
+    public void EquipWeapon(string weaponName)
     {
-        if (currentGun != null)
+        // Destroy current weapon
+        if (currentWeapon != null)
         {
-            Destroy(currentGun);
-            currentWeaponScript = null;
+            Destroy(currentWeapon);
         }
 
-        foreach (GameObject gunPrefab in allGuns)
+        currentWeapon = null;
+        currentGunScript = null;
+        currentMeleeScript = null;
+
+        foreach (GameObject weaponPrefab in allWeapons)
         {
-            if (gunPrefab.name == gunName)
+            if (weaponPrefab.name == weaponName)
             {
-                currentGun = Instantiate(gunPrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
-                currentWeaponScript = currentGun.GetComponent<WeaponBase>();
-                hasGun = true;
+                currentWeapon = Instantiate(weaponPrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+                currentGunScript = currentWeapon.GetComponent<WeaponBase>();
+                currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
+
+                hasWeapon = true;
+
+                if (defaultMeleeWeapon != null) defaultMeleeWeapon.SetActive(false);
                 return;
             }
         }
 
-        Debug.LogWarning("Gun not found: " + gunName);
+        Debug.LogWarning("Weapon not found: " + weaponName);
     }
 
-
-
-    public void DropCurrentGun()
+    public void DropCurrentWeapon()
     {
-        if (currentGun == null) return;
+        if (currentWeapon == null) return;
 
         GameObject drop = Instantiate(dropPrefab, transform.position, Quaternion.identity);
-        drop.GetComponent<WeaponPickup>().weaponName = currentGun.name.Replace("(Clone)", "").Trim();
+        drop.GetComponent<WeaponPickup>().weaponName = currentWeapon.name.Replace("(Clone)", "").Trim();
 
-        Destroy(currentGun);
-        currentGun = null;
-        currentWeaponScript = null;
-        hasGun = false;
+        Destroy(currentWeapon);
+        currentWeapon = null;
+        currentGunScript = null;
+        currentMeleeScript = null;
+        hasWeapon = false;
+
+        if (defaultMeleeWeapon != null) defaultMeleeWeapon.SetActive(true);
     }
 
     public void HandlePickDrop()
     {
-        if (nearbyPickup != null && !hasGun)
+        if (nearbyPickup != null && !hasWeapon)
         {
-            EquipGun(nearbyPickup.weaponName);
+            EquipWeapon(nearbyPickup.weaponName);
             Destroy(nearbyPickup.gameObject);
             nearbyPickup = null;
         }
-        else if (hasGun)
+        else if (hasWeapon)
         {
-            DropCurrentGun();
+            DropCurrentWeapon();
         }
     }
 
     public void HandleShoot()
     {
-        if (hasGun && currentWeaponScript != null)
+       
+        if (hasWeapon)
         {
-            currentWeaponScript.Shoot();
+            if (currentGunScript != null)
+                currentGunScript.Shoot();
+            else if (currentMeleeScript != null)
+                currentMeleeScript.Attack();
+        }
+        else if (defaultMeleeScript != null)
+        {
+            defaultMeleeScript.Attack();
+            
         }
     }
+
     public void SetAimDirection(Vector2 direction)
     {
-        if (hasGun && currentWeaponScript != null)
+        if (hasWeapon)
         {
-            currentWeaponScript.SetAimDirection(direction);
+            if (currentGunScript != null)
+                currentGunScript.SetAimDirection(direction);
+            else if (currentMeleeScript != null)
+                currentMeleeScript.SetAimDirection(direction);
+        }
+        else if (defaultMeleeScript != null)
+        {
+            defaultMeleeScript.SetAimDirection(direction);
         }
     }
-
 }
-
