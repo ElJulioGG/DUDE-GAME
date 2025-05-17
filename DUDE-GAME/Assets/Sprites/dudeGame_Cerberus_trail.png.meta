@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 63ac31e6ce434d8429aff459cdfda832
+guid: 31cd5542d60242e42b50f0cbcb39c197
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8356373866930346531
-    second: dudeGame_Shotty_0
+      213: 1819384647062756300
+    second: dudeGame_Cerberus_trail_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dudeGame_Shotty_0
+      name: dudeGame_Cerberus_trail_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 32a9dbc02cdc7f370800000000000000
-      internalID: 8356373866930346531
+      spriteID: ccb99fd62b0cf3910800000000000000
+      internalID: 1819384647062756300
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2c30286b06d2574408b8bd1c73eeefd4
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dudeGame_Shotty_0: 8356373866930346531
+      dudeGame_Cerberus_trail_0: 1819384647062756300
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 63ac31e6ce434d8429aff459cdfda832
+guid: 94b53893920f4624daab59d5572ae40d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8356373866930346531
-    second: dudeGame_Shotty_0
+      213: 2033128021411578896
+    second: dudeGame_Shotty_muzzleFlash-Sheet_0
+  - first:
+      213: -5216203543860295826
+    second: dudeGame_Shotty_muzzleFlash-Sheet_1
+  - first:
+      213: 6520025270348382920
+    second: dudeGame_Shotty_muzzleFlash-Sheet_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +106,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dudeGame_Shotty_0
+      name: dudeGame_Shotty_muzzleFlash-Sheet_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +121,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 32a9dbc02cdc7f370800000000000000
-      internalID: 8356373866930346531
+      spriteID: 014412bd92f173c10800000000000000
+      internalID: 2033128021411578896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dudeGame_Shotty_muzzleFlash-Sheet_1
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e67c21473825c97b0800000000000000
+      internalID: -5216203543860295826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dudeGame_Shotty_muzzleFlash-Sheet_2
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c28fa55078cb7a50800000000000000
+      internalID: 6520025270348382920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dudeGame_Shotty_muzzleFlash-Sheet_3
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f51a46189df12146b14c346a5e9af17
+      internalID: -1663716457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dudeGame_Shotty_muzzleFlash-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56ca1986f7708634ba8adecf80c5e4d1
+      internalID: -832222591
       vertices: []
       indices: 
       edges: []
@@ -125,7 +219,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2c30286b06d2574408b8bd1c73eeefd4
+    spriteID: 2556a3c261cc34541a4e56ab6540f6ba
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +229,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dudeGame_Shotty_0: 8356373866930346531
+      dudeGame_Shotty_muzzleFlash-Sheet_0: 2033128021411578896
+      dudeGame_Shotty_muzzleFlash-Sheet_1: -5216203543860295826
+      dudeGame_Shotty_muzzleFlash-Sheet_2: 6520025270348382920
+      dudeGame_Shotty_muzzleFlash-Sheet_3: -1663716457
+      dudeGame_Shotty_muzzleFlash-Sheet_4: -832222591
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

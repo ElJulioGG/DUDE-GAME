@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 63ac31e6ce434d8429aff459cdfda832
+guid: 7e4a8e9a20314d34b8ac05e7a2c2e595
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8356373866930346531
-    second: dudeGame_Shotty_0
+      213: 1672381779584683679
+    second: dudeGame_Shotty_projectile_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dudeGame_Shotty_0
+      name: dudeGame_Shotty_projectile_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 32a9dbc02cdc7f370800000000000000
-      internalID: 8356373866930346531
+      spriteID: f9e0bfc2e5e753710800000000000000
+      internalID: 1672381779584683679
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2c30286b06d2574408b8bd1c73eeefd4
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dudeGame_Shotty_0: 8356373866930346531
+      dudeGame_Shotty_projectile_0: 1672381779584683679
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

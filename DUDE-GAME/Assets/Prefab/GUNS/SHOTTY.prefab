@@ -49,7 +49,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &783369277242311845
 Transform:
   m_ObjectHideFlags: 0
@@ -218,7 +218,7 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 12
   m_Positions:
-  - {x: 0.58, y: 0.03, z: 0}
+  - {x: 1, y: 0.03, z: 0}
   - {x: 100, y: 0.03, z: 0}
   m_Parameters:
     serializedVersion: 3
@@ -305,8 +305,8 @@ Transform:
   m_GameObject: {fileID: 5448007885926064059}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.2, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -1.04, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2171421485812704368}
@@ -355,7 +355,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 11
-  m_Sprite: {fileID: 21300000, guid: c447b9b5bf750f84fa61113c7d6a42f5, type: 3}
+  m_Sprite: {fileID: 8356373866930346531, guid: 63ac31e6ce434d8429aff459cdfda832, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -378,7 +378,7 @@ GameObject:
   - component: {fileID: 6416827050617152962}
   - component: {fileID: 763402597776261362}
   m_Layer: 0
-  m_Name: RAILGUN
+  m_Name: SHOTTY
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -445,7 +445,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 11
-  m_Sprite: {fileID: 21300000, guid: c447b9b5bf750f84fa61113c7d6a42f5, type: 3}
+  m_Sprite: {fileID: 8356373866930346531, guid: 63ac31e6ce434d8429aff459cdfda832, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
