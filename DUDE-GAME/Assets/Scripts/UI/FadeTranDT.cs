@@ -13,10 +13,16 @@ public class FadeTranDT : MonoBehaviour
     [Header("GameObject a desactivar")]
     public GameObject image;
 
+    public GameObject volumen;
+    public GameObject music;
+    public GameObject particles;
     void Start()
     {
         // Fade hacia transparencia (0 = invisible)
         FadeOut();
+        volumen.SetActive(false);
+        music.SetActive(false);
+        particles.SetActive(false);
     }
 
     public void FadeOut()
@@ -25,6 +31,10 @@ public class FadeTranDT : MonoBehaviour
         {
             image.SetActive(false);
         });
+        volumen.SetActive(true);
+        music.SetActive(true);
+        particles.SetActive(true);
+
     }
 
     public void FadeIn()
