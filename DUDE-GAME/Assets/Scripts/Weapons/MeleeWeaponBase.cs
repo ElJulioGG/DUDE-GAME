@@ -4,6 +4,7 @@ public class MeleeWeaponBase : MonoBehaviour
 {
     [SerializeField] private GameObject hitbox;
     [SerializeField] private float activeTime = 0.1f;
+    [SerializeField] private float recoveryTime = 0.3f;  // New recovery time after attack
 
     private bool isAttacking = false;
     private Vector2 aimDirection = Vector2.right;
@@ -16,10 +17,9 @@ public class MeleeWeaponBase : MonoBehaviour
 
     public void Attack()
     {
-        print("player Atacking");
         if (!isAttacking)
         {
-            StartCoroutine(ActivateHitbox());
+            StartCoroutine(AttackRoutine());
         }
     }
 
@@ -40,14 +40,22 @@ public class MeleeWeaponBase : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator ActivateHitbox()
+    private System.Collections.IEnumerator AttackRoutine()
     {
         isAttacking = true;
-        hitbox.SetActive(true);
+
+        // Activate hitbox for the active time
+        if (hitbox != null)
+            hitbox.SetActive(true);
 
         yield return new WaitForSeconds(activeTime);
 
-        hitbox.SetActive(false);
+        if (hitbox != null)
+            hitbox.SetActive(false);
+
+        // Recovery time before you can attack again
+        yield return new WaitForSeconds(recoveryTime);
+
         isAttacking = false;
     }
 }

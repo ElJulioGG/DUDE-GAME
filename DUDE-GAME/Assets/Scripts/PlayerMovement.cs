@@ -7,7 +7,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private PlayerStats playerStats;
 
-    private Vector2 moveInput;
+    public Vector2 moveInput;
     private Rigidbody2D rb;
     private int playerIndex;
 

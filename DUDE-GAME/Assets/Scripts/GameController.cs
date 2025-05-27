@@ -114,9 +114,9 @@ public void AssignPlayerPositions()
             if (i == UIIntroObjects.Length - 1)
             {
                 SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
-                if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
+                if (!SoundFXManager.instance.IsSoundPlaying("BattleTheme"))
                 {
-                    SoundFXManager.instance.PlaySoundByName("BattleLoop", transform, 0.1f, 1f,true);
+                    SoundFXManager.instance.PlaySoundByName("BattleTheme", transform, 0.5f, 1f,true);
                 }
                
                 GameManager.instance.playersCanMove = true;

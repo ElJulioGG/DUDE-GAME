@@ -22,7 +22,7 @@ public class PowerUpTrigger : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             PlayerStats player = collision.GetComponent<PlayerStats>();
-           SoundFXManager.instance.PlaySoundByName("PickupPowerUp", transform, 1f, 1f);
+           SoundFXManager.instance.PlaySoundByName("PickupPowerUp", transform, 0.5f, 1f);
             switch (player.playerIndex)
             {
                 case 0:

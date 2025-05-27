@@ -652,3 +652,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitbox: {fileID: 4437262458328701386}
   activeTime: 0.2
+  recoveryTime: 0.4
