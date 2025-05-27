@@ -23,7 +23,7 @@ public class SmashCSS : MonoBehaviour {
     public Transform playerSlotsContainer;
     [Space]
     [Header("Current Confirmed Character")]
-    public Character confirmedCharacter;
+    public Character[] confirmedCharacters = new Character[4];
 
     private void Awake()
     {
@@ -108,10 +108,10 @@ public class SmashCSS : MonoBehaviour {
 
     public void ConfirmCharacter(int player, Character character)
     {
-        if (confirmedCharacter == null)
+        if (confirmedCharacters[player] == null)
         {
-            confirmedCharacter = character;
-            playerSlotsContainer.GetChild(player).DOPunchPosition(Vector3.down * 3, .3f, 10,1);
+            confirmedCharacters[player] = character;
+            playerSlotsContainer.GetChild(player).DOPunchPosition(Vector3.down * 3, .3f, 10, 1);
         }
     }
 
@@ -120,6 +120,12 @@ public class SmashCSS : MonoBehaviour {
         Vector2 pixelSize = new Vector2(sprite.texture.width, sprite.texture.height);
         Vector2 pixelPivot = sprite.pivot;
         return new Vector2(pixelPivot.x / pixelSize.x, pixelPivot.y / pixelSize.y);
+    }
+
+    public void ClearConfirmedCharacter(int player)
+    {
+        confirmedCharacters[player] = null;
+        ShowCharacterInSlot(player, null);
     }
 
 }

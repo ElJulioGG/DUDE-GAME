@@ -14,12 +14,15 @@ public class CursorDetection : MonoBehaviour {
 
     public Transform token;
     public bool hasToken;
-
-	void Start () {
+    [Header("Player Index")]
+    public int playerIndex; // <-- Nuevo
+    void Start () {
 
         gr = GetComponentInParent<GraphicRaycaster>();
 
-        SmashCSS.instance.ShowCharacterInSlot(0, null);
+        //SmashCSS.instance.ShowCharacterInSlot(0, null);
+        SmashCSS.instance.ShowCharacterInSlot(playerIndex, null); // <-- Usar índice correcto
+
 
     }
 
@@ -31,14 +34,16 @@ public class CursorDetection : MonoBehaviour {
             if (currentCharacter != null)
             {
                 TokenFollow(false);
-                SmashCSS.instance.ConfirmCharacter(0, SmashCSS.instance.characters[currentCharacter.GetSiblingIndex()]);
+                //SmashCSS.instance.ConfirmCharacter(0, SmashCSS.instance.characters[currentCharacter.GetSiblingIndex()]);
+                SmashCSS.instance.ConfirmCharacter(playerIndex, SmashCSS.instance.characters[currentCharacter.GetSiblingIndex()]);
+
             }
         }
 
         //CANCEL
         if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.JoystickButton2))
         {
-            SmashCSS.instance.confirmedCharacter = null;
+            SmashCSS.instance.ClearConfirmedCharacter(playerIndex);
             TokenFollow(true);
         }
 
@@ -61,8 +66,8 @@ public class CursorDetection : MonoBehaviour {
                 {
                     if (currentCharacter != null)
                     {
-                        currentCharacter.Find("selectedBorder").GetComponent<Image>().DOKill();
                         currentCharacter.Find("selectedBorder").GetComponent<Image>().color = Color.clear;
+
                     }
                     SetCurrentCharacter(raycastCharacter);
                 }
@@ -71,7 +76,6 @@ public class CursorDetection : MonoBehaviour {
             {
                 if (currentCharacter != null)
                 {
-                    currentCharacter.Find("selectedBorder").GetComponent<Image>().DOKill();
                     currentCharacter.Find("selectedBorder").GetComponent<Image>().color = Color.clear;
                     SetCurrentCharacter(null);
                 }
@@ -86,7 +90,7 @@ public class CursorDetection : MonoBehaviour {
         if(t != null)
         {
             t.Find("selectedBorder").GetComponent<Image>().color = Color.white;
-            t.Find("selectedBorder").GetComponent<Image>().DOColor(Color.red, .7f).SetLoops(-1);
+
         }
 
         currentCharacter = t;
@@ -96,10 +100,12 @@ public class CursorDetection : MonoBehaviour {
             int index = t.GetSiblingIndex();
             Character character = SmashCSS.instance.characters[index];
             SmashCSS.instance.ShowCharacterInSlot(0, character);
+            SmashCSS.instance.ShowCharacterInSlot(playerIndex, character); // <-- Jugador correcto
+
         }
         else
         {
-            SmashCSS.instance.ShowCharacterInSlot(0, null);
+            SmashCSS.instance.ShowCharacterInSlot(playerIndex, null);
         }
     }
 
