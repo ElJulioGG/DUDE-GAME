@@ -108,6 +108,7 @@ public class SmashCSS : MonoBehaviour {
 
     public void ConfirmCharacter(int player, Character character)
     {
+        // Previene doble confirmación o sobrescritura
         if (confirmedCharacters[player] == null)
         {
             confirmedCharacters[player] = character;
