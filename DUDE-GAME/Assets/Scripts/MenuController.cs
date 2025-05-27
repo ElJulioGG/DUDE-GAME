@@ -36,14 +36,21 @@ public class MenuController : MonoBehaviour
 
     private void OnCancel()
     {
-        if (RootCanvas.enabled && RootCanvas.gameObject.activeInHierarchy)
+        if (RootCanvas.enabled && RootCanvas.gameObject.activeInHierarchy && PageStack.Count > 0)
         {
-            if (PageStack.Count != 0)
+            Page currentPage = PageStack.Peek();
+
+            if (currentPage.CanBeCancelled)
             {
                 PopPage();
             }
+            else
+            {
+                Debug.Log("Escape no está permitido en esta página.");
+            }
         }
     }
+
 
     public bool IsPageInStack(Page Page)
     {

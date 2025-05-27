@@ -37,6 +37,11 @@ public class Page : MonoBehaviour
     private Coroutine AnimationCoroutine;
     private Coroutine AudioCoroutine;
 
+    [SerializeField]
+    private bool AllowCancel = true; // Por defecto true
+
+    public bool CanBeCancelled => AllowCancel;
+
     private void Awake()
     {
         RectTransform = GetComponent<RectTransform>();
