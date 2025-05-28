@@ -305,7 +305,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.3, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 814309487789897919}
@@ -394,7 +394,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2171421485812704368}
   - {fileID: 4254540354618944796}
@@ -470,7 +470,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 3914717485759597175, guid: 9f592ef3cd3ad0042908a21c1ef8af89, type: 3}
   firePoint: {fileID: 2171421485812704368}
-  shootCooldown: 0.2
+  shootCooldown: 0.05
+  fullAutoMode: 1
+  autoFireRate: 0.1
   recoilForce: 5
-  maxAmmo: 15
+  clipSize: 30
+  totalAmmo: 100
   reloadTime: 2
+  shownCurrentAmmo: 0
+  aimSight: {fileID: 0}
+  sniperSights: 0
+  reloadFillImage: {fileID: 0}
+  ammoText: {fileID: 0}

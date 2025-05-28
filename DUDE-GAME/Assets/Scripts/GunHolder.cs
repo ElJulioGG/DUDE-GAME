@@ -51,11 +51,22 @@ public class GunHolder : MonoBehaviour
 
     void Update()
     {
-        // Track last movement direction
+
+
+        // Track last movement direction with a deadzone threshold
         PlayerMovement movement = GetComponent<PlayerMovement>();
-        if (movement != null && movement.moveInput.sqrMagnitude > 0.01f)
+        if (movement != null)
         {
-            lastMovementDirection = movement.moveInput.normalized;
+            // Use a larger threshold (0.1f instead of 0.01f)
+            if (movement.moveInput.sqrMagnitude > 0.1f) // 0.1f * 0.1f = 0.01
+            {
+                lastMovementDirection = movement.moveInput.normalized;
+            }
+            else
+            {
+                // Explicitly set to zero when below threshold
+                lastMovementDirection = Vector2.zero;
+            }
         }
 
         if (pickDropRequested)
@@ -134,13 +145,20 @@ public class GunHolder : MonoBehaviour
 
         string weaponName = currentWeapon.name.Replace("(Clone)", "").Trim();
 
-        // Get player movement direction (Vector2.zero if idle)
-        Vector2 moveDir = lastMovementDirection;
-
-        // Calculate spawn position
+        // Calculate spawn position based on movement
         Vector3 spawnPosition = transform.position;
-        if (moveDir != Vector2.zero)
-            spawnPosition += (Vector3)moveDir;
+        float dropDistance = 1f; // 1 unit away when throwing
+
+        // Check if player is moving (use a small threshold)
+        bool isMoving = lastMovementDirection.sqrMagnitude > 0.01f;
+        print(isMoving);
+
+        if (isMoving)
+        {
+            // Drop 1 unit away in movement direction
+            spawnPosition += (Vector3)lastMovementDirection.normalized * dropDistance;
+        }
+        // Else: keep spawnPosition at player's position
 
         // Instantiate the drop
         GameObject drop = Instantiate(dropPrefab, spawnPosition, Quaternion.identity);
@@ -155,16 +173,54 @@ public class GunHolder : MonoBehaviour
         WeaponPickup pickup = drop.GetComponent<WeaponPickup>();
         pickup.weaponName = weaponName;
 
-        pickup.Throw(moveDir); // Will internally skip if direction is near-zero
+        // Only throw with force if player was moving
+        if (isMoving)
+        {
+            pickup.Throw(lastMovementDirection);
+        }
+        else
+        {
+            // Just drop in place (no throw force)
+            pickup.Throw(Vector2.zero);
+        }
 
-        // Destroy equipped weapon
+        // Clean up current weapon
         Destroy(currentWeapon);
         currentWeapon = null;
         currentGunScript = null;
         currentMeleeScript = null;
         hasWeapon = false;
 
-        // Re-instantiate melee
+        // Give back default melee
+        if (defaultMeleePrefab != null)
+        {
+            currentWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+            currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
+            currentGunScript = null;
+            activeWeapon = "melee";
+            currentMeleeScript?.SetAimDirection(lastAimDirection);
+        }
+    }
+    public void DestroyCurrentWeapon()
+    {
+        // Don't destroy if it's the default melee weapon
+        if (currentWeapon != null && activeWeapon == "melee")
+        {
+            return;
+        }
+
+        // Proceed with destruction
+        if (currentWeapon != null)
+        {
+            Destroy(currentWeapon);
+            currentWeapon = null;
+            currentGunScript = null;
+            currentMeleeScript = null;
+            hasWeapon = false;
+            activeWeapon = "no weapon";
+        }
+
+        // Always ensure player has the default melee
         if (defaultMeleePrefab != null)
         {
             currentWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
@@ -176,7 +232,6 @@ public class GunHolder : MonoBehaviour
                 currentMeleeScript.SetAimDirection(lastAimDirection);
         }
     }
-
     public void HandlePickDrop()
     {
         if (nearbyPickup != null && !hasWeapon)
@@ -197,9 +252,22 @@ public class GunHolder : MonoBehaviour
         if (currentWeapon != null)
         {
             if (currentGunScript != null)
-                currentGunScript.Shoot();
+            {
+                // Change this to use the new firing methods
+                currentGunScript.StartFiring();
+            }
             else if (currentMeleeScript != null)
+            {
                 currentMeleeScript.Attack();
+            }
+        }
+    }
+
+    public void HandleStopShoot()
+    {
+        if (currentGunScript != null)
+        {
+            currentGunScript.StopFiring();
         }
     }
 

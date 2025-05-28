@@ -4,7 +4,9 @@ using UnityEngine;
 public class BulletBounce : MonoBehaviour
 {
     private Rigidbody2D rb;
+    [SerializeField] int life =10;
 
+    private Vector2 direction;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -14,15 +16,16 @@ public class BulletBounce : MonoBehaviour
     {
         if (collision.collider.CompareTag("Wall"))
         {
-            ContactPoint2D contact = collision.contacts[0];
+            life--;
+            if (life < 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            var firstContactPoint = collision.contacts[0];
+            //Vector2 newVelocity = Vector2.Reflect(Direction.normalized, firstContactPoint.normal);
             Vector2 inDirection = rb.linearVelocity;
-            Vector2 normal = contact.normal;
-            Vector2 reflectedVelocity = Vector2.Reflect(inDirection, normal);
-
-            rb.linearVelocity = reflectedVelocity;
-
-            // Optional: preserve speed
-            rb.linearVelocity = reflectedVelocity.normalized * inDirection.magnitude;
+            
         }
     }
 }

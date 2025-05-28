@@ -54,11 +54,11 @@ public class WeaponPickup : MonoBehaviour
         if (physicsCollider == null) return;
 
         float speed = rb.linearVelocity.magnitude;
-        if (speed <= 0.01f && physicsCollider.enabled)
+        if (speed <= minDamageSpeed && physicsCollider.enabled)
         {
             physicsCollider.enabled = false;
         }
-        else if (speed > 0.01f && !physicsCollider.enabled)
+        else if (speed > minDamageSpeed && !physicsCollider.enabled)
         {
             physicsCollider.enabled = true;
         }

@@ -152,7 +152,7 @@ MonoBehaviour:
   weaponName: 
   throwSpeed: 15
   minDamageSpeed: 3
-  damageOnHit: 30
+  damageOnHit: 50
 --- !u!50 &8348218537433058530
 Rigidbody2D:
   serializedVersion: 5

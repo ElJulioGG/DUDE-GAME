@@ -1,48 +1,46 @@
 using UnityEngine;
-using UnityEngine.VFX;
 
 public class WeaponBox : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     [SerializeField] private GameObject[] weaponPickups;
     [SerializeField] private bool random = false;
     [SerializeField] private int selectedWeapon = 0;
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    private bool isBroken = false; // Flag to prevent multiple breaks
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Bullet")|| collision.CompareTag("Melee"))
-        {
-            spawnWeapon();
-            destroyBox();
-        }
+        // Early exit conditions
+        if (isBroken) return;
+        if (!collision.CompareTag("Bullet") && !collision.CompareTag("Melee")) return;
+
+        BreakBox();
     }
-    private void spawnWeapon()
+
+    private void BreakBox()
     {
-        if (random)
-        {
-            int randomWeapon = Random.Range(0, weaponPickups.Length);
-            GameObject weapon = Instantiate(weaponPickups[randomWeapon], transform.position, Quaternion.identity);
-            weapon.transform.SetParent(null);
-        }
-        else
-        {
-            GameObject weapon = Instantiate(weaponPickups[selectedWeapon], transform.position, Quaternion.identity);
-            weapon.transform.SetParent(null);
-        }
+        isBroken = true; // Set flag first to prevent re-entry
+
+        SpawnWeapon();
+        DestroyBox();
     }
-    private void destroyBox()
+
+    private void SpawnWeapon()
     {
-        //Intantiate box particles
-        SoundFXManager.instance.PlaySoundByName("BoxBreak",transform,1,1,false);
+        int weaponIndex = random ? Random.Range(0, weaponPickups.Length) : selectedWeapon;
+
+        if (weaponPickups.Length == 0 || weaponPickups[weaponIndex] == null)
+        {
+            Debug.LogError("Missing weapon pickup prefab!", this);
+            return;
+        }
+
+        Instantiate(weaponPickups[weaponIndex], transform.position, Quaternion.identity);
+    }
+
+    private void DestroyBox()
+    {
+        SoundFXManager.instance?.PlaySoundByName("BoxBreak", transform, 0.5f, 1, false);
         Destroy(gameObject);
     }
 }

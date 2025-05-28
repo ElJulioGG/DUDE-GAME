@@ -87,9 +87,15 @@ public class PlayerInputHandler : MonoBehaviour
     }
     public void OnShoot(InputAction.CallbackContext context)
     {
-        if (context.performed && gunHolder != null)
+        if (gunHolder == null) return;
+
+        if (context.performed)
         {
-            gunHolder.HandleShoot();
+            gunHolder.HandleShoot(); // Called on press
+        }
+        else if (context.canceled)
+        {
+            gunHolder.HandleStopShoot(); // Called on release
         }
     }
     public void OnReload(InputAction.CallbackContext context)

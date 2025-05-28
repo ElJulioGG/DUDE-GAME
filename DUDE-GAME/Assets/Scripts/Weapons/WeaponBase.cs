@@ -9,43 +9,73 @@ public class WeaponBase : MonoBehaviour
     public float shootCooldown = 0.25f;
     private float lastShootTime;
 
+
+    [Header("Recoil")]
     [SerializeField] private float recoilForce = 5f;
 
     [Header("Ammo Settings")]
     [SerializeField] private int clipSize = 10;
-    [SerializeField] private int totalAmmo = 30; // Max overall ammo
+    [SerializeField] private int totalAmmo = 30;
     [SerializeField] private float reloadTime = 2f;
     private int currentAmmo;
     private bool isReloading = false;
     [SerializeField] private int shownCurrentAmmo;
     private Vector2 aimDirection = Vector2.right;
 
-    [Header("Aim Sight Settings")]
+    [Header("Aim Sight")]
     [SerializeField] private GameObject aimSight;
     [SerializeField] private bool sniperSights = false;
 
     [Header("UI")]
-    [SerializeField] private Image reloadFillImage; // Reference to UI fill image
+    [SerializeField] private Image reloadFillImage;
+    [SerializeField] private Text ammoText; // Optional ammo counter
+    [Header("Firing Mode")]
+    [SerializeField] private bool fullAutoMode = false;
+    [SerializeField] private float autoFireRate = 0.1f;
+    private bool isFiring = false;
+    private float nextShotTime = 0f;
 
+    public void StartFiring()
+    {
+        isFiring = true;
+        if (!fullAutoMode) Shoot(); // Single-shot fires immediately
+    }
+
+    public void StopFiring()
+    {
+        isFiring = false;
+    }
+
+    void Update()
+    {
+       // UpdateAimSight();
+
+       
+
+        // Update ammo UI
+        if (ammoText != null)
+        {
+            ammoText.text = $"{shownCurrentAmmo}/{totalAmmo}";
+        }
+        if (isFiring && fullAutoMode && Time.time >= nextShotTime)
+        {
+            Shoot();
+            nextShotTime = Time.time + autoFireRate;
+        }
+    }
     private void OnEnable()
     {
         UpdateAimSight();
-
-        if (reloadFillImage != null)
-        {
-            reloadFillImage.fillAmount = 0f;
-            reloadFillImage.gameObject.SetActive(false);
-        }
-    }
-    private void Start()
-    {
-     
         InitializeWeapon();
     }
-    private void Update()
+
+    private void Start()
     {
-        UpdateAimSight();
+        playerRb = GetComponentInParent<Rigidbody2D>();
+        InitializeWeapon();
     }
+
+   
 
     public void InitializeWeapon()
     {
@@ -74,24 +104,22 @@ public class WeaponBase : MonoBehaviour
         }
     }
 
+    private void TryShoot()
+    {
+        if (CanShoot()) Shoot();
+    }
+
+    private bool CanShoot()
+    {
+        return !isReloading &&
+               Time.time >= lastShootTime + shootCooldown &&
+               currentAmmo > 0;
+    }
+
     public virtual void Shoot()
     {
-        if (isReloading || Time.time < lastShootTime + shootCooldown) return;
-
-        if (currentAmmo <= 0)
-        {
-            if (totalAmmo > 0)
-            {
-                StartCoroutine(Reload());
-            }
-            else
-            {
-                Debug.Log("Out of total ammo!");
-            }
-            return;
-        }
-
         lastShootTime = Time.time;
+        nextShotTime = Time.time + autoFireRate;
 
         if (!GameManager.instance.unlimitedBullets)
         {
@@ -100,16 +128,21 @@ public class WeaponBase : MonoBehaviour
             shownCurrentAmmo = currentAmmo;
         }
 
+        // Spawn bullet
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        Quaternion bulletRotation = Quaternion.Euler(0, 0, angle);
-
-        Instantiate(bulletPrefab, firePoint.position, bulletRotation);
+        Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, angle));
         SoundFXManager.instance.PlaySoundByName("RailGunShot", transform, 0.5f, 1.1f);
 
-        playerRb = GetComponentInParent<Rigidbody2D>();
+        // Recoil
         if (playerRb != null)
         {
             playerRb.AddForce(-aimDirection * recoilForce, ForceMode2D.Impulse);
+        }
+
+        // Auto-reload if empty
+        if (currentAmmo <= 0 && totalAmmo > 0)
+        {
+            StartCoroutine(Reload());
         }
     }
 
@@ -117,8 +150,6 @@ public class WeaponBase : MonoBehaviour
     {
         isReloading = true;
         UpdateAimSight();
-
-        Debug.Log("Reloading...");
 
         if (reloadFillImage != null)
         {
@@ -130,40 +161,39 @@ public class WeaponBase : MonoBehaviour
         while (timer < reloadTime)
         {
             timer += Time.deltaTime;
-            float fill = timer / reloadTime;
-
             if (reloadFillImage != null)
             {
-                reloadFillImage.fillAmount = fill;
+                reloadFillImage.fillAmount = timer / reloadTime;
             }
-
             yield return null;
         }
 
-        int bulletsToLoad = Mathf.Min(clipSize, totalAmmo);
-        currentAmmo = bulletsToLoad;
+        currentAmmo = Mathf.Min(clipSize, totalAmmo);
         shownCurrentAmmo = currentAmmo;
         isReloading = false;
-
-        Debug.Log("Reloaded!");
-        UpdateAimSight();
 
         if (reloadFillImage != null)
         {
             reloadFillImage.fillAmount = 0f;
             reloadFillImage.gameObject.SetActive(false);
         }
+
+        UpdateAimSight();
     }
 
     private void UpdateAimSight()
     {
         if (aimSight == null) return;
-
-        bool canShowSight = sniperSights && !isReloading && (Time.time >= lastShootTime + shootCooldown);
-        aimSight.SetActive(canShowSight);
+        bool canShow = sniperSights && !isReloading && (Time.time >= lastShootTime + shootCooldown);
+        aimSight.SetActive(canShow);
     }
 
+    // Public getters
     public int GetCurrentAmmo() => currentAmmo;
     public int GetTotalAmmo() => totalAmmo;
     public bool IsReloading() => isReloading;
+    public bool IsFullAuto() => fullAutoMode;
+
+    // Call this to toggle fire mode
+    public void ToggleFireMode() => fullAutoMode = !fullAutoMode;
 }

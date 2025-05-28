@@ -29,7 +29,7 @@ public class PlayerStats : MonoBehaviour
 
     public IEnumerator AddPointsAfterDelay(int pointsToAdd)
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(1.5f);
 
         if (!playerAlive)
         {
@@ -67,7 +67,7 @@ public class PlayerStats : MonoBehaviour
         if (!playerAlive) return;
 
         health -= damageAmount;
-        SoundFXManager.instance.PlaySoundByName("PlayerHit", transform, 1f, 0.8f);
+        SoundFXManager.instance.PlaySoundByName("NoPowerUp", transform, 1f, 0.8f);
         if (health <= 0 && playerAlive)
         {
             KillPlayer();
@@ -138,7 +138,7 @@ public class PlayerStats : MonoBehaviour
     }
     public void Respawn()
     {
-        gunHolder.DropCurrentWeapon();
+        gunHolder.DestroyCurrentWeapon();
         health = baseHealth;
         playerAlive = true;
         gameObject.SetActive(true);

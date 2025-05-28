@@ -6,6 +6,7 @@ public class MeleeWeaponBase : MonoBehaviour
     [SerializeField] private float activeTime = 0.1f;
     [SerializeField] private float recoveryTime = 0.3f;  // New recovery time after attack
 
+
     private bool isAttacking = false;
     private Vector2 aimDirection = Vector2.right;
 
