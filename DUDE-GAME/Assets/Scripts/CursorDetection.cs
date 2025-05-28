@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine.InputSystem;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -13,18 +14,20 @@ public class CursorDetection : MonoBehaviour
 
     [Header("Player Index")]
     public int playerIndex;
+    private PlayerInput playerInput;
 
     void Start()
     {
         gr = GetComponentInParent<GraphicRaycaster>();
         pointerEventData = new PointerEventData(EventSystem.current);
         SmashCSS.instance.ShowCharacterInSlot(playerIndex, null);
+        playerInput = GetComponent<PlayerInput>();
+
     }
 
     void Update()
     {
-        // Confirmar selección
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.JoystickButton1))
+        if (playerInput.actions["Accept"].triggered)
         {
             if (currentCharacter != null)
             {
@@ -34,12 +37,12 @@ public class CursorDetection : MonoBehaviour
             }
         }
 
-        // Cancelar selección
-        if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.JoystickButton2))
+        if (playerInput.actions["Cancel"].triggered)
         {
             SmashCSS.instance.ClearConfirmedCharacter(playerIndex);
             TokenFollow(true);
         }
+
 
         // Mover token con el cursor
         if (hasToken)

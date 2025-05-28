@@ -119,7 +119,7 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
+                    "name": "Left",
                     "id": "15114fc1-8978-4e17-9ff9-3b309d183892",
                     "path": "<Gamepad>/dpad/y",
                     "interactions": "",
