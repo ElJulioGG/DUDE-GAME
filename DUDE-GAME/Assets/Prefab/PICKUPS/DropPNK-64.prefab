@@ -149,6 +149,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponName: PNK-64
+  savedClipAmmo: -1
+  savedReserveAmmo: -1
   throwSpeed: 15
   minDamageSpeed: 3
   damageOnHit: 30
@@ -168,7 +170,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: d0e9ed26d6fbe93428e583913d05091f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

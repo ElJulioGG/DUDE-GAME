@@ -75,7 +75,7 @@
                 {
                     "name": "up",
                     "id": "2a658a86-4537-4698-b926-a82e2770fc13",
-                    "path": "<Gamepad>/dpad/up",
+                    "path": "<Gamepad>/leftStick/up",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -141,7 +141,7 @@
                 {
                     "name": "down",
                     "id": "57ff5179-950d-48e5-8d91-93be2e69de38",
-                    "path": "<Gamepad>/dpad/y",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

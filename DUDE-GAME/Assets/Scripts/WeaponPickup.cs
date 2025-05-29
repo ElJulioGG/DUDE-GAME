@@ -8,6 +8,11 @@ public class WeaponPickup : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
 
+    //public GameObject weaponPrefab;
+
+    // Estas variables guardan el estado de munición
+    public int savedClipAmmo = -1;
+    public int savedReserveAmmo = -1;
 
     [Header("Throw Settings")]
     public float throwSpeed = 10f;

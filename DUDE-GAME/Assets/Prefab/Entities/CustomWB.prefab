@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7172326638509277579}
   - component: {fileID: 9192562882050907194}
   m_Layer: 0
-  m_Name: WeaponBox
+  m_Name: CustomWB
   m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

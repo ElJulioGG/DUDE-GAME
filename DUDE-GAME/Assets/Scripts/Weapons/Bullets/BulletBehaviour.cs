@@ -3,11 +3,16 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class BulletBehavior : MonoBehaviour
 {
+    //[SerializeField] private GameObject particle;
+
     [Header("Settings")]
     public float speed = 10f;
     public bool enableDamage = true;
     public bool enableBounce = true;
     public bool rotateToDirection = true;
+    public float destroyTime = 5f;
+    public bool destroyOnInvisible = true; // If true, bullet will be destroyed when it goes off-screen
+    public bool spectral = false;
 
     [Header("Combat")]
     [SerializeField] private int damage = 100;
@@ -26,7 +31,7 @@ public class BulletBehavior : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.isKinematic = true;
+        rb.bodyType = RigidbodyType2D.Kinematic; // Use kinematic for precise control
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
@@ -35,6 +40,7 @@ public class BulletBehavior : MonoBehaviour
         direction = transform.right;
         previousPosition = rb.position;
         Physics2D.queriesHitTriggers = false; // Ignore other triggers
+        //Instantiate(particle, transform.position, Quaternion.identity);
     }
 
     void OnApplicationQuit() => isQuitting = true;
@@ -89,51 +95,64 @@ public class BulletBehavior : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
-    }
 
-    void HandleDamage(RaycastHit2D hit)
-    {
-        if (hit.collider.CompareTag("Player"))
+        if (!destroyOnInvisible)
         {
-            hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
-        }
-        Destroy(gameObject);
-    }
+            Destroy(gameObject, destroyTime);
 
-    void HandleBounce(RaycastHit2D hit)
-    {
-        bounceLife--;
-        if (bounceLife < 0)
-        {
-            Destroy(gameObject);
-            return;
         }
 
-        // Perfect axis-aligned bounce for rectangles
-        Vector2 normal = hit.normal;
-        if (hit.collider is BoxCollider2D)
+        void HandleDamage(RaycastHit2D hit)
         {
-            if (Mathf.Abs(normal.x) > Mathf.Abs(normal.y))
-                normal = new Vector2(Mathf.Sign(normal.x), 0); // Horizontal
-            else
-                normal = new Vector2(0, Mathf.Sign(normal.y)); // Vertical
+            if (hit.collider.CompareTag("Player"))
+            {
+                hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
+            }
+            if (!spectral) {
+                Destroy(gameObject);
+            }
+           
         }
 
-        direction = Vector2.Reflect(direction, normal).normalized;
-        rb.position = hit.point + normal * 0.15f; // Extra nudge for rectangles
-        previousPosition = rb.position;
-    }
+        void HandleBounce(RaycastHit2D hit)
+        {
+            bounceLife--;
+            if (bounceLife < 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
-    void OnBecameInvisible()
-    {
-        if (!isQuitting) Destroy(gameObject);
-    }
+            // Perfect axis-aligned bounce for rectangles
+            Vector2 normal = hit.normal;
+            if (hit.collider is BoxCollider2D)
+            {
+                if (Mathf.Abs(normal.x) > Mathf.Abs(normal.y))
+                    normal = new Vector2(Mathf.Sign(normal.x), 0); // Horizontal
+                else
+                    normal = new Vector2(0, Mathf.Sign(normal.y)); // Vertical
+            }
+
+            direction = Vector2.Reflect(direction, normal).normalized;
+            rb.position = hit.point + normal * 0.15f; // Extra nudge for rectangles
+            previousPosition = rb.position;
+        }
+
+        void OnBecameInvisible()
+        {
+            if (destroyOnInvisible)
+            {
+                if (!isQuitting) Destroy(gameObject);
+            }
+
+        }
 
 #if UNITY_EDITOR
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, bulletRadius);
-    }
+        void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, bulletRadius);
+        }
 #endif
+    }
 }

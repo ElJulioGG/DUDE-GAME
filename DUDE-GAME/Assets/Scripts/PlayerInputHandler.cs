@@ -100,9 +100,11 @@ public class PlayerInputHandler : MonoBehaviour
     }
     public void OnReload(InputAction.CallbackContext context)
     {
+        print("Reaload 1");
         if (context.performed && gunHolder != null)
         {
-            //gunHolder.HandleReload();
+            print("Reaload 2");
+            gunHolder.HandleReload();
         }
     }
     public void OnPowerUp(InputAction.CallbackContext context)

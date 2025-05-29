@@ -649,11 +649,17 @@ MonoBehaviour:
   bulletPrefab: {fileID: 3914717485759597175, guid: 01fc235bb38bd3342b99ffed1dd3ab27, type: 3}
   firePoint: {fileID: 2171421485812704368}
   shootCooldown: 1
+  fullAutoMode: 0
+  autoFireRate: 0.1
   recoilForce: 50
   clipSize: 2
-  totalAmmo: 8
-  reloadTime: 1
-  shownCurrentAmmo: 0
+  maxAmmo: 4
+  reloadTime: 5
+  startingClipAmmo: 2
+  startingReserveAmmo: 2
+  currentClipAmmo: 0
+  reserveAmmo: 0
   aimSight: {fileID: 4855564154810802210}
   sniperSights: 1
   reloadFillImage: {fileID: 6957014370175212502}
+  ammoText: {fileID: 0}

@@ -102,7 +102,23 @@ public class GunHolder : MonoBehaviour
             nearbyPickup = null;
         }
     }
-
+    public void HandleReload()
+    {
+        
+        // Only reload if we have a gun equipped (not melee)
+        if (currentGunScript != null && !currentGunScript.IsReloading())
+        {
+            
+            // Only reload if we need to (clip isn't full or we have reserve ammo)
+            if (currentGunScript.GetCurrentClipAmmo() < currentGunScript.clipSize &&
+                currentGunScript.GetReserveAmmo() > 0)
+            {
+                
+                StartCoroutine(currentGunScript.Reload());
+                
+            }
+        }
+    }
     public void EquipWeapon(string weaponName)
     {
         if (currentWeapon != null)
@@ -122,12 +138,38 @@ public class GunHolder : MonoBehaviour
                 currentGunScript = currentWeapon.GetComponent<WeaponBase>();
                 currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
 
+                
+                
                 hasWeapon = true;
                 activeWeapon = weaponName;
+                if (currentGunScript != null)
+                {
+                    if ((nearbyPickup.savedClipAmmo == -1) && (nearbyPickup.savedReserveAmmo == -1))
+                    {
+                        // Initialize with prefab defaults
+                        currentGunScript.InitializeWeapon(true);
+                        // Use saved ammo from pickup
+                        //currentGunScript.SetAmmo(nearbyPickup.savedClipAmmo, nearbyPickup.savedReserveAmmo);
+                    }
+                    else
+                    {
+                        //currentGunScript.InitializeWeapon(true);
+                        // Use saved ammo from pickup
+                        currentGunScript.SetAmmo(nearbyPickup.savedClipAmmo, nearbyPickup.savedReserveAmmo);
+                    }
 
+                    Debug.Log($"Weapon equipped with ammo: {currentGunScript.currentClipAmmo}/{currentGunScript.reserveAmmo}");
+                   // print(currentGunScript.startingClipAmmo);
+                    //print(currentGunScript.currentClipAmmo);
+                   // print(currentGunScript.reserveAmmo);
+                    //print(currentGunScript.startingReserveAmmo);
+                }
                 // Apply the last aim direction to the new weapon
                 if (currentGunScript != null)
-                    currentGunScript.SetAimDirection(lastAimDirection);
+                {
+                   currentGunScript.SetAimDirection(lastAimDirection);
+                    
+                } 
                 else if (currentMeleeScript != null)
                     currentMeleeScript.SetAimDirection(lastAimDirection);
 
@@ -151,7 +193,7 @@ public class GunHolder : MonoBehaviour
 
         // Check if player is moving (use a small threshold)
         bool isMoving = lastMovementDirection.sqrMagnitude > 0.01f;
-        print(isMoving);
+        //print(isMoving);
 
         if (isMoving)
         {
@@ -172,6 +214,9 @@ public class GunHolder : MonoBehaviour
 
         WeaponPickup pickup = drop.GetComponent<WeaponPickup>();
         pickup.weaponName = weaponName;
+        pickup.savedClipAmmo = currentGunScript != null ? currentGunScript.GetCurrentClipAmmo() : 0;
+        pickup.savedReserveAmmo = currentGunScript != null ? currentGunScript.GetReserveAmmo() : 0;
+
 
         // Only throw with force if player was moving
         if (isMoving)

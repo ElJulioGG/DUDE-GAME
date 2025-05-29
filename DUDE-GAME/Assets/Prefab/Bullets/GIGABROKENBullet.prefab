@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6246125887340887143}
   - component: {fileID: 2387887588072187216}
   m_Layer: 0
-  m_Name: Bullet1
+  m_Name: GIGABROKENBullet
   m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -151,13 +151,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 70
   enableDamage: 1
-  enableBounce: 0
-  rotateToDirection: 0
-  destroyTime: 5
+  enableBounce: 1
+  rotateToDirection: 1
+  destroyTime: 999
   destroyOnInvisible: 0
-  spectral: 1
+  spectral: 0
   damage: 200
-  bounceLife: 100
+  bounceLife: 99999
   bulletRadius: 0.1
   damageableMask:
     serializedVersion: 2

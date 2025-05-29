@@ -1,26 +1,32 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class WeaponBase : MonoBehaviour
 {
     private Rigidbody2D playerRb;
+
+    [Header("References")]
     public GameObject bulletPrefab;
     public Transform firePoint;
-    public float shootCooldown = 0.25f;
-    private float lastShootTime;
 
+    [Header("Firing Settings")]
+    public float shootCooldown = 0.25f; // cooldown for semi-auto
+    public bool fullAutoMode = false;
+    public float autoFireRate = 0.1f;   // rate for full auto
 
     [Header("Recoil")]
     [SerializeField] private float recoilForce = 5f;
 
     [Header("Ammo Settings")]
-    [SerializeField] private int clipSize = 10;
-    [SerializeField] private int totalAmmo = 30;
+    [SerializeField] public int clipSize = 10;
+    [SerializeField] public int maxAmmo = 30;
     [SerializeField] private float reloadTime = 2f;
-    private int currentAmmo;
+    [SerializeField] public int startingClipAmmo = 10; // New field for starting clip
+    [SerializeField] public int startingReserveAmmo = 20; // New field for starting reserve
+    public int currentClipAmmo;
+    public int reserveAmmo;
     private bool isReloading = false;
-    [SerializeField] private int shownCurrentAmmo;
-    private Vector2 aimDirection = Vector2.right;
 
     [Header("Aim Sight")]
     [SerializeField] private GameObject aimSight;
@@ -28,59 +34,26 @@ public class WeaponBase : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private Image reloadFillImage;
-    [SerializeField] private Text ammoText; // Optional ammo counter
-    [Header("Firing Mode")]
-    [SerializeField] private bool fullAutoMode = false;
-    [SerializeField] private float autoFireRate = 0.1f;
+    [SerializeField] private Text ammoText;
+
+    private float lastShootTime = 0f;
+    private float nextAutoShotTime = 0f;
     private bool isFiring = false;
-    private float nextShotTime = 0f;
+    private Vector2 aimDirection = Vector2.right;
 
-    public void StartFiring()
+    // Add this at the top of your WeaponBase class
+    private bool initialized = false;
+
+    public void InitializeWeapon(bool forceDefaults = false)
     {
-        isFiring = true;
-        if (!fullAutoMode) Shoot(); // Single-shot fires immediately
-    }
-
-    public void StopFiring()
-    {
-        isFiring = false;
-    }
-
-    void Update()
-    {
-       // UpdateAimSight();
-
-       
-
-        // Update ammo UI
-        if (ammoText != null)
+        if (forceDefaults)
         {
-            ammoText.text = $"{shownCurrentAmmo}/{totalAmmo}";
+            // Use the inspector defaults
+            currentClipAmmo = startingClipAmmo;
+            reserveAmmo = startingReserveAmmo;
         }
-        if (isFiring && fullAutoMode && Time.time >= nextShotTime)
-        {
-            Shoot();
-            nextShotTime = Time.time + autoFireRate;
-        }
-    }
-    private void OnEnable()
-    {
-        UpdateAimSight();
-        InitializeWeapon();
-    }
+        // Otherwise keep existing values
 
-    private void Start()
-    {
-        playerRb = GetComponentInParent<Rigidbody2D>();
-        InitializeWeapon();
-    }
-
-   
-
-    public void InitializeWeapon()
-    {
-        currentAmmo = Mathf.Min(clipSize, totalAmmo);
-        shownCurrentAmmo = currentAmmo;
         isReloading = false;
 
         if (reloadFillImage != null)
@@ -88,6 +61,47 @@ public class WeaponBase : MonoBehaviour
             reloadFillImage.fillAmount = 0f;
             reloadFillImage.gameObject.SetActive(false);
         }
+
+        UpdateUI();
+    }
+
+    // Modify OnEnable and Start
+    private void OnEnable()
+    {
+        //InitializeWeapon();
+        UpdateAimSight();
+    }
+
+    private void Start()
+    {
+        playerRb = GetComponentInParent<Rigidbody2D>();
+        //currentClipAmmo = startingClipAmmo;
+        //reserveAmmo = startingReserveAmmo;
+        // InitializeWeapon();
+    }
+
+    void Update()
+    {
+        if (isFiring && fullAutoMode && !isReloading && Time.time >= nextAutoShotTime)
+        {
+            TryShoot(fullAutoMode);
+        }
+
+        UpdateUI();
+    }
+
+    public void StartFiring()
+    {
+        isFiring = true;
+        if (!fullAutoMode)
+        {
+            TryShoot(false); // fire once for semi-auto
+        }
+    }
+
+    public void StopFiring()
+    {
+        isFiring = false;
     }
 
     public void SetAimDirection(Vector2 dir)
@@ -104,50 +118,49 @@ public class WeaponBase : MonoBehaviour
         }
     }
 
-    private void TryShoot()
+    private void TryShoot(bool isAuto)
     {
-        if (CanShoot()) Shoot();
+        if (CanShoot(isAuto))
+        {
+            Shoot();
+        }
     }
 
-    private bool CanShoot()
+    private bool CanShoot(bool isAuto)
     {
+        float cooldown = isAuto ? autoFireRate : shootCooldown;
         return !isReloading &&
-               Time.time >= lastShootTime + shootCooldown &&
-               currentAmmo > 0;
+               Time.time >= lastShootTime + cooldown &&
+               currentClipAmmo > 0;
     }
 
     public virtual void Shoot()
     {
         lastShootTime = Time.time;
-        nextShotTime = Time.time + autoFireRate;
+        nextAutoShotTime = Time.time + autoFireRate;
 
-        if (!GameManager.instance.unlimitedBullets)
-        {
-            currentAmmo--;
-            totalAmmo--;
-            shownCurrentAmmo = currentAmmo;
-        }
+        currentClipAmmo--;
 
-        // Spawn bullet
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, angle));
         SoundFXManager.instance.PlaySoundByName("RailGunShot", transform, 0.5f, 1.1f);
 
-        // Recoil
         if (playerRb != null)
         {
             playerRb.AddForce(-aimDirection * recoilForce, ForceMode2D.Impulse);
         }
 
-        // Auto-reload if empty
-        if (currentAmmo <= 0 && totalAmmo > 0)
+        UpdateUI();
+
+        if (currentClipAmmo <= 0 && reserveAmmo > 0)
         {
             StartCoroutine(Reload());
         }
     }
 
-    private System.Collections.IEnumerator Reload()
+    public IEnumerator Reload()
     {
+       
         isReloading = true;
         UpdateAimSight();
 
@@ -168,8 +181,12 @@ public class WeaponBase : MonoBehaviour
             yield return null;
         }
 
-        currentAmmo = Mathf.Min(clipSize, totalAmmo);
-        shownCurrentAmmo = currentAmmo;
+        int ammoNeeded = clipSize - currentClipAmmo;
+        int ammoToLoad = Mathf.Min(ammoNeeded, reserveAmmo);
+
+        currentClipAmmo += ammoToLoad;
+        reserveAmmo -= ammoToLoad;
+
         isReloading = false;
 
         if (reloadFillImage != null)
@@ -179,21 +196,46 @@ public class WeaponBase : MonoBehaviour
         }
 
         UpdateAimSight();
+        UpdateUI();
     }
 
     private void UpdateAimSight()
     {
         if (aimSight == null) return;
+
         bool canShow = sniperSights && !isReloading && (Time.time >= lastShootTime + shootCooldown);
         aimSight.SetActive(canShow);
     }
 
-    // Public getters
-    public int GetCurrentAmmo() => currentAmmo;
-    public int GetTotalAmmo() => totalAmmo;
+    private void UpdateUI()
+    {
+        if (ammoText != null)
+        {
+            ammoText.text = $"{currentClipAmmo}/{reserveAmmo}";
+        }
+    }
+
+    // Ammo management methods
+    public int GetCurrentClipAmmo() => currentClipAmmo;
+    public int GetReserveAmmo() => reserveAmmo;
+    public int GetTotalAmmo() => currentClipAmmo + reserveAmmo;
+    public int GetMaxAmmo() => maxAmmo;
     public bool IsReloading() => isReloading;
     public bool IsFullAuto() => fullAutoMode;
 
-    // Call this to toggle fire mode
+    // Ammo modification methods
+    public void AddAmmo(int amount)
+    {
+        reserveAmmo = Mathf.Min(reserveAmmo + amount, maxAmmo - currentClipAmmo);
+        UpdateUI();
+    }
+
+    public void SetAmmo(int clipAmount, int reserveAmount)
+    {
+        currentClipAmmo = Mathf.Clamp(clipAmount, 0, clipSize);
+        reserveAmmo = Mathf.Clamp(reserveAmount, 0, maxAmmo - currentClipAmmo);
+        UpdateUI();
+    }
+
     public void ToggleFireMode() => fullAutoMode = !fullAutoMode;
 }
