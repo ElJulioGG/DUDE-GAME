@@ -152,6 +152,7 @@ MonoBehaviour:
   speed: 70
   enableDamage: 1
   enableBounce: 1
+  destroyOnPlayerHit: 0
   rotateToDirection: 1
   destroyTime: 999
   destroyOnInvisible: 0

@@ -324,8 +324,11 @@ MonoBehaviour:
   speed: 40
   enableDamage: 1
   enableBounce: 1
+  destroyOnPlayerHit: 0
   rotateToDirection: 1
-  damage: 50
+  destroyTime: 10
+  destroyOnInvisible: 1
+  damage: 70
   bounceLife: 10
   bulletRadius: 0.1
   damageableMask:
@@ -333,7 +336,7 @@ MonoBehaviour:
     m_Bits: 64
   bounceableMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 192
 --- !u!50 &2387887588072187216
 Rigidbody2D:
   serializedVersion: 5

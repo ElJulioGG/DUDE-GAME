@@ -74,6 +74,7 @@ public class WeaponBase : MonoBehaviour
 
     private void Start()
     {
+        reloadFillImage.gameObject.SetActive(false);
         playerRb = GetComponentInParent<Rigidbody2D>();
         //currentClipAmmo = startingClipAmmo;
         //reserveAmmo = startingReserveAmmo;

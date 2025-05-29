@@ -458,6 +458,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4553626243182193273, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 906cf29c4e2cd4c489e149fe79e1a943, type: 2}
+    - target: {fileID: 4553626243182193273, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: m_SleepingMode
       value: 0
       objectReference: {fileID: 0}
@@ -471,7 +475,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: maxSpeed
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: playerStats
@@ -16144,7 +16148,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 20
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!224 &489963931
 RectTransform:
@@ -16710,7 +16714,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: maxSpeed
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: playerStats
@@ -17240,7 +17244,7 @@ CircleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 906cf29c4e2cd4c489e149fe79e1a943, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -17569,7 +17573,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 90
   m_TargetDisplay: 0
 --- !u!224 &811228899
 RectTransform:
@@ -22733,7 +22737,7 @@ CircleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 906cf29c4e2cd4c489e149fe79e1a943, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -23399,7 +23403,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 80
   m_TargetDisplay: 0
 --- !u!224 &1471025708
 RectTransform:
@@ -32217,7 +32221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: maxSpeed
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: playerStats
@@ -37218,6 +37222,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4553626243182193273, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 906cf29c4e2cd4c489e149fe79e1a943, type: 2}
+    - target: {fileID: 4553626243182193273, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: m_SleepingMode
       value: 0
       objectReference: {fileID: 0}
@@ -37231,7 +37239,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: maxSpeed
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5189820718182406031, guid: d8d252dcfc5b9ff42a120cbe2dba9807, type: 3}
       propertyPath: playerStats

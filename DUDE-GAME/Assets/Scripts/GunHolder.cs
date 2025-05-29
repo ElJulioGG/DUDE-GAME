@@ -91,6 +91,7 @@ public class GunHolder : MonoBehaviour
         WeaponPickup pickup = other.GetComponent<WeaponPickup>();
         if (pickup != null)
         {
+            print("PLUUGHHHG");
             nearbyPickup = pickup;
         }
     }
@@ -294,9 +295,9 @@ public class GunHolder : MonoBehaviour
 
     public void HandleShoot()
     {
-        if (currentWeapon != null)
+        if (currentWeapon != null && playerStats.playerAlive)
         {
-            if (currentGunScript != null)
+            if (currentGunScript != null )
             {
                 // Change this to use the new firing methods
                 currentGunScript.StartFiring();

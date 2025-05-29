@@ -9,10 +9,11 @@ public class BulletBehavior : MonoBehaviour
     public float speed = 10f;
     public bool enableDamage = true;
     public bool enableBounce = true;
+    public bool destroyOnPlayerHit = true;
     public bool rotateToDirection = true;
     public float destroyTime = 5f;
     public bool destroyOnInvisible = true; // If true, bullet will be destroyed when it goes off-screen
-    public bool spectral = false;
+    //public bool spectral = false;
 
     [Header("Combat")]
     [SerializeField] private int damage = 100;
@@ -52,38 +53,64 @@ public class BulletBehavior : MonoBehaviour
         Vector2 newPosition = previousPosition + direction * speed * Time.fixedDeltaTime;
         float distance = Vector2.Distance(previousPosition, newPosition);
 
-        // Damage check (players/enemies)
-        RaycastHit2D damageHit = Physics2D.CircleCast(
-            previousPosition,
-            bulletRadius,
-            direction,
-            distance,
-            damageableMask
-        );
+        //// Damage check (players/enemies)
+        //RaycastHit2D damageHit = Physics2D.CircleCast(
+        //    previousPosition,
+        //    bulletRadius,
+        //    direction,
+        //    distance,
+        //    damageableMask
+        //);
 
-        if (damageHit.collider != null)
+        //if (damageHit.collider != null)
+        //{
+        //    HandleDamage(damageHit);
+        //    return;
+        //}
+
+        //// Bounce check (walls)
+        //if (enableBounce)
+        //{
+        //    RaycastHit2D bounceHit = Physics2D.CircleCast(
+        //        previousPosition,
+        //        bulletRadius,
+        //        direction,
+        //        distance,
+        //        bounceableMask
+        //    );
+
+        //    if (bounceHit.collider != null)
+        //    {
+        //        HandleBounce(bounceHit);
+        //        return;
+        //    }
+        //}
+
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(
+             previousPosition,
+             bulletRadius,
+             direction,
+             distance,
+              damageableMask | bounceableMask // Combine both masks
+         );
+
+        foreach (var hit in hits)
         {
-            HandleDamage(damageHit);
-            return;
-        }
-
-        // Bounce check (walls)
-        if (enableBounce)
-        {
-            RaycastHit2D bounceHit = Physics2D.CircleCast(
-                previousPosition,
-                bulletRadius,
-                direction,
-                distance,
-                bounceableMask
-            );
-
-            if (bounceHit.collider != null)
+            if (((1 << hit.collider.gameObject.layer) & damageableMask) != 0)
             {
-                HandleBounce(bounceHit);
+                HandleDamage(hit);
+                if (destroyOnPlayerHit) return;
+            }
+
+            if (enableBounce && ((1 << hit.collider.gameObject.layer) & bounceableMask) != 0)
+            {
+                HandleBounce(hit);
                 return;
             }
         }
+
+
+
 
         // Movement
         rb.MovePosition(newPosition);
@@ -108,7 +135,7 @@ public class BulletBehavior : MonoBehaviour
             {
                 hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
             }
-            if (!spectral) {
+            if (destroyOnPlayerHit) {
                 Destroy(gameObject);
             }
            
