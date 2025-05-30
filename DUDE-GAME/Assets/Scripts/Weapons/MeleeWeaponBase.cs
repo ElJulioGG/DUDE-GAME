@@ -44,7 +44,7 @@ public class MeleeWeaponBase : MonoBehaviour
     private System.Collections.IEnumerator AttackRoutine()
     {
         isAttacking = true;
-
+        SoundFXManager.instance.PlaySoundByName("Throw", transform, 0.7f, 1f, false);
         // Activate hitbox for the active time
         if (hitbox != null)
             hitbox.SetActive(true);

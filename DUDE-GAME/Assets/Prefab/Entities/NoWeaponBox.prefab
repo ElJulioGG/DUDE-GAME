@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7172326638509277579}
   - component: {fileID: 9192562882050907194}
   m_Layer: 0
-  m_Name: CustomWB
+  m_Name: NoWeaponBox
   m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,10 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28bcfa0b55d0a034a9c52faabc729bae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponPickups:
-  - {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
-  - {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
-  - {fileID: 6192896243936263217, guid: fb05463feae1f984da606424a48ee46e, type: 3}
+  weaponPickups: []
   random: 1
   selectedWeapon: 0
 --- !u!61 &5638945977224653052

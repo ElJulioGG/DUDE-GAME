@@ -31,7 +31,7 @@ public class WeaponBox : MonoBehaviour
 
         if (weaponPickups.Length == 0 || weaponPickups[weaponIndex] == null)
         {
-            Debug.LogError("Missing weapon pickup prefab!", this);
+            print("Missing weapon pickup prefab!");
             return;
         }
 

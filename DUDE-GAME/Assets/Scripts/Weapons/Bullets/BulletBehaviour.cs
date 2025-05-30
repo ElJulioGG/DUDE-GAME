@@ -3,17 +3,13 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class BulletBehavior : MonoBehaviour
 {
-    //[SerializeField] private GameObject particle;
-
     [Header("Settings")]
     public float speed = 10f;
-    public bool enableDamage = true;
     public bool enableBounce = true;
     public bool destroyOnPlayerHit = true;
     public bool rotateToDirection = true;
     public float destroyTime = 5f;
-    public bool destroyOnInvisible = true; // If true, bullet will be destroyed when it goes off-screen
-    //public bool spectral = false;
+    public bool destroyOnInvisible = true;
 
     [Header("Combat")]
     [SerializeField] private int damage = 100;
@@ -21,8 +17,8 @@ public class BulletBehavior : MonoBehaviour
     [SerializeField] private float bulletRadius = 0.1f;
 
     [Header("Collision Layers")]
-    [SerializeField] private LayerMask damageableMask; // Players/enemies
-    [SerializeField] private LayerMask bounceableMask; // Walls only
+    [SerializeField] private LayerMask damageableMask;
+    [SerializeField] private LayerMask bounceableMask;
 
     private Rigidbody2D rb;
     private Vector2 previousPosition;
@@ -32,7 +28,7 @@ public class BulletBehavior : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.bodyType = RigidbodyType2D.Kinematic; // Use kinematic for precise control
+        rb.bodyType = RigidbodyType2D.Kinematic;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
@@ -40,8 +36,13 @@ public class BulletBehavior : MonoBehaviour
     {
         direction = transform.right;
         previousPosition = rb.position;
-        Physics2D.queriesHitTriggers = false; // Ignore other triggers
-        //Instantiate(particle, transform.position, Quaternion.identity);
+        Physics2D.queriesHitTriggers = false;
+
+        if (!destroyOnInvisible)
+        {
+            Invoke(nameof(DestroyBullet), destroyTime);
+            //Destroy(gameObject, destroyTime);
+        }
     }
 
     void OnApplicationQuit() => isQuitting = true;
@@ -53,46 +54,13 @@ public class BulletBehavior : MonoBehaviour
         Vector2 newPosition = previousPosition + direction * speed * Time.fixedDeltaTime;
         float distance = Vector2.Distance(previousPosition, newPosition);
 
-        //// Damage check (players/enemies)
-        //RaycastHit2D damageHit = Physics2D.CircleCast(
-        //    previousPosition,
-        //    bulletRadius,
-        //    direction,
-        //    distance,
-        //    damageableMask
-        //);
-
-        //if (damageHit.collider != null)
-        //{
-        //    HandleDamage(damageHit);
-        //    return;
-        //}
-
-        //// Bounce check (walls)
-        //if (enableBounce)
-        //{
-        //    RaycastHit2D bounceHit = Physics2D.CircleCast(
-        //        previousPosition,
-        //        bulletRadius,
-        //        direction,
-        //        distance,
-        //        bounceableMask
-        //    );
-
-        //    if (bounceHit.collider != null)
-        //    {
-        //        HandleBounce(bounceHit);
-        //        return;
-        //    }
-        //}
-
         RaycastHit2D[] hits = Physics2D.CircleCastAll(
-             previousPosition,
-             bulletRadius,
-             direction,
-             distance,
-              damageableMask | bounceableMask // Combine both masks
-         );
+            previousPosition,
+            bulletRadius,
+            direction,
+            distance,
+            damageableMask | bounceableMask
+        );
 
         foreach (var hit in hits)
         {
@@ -109,77 +77,82 @@ public class BulletBehavior : MonoBehaviour
             }
         }
 
-
-
-
-        // Movement
         rb.MovePosition(newPosition);
         previousPosition = newPosition;
 
-        // Rotation
         if (rotateToDirection && direction.sqrMagnitude > 0.01f)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
+    }
 
-        if (!destroyOnInvisible)
+    void HandleDamage(RaycastHit2D hit)
+    {
+        if (hit.collider.CompareTag("Player"))
         {
-            Destroy(gameObject, destroyTime);
+            hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
+        }
+        if (destroyOnPlayerHit)
+        {
+            DestroyBullet();
+        }
+    }
 
+    void HandleBounce(RaycastHit2D hit)
+    {
+        bounceLife--;
+        if (bounceLife < 0)
+        {
+            DestroyBullet();
+            return;
         }
 
-        void HandleDamage(RaycastHit2D hit)
+        Vector2 normal = hit.normal;
+        if (hit.collider is BoxCollider2D)
         {
-            if (hit.collider.CompareTag("Player"))
-            {
-                hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
-            }
-            if (destroyOnPlayerHit) {
-                Destroy(gameObject);
-            }
-           
+            if (Mathf.Abs(normal.x) > Mathf.Abs(normal.y))
+                normal = new Vector2(Mathf.Sign(normal.x), 0);
+            else
+                normal = new Vector2(0, Mathf.Sign(normal.y));
         }
 
-        void HandleBounce(RaycastHit2D hit)
+        direction = Vector2.Reflect(direction, normal).normalized;
+        rb.position = hit.point + normal * 0.15f;
+        previousPosition = rb.position;
+    }
+
+    void OnBecameInvisible()
+    {
+        if (destroyOnInvisible && !isQuitting)
         {
-            bounceLife--;
-            if (bounceLife < 0)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            DestroyBullet();
+        }
+    }
 
-            // Perfect axis-aligned bounce for rectangles
-            Vector2 normal = hit.normal;
-            if (hit.collider is BoxCollider2D)
+    void DestroyBullet()
+    {
+        // Detach particles before destruction
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+        foreach (ParticleSystem ps in particles)
+        {
+            if (ps != null)
             {
-                if (Mathf.Abs(normal.x) > Mathf.Abs(normal.y))
-                    normal = new Vector2(Mathf.Sign(normal.x), 0); // Horizontal
-                else
-                    normal = new Vector2(0, Mathf.Sign(normal.y)); // Vertical
+                ps.transform.SetParent(null);
+                var main = ps.main;
+                main.stopAction = ParticleSystemStopAction.Destroy;
+                ps.Stop();
             }
-
-            direction = Vector2.Reflect(direction, normal).normalized;
-            rb.position = hit.point + normal * 0.15f; // Extra nudge for rectangles
-            previousPosition = rb.position;
         }
 
-        void OnBecameInvisible()
-        {
-            if (destroyOnInvisible)
-            {
-                if (!isQuitting) Destroy(gameObject);
-            }
-
-        }
+        Destroy(gameObject);
+    }
 
 #if UNITY_EDITOR
-        void OnDrawGizmosSelected()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, bulletRadius);
-        }
-#endif
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, bulletRadius);
     }
+#endif
 }

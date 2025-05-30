@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,17 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] public bool usingPowerUp;
     [SerializeField] private GunHolder gunHolder;
 
+    [Header("Visual Damage Shake")]
+    [SerializeField] private Transform spriteTransform; // Reference to your sprite's transform
+    [SerializeField] private float maxShakeDuration = 0.1f;
+    [SerializeField] private float maxShakeStrength = 0.2f;
+    [SerializeField] private float shakeRandomness = 90f;
+    [SerializeField] private float shakeIntensity = 2f; // This will be calculated based on damage
+
+    [Header("Shake Easing")]
+    [SerializeField] private Ease shakeEase = Ease.OutQuad;
+    [SerializeField] private AnimationCurve shakeEaseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private bool useCurveInsteadOfEase = false;
 
     void Start()
     {
@@ -68,6 +80,33 @@ public class PlayerStats : MonoBehaviour
 
         health -= damageAmount;
         SoundFXManager.instance.PlaySoundByName("NoPowerUp", transform, 1f, 0.8f);
+
+        if (spriteTransform != null)
+        {
+            //float shakeIntensity = Mathf.Clamp01((float)damageAmount / baseHealth);
+            spriteTransform.DOComplete();
+
+            // Create the shake tween
+            var shakeTween = spriteTransform.DOShakePosition(
+                duration: maxShakeDuration * shakeIntensity,
+                strength: maxShakeStrength * shakeIntensity,
+                vibrato: (int)(5 + 15 * shakeIntensity),
+                randomness: shakeRandomness,
+                snapping: false,
+                fadeOut: true
+            );
+
+            // Apply easing
+            if (useCurveInsteadOfEase)
+            {
+                shakeTween.SetEase(shakeEaseCurve);
+            }
+            else
+            {
+                shakeTween.SetEase(shakeEase);
+            }
+        }
+
         if (health <= 0 && playerAlive)
         {
             KillPlayer();
@@ -136,8 +175,19 @@ public class PlayerStats : MonoBehaviour
             rb.AddForce(knockDirection * force, ForceMode2D.Impulse);
         }
     }
+    private void ResetShake()
+    {
+        if (spriteTransform != null)
+        {
+            spriteTransform.DOComplete();
+            spriteTransform.localPosition = Vector3.zero;
+        }
+    }
+
+    // Call this whenever you respawn the player
     public void Respawn()
     {
+        ResetShake();
         gunHolder.DestroyCurrentWeapon();
         health = baseHealth;
         playerAlive = true;
