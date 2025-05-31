@@ -118,9 +118,9 @@ TextureImporter:
       name: Dude_TicSide_0
       rect:
         serializedVersion: 2
-        x: 4
+        x: 0
         y: 0
-        width: 25
+        width: 32
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -140,9 +140,9 @@ TextureImporter:
       name: Dude_TicSide_1
       rect:
         serializedVersion: 2
-        x: 36
+        x: 32
         y: 0
-        width: 24
+        width: 32
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -162,9 +162,9 @@ TextureImporter:
       name: Dude_TicSide_2
       rect:
         serializedVersion: 2
-        x: 69
+        x: 64
         y: 0
-        width: 24
+        width: 32
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -184,9 +184,9 @@ TextureImporter:
       name: Dude_TicSide_3
       rect:
         serializedVersion: 2
-        x: 101
+        x: 96
         y: 0
-        width: 24
+        width: 32
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -206,9 +206,9 @@ TextureImporter:
       name: Dude_TicSide_4
       rect:
         serializedVersion: 2
-        x: 132
+        x: 128
         y: 0
-        width: 24
+        width: 32
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -228,9 +228,9 @@ TextureImporter:
       name: Dude_TicSide_5
       rect:
         serializedVersion: 2
-        x: 164
+        x: 160
         y: 0
-        width: 25
+        width: 32
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -250,7 +250,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 0ed1ad526e109c34caf0639af68fb081
     internalID: 0
     vertices: []
     indices: 

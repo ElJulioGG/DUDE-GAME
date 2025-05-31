@@ -118,10 +118,10 @@ TextureImporter:
       name: Dude_Chile_0
       rect:
         serializedVersion: 2
-        x: 5
-        y: 2
-        width: 23
-        height: 27
+        x: 0
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -140,10 +140,10 @@ TextureImporter:
       name: Dude_Chile_1
       rect:
         serializedVersion: 2
-        x: 37
-        y: 1
-        width: 21
-        height: 28
+        x: 32
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -162,10 +162,10 @@ TextureImporter:
       name: Dude_Chile_2
       rect:
         serializedVersion: 2
-        x: 70
-        y: 1
-        width: 20
-        height: 28
+        x: 64
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -184,10 +184,10 @@ TextureImporter:
       name: Dude_Chile_3
       rect:
         serializedVersion: 2
-        x: 102
-        y: 1
-        width: 20
-        height: 28
+        x: 96
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -206,10 +206,10 @@ TextureImporter:
       name: Dude_Chile_4
       rect:
         serializedVersion: 2
-        x: 133
-        y: 1
-        width: 21
-        height: 28
+        x: 128
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -228,10 +228,10 @@ TextureImporter:
       name: Dude_Chile_5
       rect:
         serializedVersion: 2
-        x: 165
-        y: 2
-        width: 23
-        height: 27
+        x: 160
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -250,7 +250,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 8e424cf503bdda64cad79590779050d7
     internalID: 0
     vertices: []
     indices: 

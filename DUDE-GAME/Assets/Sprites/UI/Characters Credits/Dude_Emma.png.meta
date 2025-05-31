@@ -118,10 +118,10 @@ TextureImporter:
       name: Dude_Emma_0
       rect:
         serializedVersion: 2
-        x: 3
+        x: 0
         y: 0
-        width: 25
-        height: 27
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -140,10 +140,10 @@ TextureImporter:
       name: Dude_Emma_1
       rect:
         serializedVersion: 2
-        x: 34
+        x: 32
         y: 0
-        width: 24
-        height: 27
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -162,10 +162,10 @@ TextureImporter:
       name: Dude_Emma_2
       rect:
         serializedVersion: 2
-        x: 68
+        x: 64
         y: 0
-        width: 24
-        height: 27
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -184,10 +184,10 @@ TextureImporter:
       name: Dude_Emma_3
       rect:
         serializedVersion: 2
-        x: 100
+        x: 96
         y: 0
-        width: 24
-        height: 27
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -206,10 +206,10 @@ TextureImporter:
       name: Dude_Emma_4
       rect:
         serializedVersion: 2
-        x: 131
+        x: 128
         y: 0
-        width: 24
-        height: 27
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -228,10 +228,10 @@ TextureImporter:
       name: Dude_Emma_5
       rect:
         serializedVersion: 2
-        x: 163
+        x: 160
         y: 0
-        width: 25
-        height: 27
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -250,7 +250,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d2e5c3d4104080d48bb80cdf4ea2d17a
     internalID: 0
     vertices: []
     indices: 
