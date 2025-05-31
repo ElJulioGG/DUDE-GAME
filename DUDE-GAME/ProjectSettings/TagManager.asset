@@ -45,5 +45,8 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: FONDO
+    uniqueID: 1808498383
+    locked: 0
   m_RenderingLayers:
   - Default
