@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7cb656ddf9db7d448b14b3f09b4d23c, type: 3}
-  m_Name: Troll3
+  m_Script: {fileID: 11500000, guid: 2609d2f368be4a544bdbb46483e45f9e, type: 3}
+  m_Name: Francisco
   m_EditorClassIdentifier: 
-  characterName: Abduzcan
-  characterSprite: {fileID: 0}
-  characterIcon: {fileID: 0}
-  zoom: 1
+  creditTitle: Artista 2D
+  personName: FRANCISCO
+  personImage: {fileID: -5170977099300569865, guid: b67544f42628bc6488c0bdf6a8d275b0, type: 3}

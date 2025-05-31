@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7cb656ddf9db7d448b14b3f09b4d23c, type: 3}
-  m_Name: Troll6
+  m_Script: {fileID: 11500000, guid: 2609d2f368be4a544bdbb46483e45f9e, type: 3}
+  m_Name: Yesenia
   m_EditorClassIdentifier: 
-  characterName: Minecraft}
-  characterSprite: {fileID: 0}
-  characterIcon: {fileID: 0}
-  zoom: 1
+  creditTitle: Artista 2D
+  personName: EMMA
+  personImage: {fileID: 6850659517381931044, guid: 76768014cbb96b84f97cf8478495c277, type: 3}
