@@ -1,0 +1,481 @@
+fileFormatVersion: 2
+guid: 0ce8d946b956d1f4f971abedc81c9d83
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8082637308897884191
+    second: ButtonsAse_0
+  - first:
+      213: 1028636293504763194
+    second: ButtonsAse_1
+  - first:
+      213: -2725843649472232095
+    second: ButtonsAse_2
+  - first:
+      213: -9191571142648755691
+    second: ButtonsAse_3
+  - first:
+      213: -6645693311935100227
+    second: ButtonsAse_4
+  - first:
+      213: -1193971682737133280
+    second: ButtonsAse_5
+  - first:
+      213: -4414993992762529195
+    second: ButtonsAse_6
+  - first:
+      213: -3830068042078845883
+    second: ButtonsAse_7
+  - first:
+      213: -5807417125336815824
+    second: ButtonsAse_8
+  - first:
+      213: -2103958005305721300
+    second: ButtonsAse_9
+  - first:
+      213: 5254839888880982581
+    second: ButtonsAse_10
+  - first:
+      213: -4337245858171242844
+    second: ButtonsAse_11
+  - first:
+      213: -6261017339033483792
+    second: ButtonsAse_12
+  - first:
+      213: -6807646052473626576
+    second: ButtonsAse_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ButtonsAse_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 163
+        width: 181
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e782d2f034b4df80800000000000000
+      internalID: -8082637308897884191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 119
+        width: 33
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a350d6d4243764e00800000000000000
+      internalID: 1028636293504763194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_2
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 128
+        width: 14
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16504f794abdb2ad0800000000000000
+      internalID: -2725843649472232095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_3
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 128
+        width: 14
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51a80baaebaf07080800000000000000
+      internalID: -9191571142648755691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_4
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 134
+        width: 14
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dba4be7a421c5c3a0800000000000000
+      internalID: -6645693311935100227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_5
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 134
+        width: 14
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 029e39a94192e6fe0800000000000000
+      internalID: -1193971682737133280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 80
+        width: 18
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55ae7efea5acab2c0800000000000000
+      internalID: -4414993992762529195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_7
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 80
+        width: 19
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5448056886dd8dac0800000000000000
+      internalID: -3830068042078845883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_8
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 86
+        width: 24
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03767cdb4e8e76fa0800000000000000
+      internalID: -5807417125336815824
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_9
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 86
+        width: 24
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2eb967675d3dc2e0800000000000000
+      internalID: -2103958005305721300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_10
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 88
+        width: 23
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53add40a901fce840800000000000000
+      internalID: 5254839888880982581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_11
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 87
+        width: 23
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a63b282fd10fc3c0800000000000000
+      internalID: -4337245858171242844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 50
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f5095607e56c19a0800000000000000
+      internalID: -6261017339033483792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtonsAse_13
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 50
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03028b5dbf16681a0800000000000000
+      internalID: -6807646052473626576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ButtonsAse_0: -8082637308897884191
+      ButtonsAse_1: 1028636293504763194
+      ButtonsAse_10: 5254839888880982581
+      ButtonsAse_11: -4337245858171242844
+      ButtonsAse_12: -6261017339033483792
+      ButtonsAse_13: -6807646052473626576
+      ButtonsAse_2: -2725843649472232095
+      ButtonsAse_3: -9191571142648755691
+      ButtonsAse_4: -6645693311935100227
+      ButtonsAse_5: -1193971682737133280
+      ButtonsAse_6: -4414993992762529195
+      ButtonsAse_7: -3830068042078845883
+      ButtonsAse_8: -5807417125336815824
+      ButtonsAse_9: -2103958005305721300
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

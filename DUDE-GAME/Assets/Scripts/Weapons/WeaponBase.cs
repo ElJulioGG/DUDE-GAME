@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 
 public class WeaponBase : MonoBehaviour
 {
@@ -36,13 +37,30 @@ public class WeaponBase : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private Image reloadFillImage;
+    [SerializeField] private Image noAmmoImage;
     [SerializeField] private Text ammoText;
+    private bool emptySoundPlayed = false;
 
     [Header("Spread Fire Settings")]
     [SerializeField] private bool spreadFireEnabled = false;
     [SerializeField] private int bulletsPerShot = 5;
     [SerializeField] private float spreadAngle = 15f;
     [SerializeField] private bool randomSpread = true;
+
+    [Header("Out of Ammo Shake Settings")]
+    [SerializeField] private float noAmmoShakeDuration = 0.3f;
+    [SerializeField] private float shakeStrength = 0.2f;
+    [SerializeField] private int shakeVibrato = 40;
+    [SerializeField] private float shakeRandomness = 90f;
+    [SerializeField] private bool shakeFadeOut = true;
+    [SerializeField] private bool shakeSnapping = false;
+
+
+    private Tween shakeTween;
+    private Tween rotateTween;
+    private Vector3 originalLocalPos;
+    private Quaternion originalLocalRot;
+
 
     private float lastShootTime = 0f;
     private float nextAutoShotTime = 0f;
@@ -53,9 +71,15 @@ public class WeaponBase : MonoBehaviour
     private void Start()
     {
         reloadFillImage.gameObject.SetActive(false);
+        noAmmoImage.gameObject.SetActive(false);
         playerRb = GetComponentInParent<Rigidbody2D>();
+
+        originalLocalPos = transform.localPosition;
+        originalLocalRot = transform.localRotation;
+
         InitializeWeapon();
     }
+
 
     public void InitializeWeapon(bool forceDefaults = false)
     {
@@ -70,6 +94,7 @@ public class WeaponBase : MonoBehaviour
         {
             reloadFillImage.fillAmount = 0f;
             reloadFillImage.gameObject.SetActive(false);
+            noAmmoImage.gameObject.SetActive(false);
         }
         UpdateUI();
     }
@@ -91,6 +116,7 @@ public class WeaponBase : MonoBehaviour
     public void StartFiring()
     {
         isFiring = true;
+        emptySoundPlayed = false; // reset when starting a new firing action
         if (!fullAutoMode)
         {
             TryShoot(false);
@@ -100,6 +126,7 @@ public class WeaponBase : MonoBehaviour
     public void StopFiring()
     {
         isFiring = false;
+        emptySoundPlayed = false; // reset so next press can play the sound again
     }
 
     private void TryShoot(bool isAuto)
@@ -107,13 +134,19 @@ public class WeaponBase : MonoBehaviour
         if (CanShoot(isAuto))
         {
             Shoot();
+            emptySoundPlayed = false;
         }
-        else if (currentClipAmmo <= 0 && !isReloading)
+        else if (currentClipAmmo <= 0 && !isReloading&&!emptySoundPlayed)
         {
             // Play empty clip sound
             if (SoundFXManager.instance != null)
             {
                 SoundFXManager.instance.PlaySoundByName("EmptyMag", transform, 0.5f, 1f, false);
+                noAmmoImage.gameObject.SetActive(currentClipAmmo <= 0 && reserveAmmo <= 0);
+
+                emptySoundPlayed = true;
+
+                TriggerOutOfAmmoShake();
             }
 
             // Auto-reload if possible
@@ -123,6 +156,21 @@ public class WeaponBase : MonoBehaviour
             }
         }
     }
+    private void TriggerOutOfAmmoShake()
+    {
+        shakeTween?.Kill();
+        transform.localPosition = originalLocalPos;
+
+        shakeTween = transform.DOShakePosition(
+            noAmmoShakeDuration,
+            strength: shakeStrength,
+            vibrato: shakeVibrato,
+            randomness: shakeRandomness,
+            snapping: shakeSnapping,
+            fadeOut: shakeFadeOut
+        ).SetRelative(true);
+    }
+
 
     private bool CanShoot(bool isAuto)
     {

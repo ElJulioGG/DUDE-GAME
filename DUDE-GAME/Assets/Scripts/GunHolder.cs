@@ -48,40 +48,39 @@ public class GunHolder : MonoBehaviour
 
     public void SetPlayerIndex(int index) => playerIndex = index;
     public int GetPlayerIndex() => playerIndex;
-
     void Update()
     {
-
-
         // Track last movement direction with a deadzone threshold
         PlayerMovement movement = GetComponent<PlayerMovement>();
         if (movement != null)
         {
-            // Use a larger threshold (0.1f instead of 0.01f)
-            if (movement.moveInput.sqrMagnitude > 0.1f) // 0.1f * 0.1f = 0.01
+            if (movement.moveInput.sqrMagnitude > 0.1f)
             {
                 lastMovementDirection = movement.moveInput.normalized;
             }
             else
             {
-                // Explicitly set to zero when below threshold
                 lastMovementDirection = Vector2.zero;
             }
         }
 
+        // Handle pick/drop first and skip shoot if pickup was handled
         if (pickDropRequested)
         {
             HandlePickDrop();
             pickDropRequested = false;
+            shootRequested = false; // <-- cancel shooting this frame
             return;
         }
 
+        // Only shoot if not cancelled
         if (shootRequested)
         {
             HandleShoot();
             shootRequested = false;
         }
     }
+
 
     public void RequestShoot() => shootRequested = true;
     public void RequestPickDrop() => pickDropRequested = true;
@@ -120,7 +119,7 @@ public class GunHolder : MonoBehaviour
             }
         }
     }
-    public void EquipWeapon(string weaponName)
+    public void EquipWeapon(string weaponName,WeaponPickup pickup)
     {
         if (currentWeapon != null)
         {
@@ -139,40 +138,26 @@ public class GunHolder : MonoBehaviour
                 currentGunScript = currentWeapon.GetComponent<WeaponBase>();
                 currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
 
-                
-                
                 hasWeapon = true;
                 activeWeapon = weaponName;
+
                 if (currentGunScript != null)
                 {
-                    if ((nearbyPickup.savedClipAmmo == -1) && (nearbyPickup.savedReserveAmmo == -1))
+                    if (pickup.savedClipAmmo == -1 && pickup.savedReserveAmmo == -1)
                     {
-                        // Initialize with prefab defaults
                         currentGunScript.InitializeWeapon(true);
-                        // Use saved ammo from pickup
-                        //currentGunScript.SetAmmo(nearbyPickup.savedClipAmmo, nearbyPickup.savedReserveAmmo);
                     }
                     else
                     {
-                        //currentGunScript.InitializeWeapon(true);
-                        // Use saved ammo from pickup
-                        currentGunScript.SetAmmo(nearbyPickup.savedClipAmmo, nearbyPickup.savedReserveAmmo);
+                        currentGunScript.SetAmmo(pickup.savedClipAmmo, pickup.savedReserveAmmo);
                     }
 
-                    Debug.Log($"Weapon equipped with ammo: {currentGunScript.currentClipAmmo}/{currentGunScript.reserveAmmo}");
-                   // print(currentGunScript.startingClipAmmo);
-                    //print(currentGunScript.currentClipAmmo);
-                   // print(currentGunScript.reserveAmmo);
-                    //print(currentGunScript.startingReserveAmmo);
+                    currentGunScript.SetAimDirection(lastAimDirection);
                 }
-                // Apply the last aim direction to the new weapon
-                if (currentGunScript != null)
-                {
-                   currentGunScript.SetAimDirection(lastAimDirection);
-                    
-                } 
                 else if (currentMeleeScript != null)
+                {
                     currentMeleeScript.SetAimDirection(lastAimDirection);
+                }
 
                 return;
             }
@@ -282,16 +267,17 @@ public class GunHolder : MonoBehaviour
     {
         if (nearbyPickup != null && !hasWeapon)
         {
-            GameObject toDestroy = nearbyPickup.gameObject;
-            EquipWeapon(nearbyPickup.weaponName);
+            var pickup = nearbyPickup;
             nearbyPickup = null;
-            Destroy(toDestroy);
+            EquipWeapon(pickup.weaponName, pickup);
+            Destroy(pickup.gameObject);
         }
         else if (hasWeapon)
         {
             DropCurrentWeapon();
         }
     }
+
 
     public void HandleShoot()
     {
