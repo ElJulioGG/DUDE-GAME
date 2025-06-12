@@ -187,7 +187,21 @@ public class GameController : MonoBehaviour
                 matchEnded = true;
                 StartCoroutine(HandleLastPlayerWin(lastAlivePlayer));
             }
+            else if (aliveCount == 0)
+            {
+                matchEnded = true;
+                StartCoroutine(HandleDraw());
+            }
         }
+    }
+
+    IEnumerator HandleDraw()
+    {
+        Debug.Log("Draw! No players alive.");
+        yield return new WaitForSeconds(2f); // Optional delay
+        transitionAnim.SetTrigger("FadeIn");
+        yield return new WaitForSeconds(0.5f);
+        NextMatch(); // Restart match without awarding points
     }
 
     private void FixedUpdate()

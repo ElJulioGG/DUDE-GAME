@@ -1,5 +1,5 @@
+using System.Collections;
 using UnityEngine;
-
 [RequireComponent(typeof(Rigidbody2D))]
 public class BulletBehavior : MonoBehaviour
 {
@@ -67,7 +67,7 @@ public class BulletBehavior : MonoBehaviour
             if (((1 << hit.collider.gameObject.layer) & damageableMask) != 0)
             {
                 HandleDamage(hit);
-                if (destroyOnPlayerHit) return;
+                if (destroyOnPlayerHit) return; // Esto se queda igual
             }
 
             if (enableBounce && ((1 << hit.collider.gameObject.layer) & bounceableMask) != 0)
@@ -76,6 +76,7 @@ public class BulletBehavior : MonoBehaviour
                 return;
             }
         }
+
 
         rb.MovePosition(newPosition);
         previousPosition = newPosition;
@@ -92,19 +93,25 @@ public class BulletBehavior : MonoBehaviour
         if (hit.collider.CompareTag("Player"))
         {
             hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
-        }
-        if (destroyOnPlayerHit)
-        {
-            DestroyBullet();
+
+            if (destroyOnPlayerHit)
+            {
+                StopAllCoroutines();
+                StartCoroutine(MoveToCollisionAndDestroy(hit.point, Vector2.zero));
+            }
         }
     }
+
+
+
 
     void HandleBounce(RaycastHit2D hit)
     {
         bounceLife--;
         if (bounceLife < 0)
         {
-            DestroyBullet();
+            StopAllCoroutines();
+            StartCoroutine(MoveToCollisionAndDestroy(hit.point, hit.normal));
             return;
         }
 
@@ -118,9 +125,11 @@ public class BulletBehavior : MonoBehaviour
         }
 
         direction = Vector2.Reflect(direction, normal).normalized;
+
         rb.position = hit.point + normal * 0.15f;
         previousPosition = rb.position;
     }
+
 
     void OnBecameInvisible()
     {
@@ -128,6 +137,24 @@ public class BulletBehavior : MonoBehaviour
         {
             DestroyBullet();
         }
+    }
+    IEnumerator MoveToCollisionAndDestroy(Vector2 targetPoint, Vector2 normal)
+    {
+        // Mueve la posición de la bala justo al punto de colisión
+        rb.position = targetPoint;
+        transform.position = targetPoint;
+
+        // Si necesitas ajustar la dirección antes de desaparecer (como en rebotes agotados)
+        if (normal != Vector2.zero)
+        {
+            direction = Vector2.Reflect(direction, normal).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        }
+
+        yield return null; // Espera un frame para que la partícula se actualice
+
+        DestroyBullet();
     }
 
     void DestroyBullet()
@@ -152,7 +179,35 @@ public class BulletBehavior : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
+
+        // Only draw in Play Mode when we have a valid rb
+        if (rb != null)
+        {
+            Vector2 currentPos = rb.position;
+            Vector2 newPos = currentPos + direction.normalized * speed * Time.fixedDeltaTime;
+            float distance = Vector2.Distance(currentPos, newPos);
+
+            // Draw direction line
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(currentPos, newPos);
+
+            // Draw circles along the cast path
+            int segments = Mathf.CeilToInt(distance / bulletRadius);
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = i / (float)segments;
+                Vector2 pos = Vector2.Lerp(currentPos, newPos, t);
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(pos, bulletRadius);
+            }
+        }
+
+        // Always draw a wire sphere at the current transform position
+        Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, bulletRadius);
     }
 #endif
+
+
+
 }
