@@ -135,6 +135,25 @@ public class WeaponPickup : MonoBehaviour
             }
         }
     }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        GunHolder gunHolder = other.GetComponent<GunHolder>();
+
+        if (gunHolder != null)
+        {
+            gunHolder.SetNearbyPickup(this);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        GunHolder gunHolder = other.GetComponent<GunHolder>();
+
+        if (gunHolder != null)
+        {
+            gunHolder.ClearNearbyPickup(this);
+        }
+    }
 
 
 }

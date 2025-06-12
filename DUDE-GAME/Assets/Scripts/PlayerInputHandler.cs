@@ -25,6 +25,34 @@ public class PlayerInputHandler : MonoBehaviour
         // Link gun system
         var allHolders = FindObjectsByType<GunHolder>(FindObjectsSortMode.None);
         gunHolder = allHolders.FirstOrDefault(h => h.GetPlayerIndex() == index);
+
+        DetectAndSetControllerType();
+    }
+    private void DetectAndSetControllerType()
+    {
+        var device = playerInput.devices.FirstOrDefault();
+        if (device == null) return;
+
+        int controllerType = 0; // Default to Xbox
+
+        string deviceName = device.name.ToLower();
+
+        if (deviceName.Contains("xbox"))
+            controllerType = 0;
+        else if (deviceName.Contains("switch") || deviceName.Contains("joycon"))
+            controllerType = 1;
+        else if (deviceName.Contains("dualshock") || deviceName.Contains("dualsense") || deviceName.Contains("ps"))
+            controllerType = 2;
+
+        switch (index)
+        {
+            case 0: GameManager.instance.player1ControllerType = controllerType; break;
+            case 1: GameManager.instance.player2ControllerType = controllerType; break;
+            case 2: GameManager.instance.player3ControllerType = controllerType; break;
+            case 3: GameManager.instance.player4ControllerType = controllerType; break;
+        }
+
+        Debug.Log($"Player {index} is using controller: {device.displayName}, type: {controllerType}, raw name: {device.name}");
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -85,6 +113,8 @@ public class PlayerInputHandler : MonoBehaviour
             gunHolder.HandlePickDrop();
         }
     }
+
+    
     public void OnShoot(InputAction.CallbackContext context)
     {
         if (gunHolder == null) return;
@@ -109,11 +139,12 @@ public class PlayerInputHandler : MonoBehaviour
     }
     public void OnPowerUp(InputAction.CallbackContext context)
     {
-        if (playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
+        if (context.performed && playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
         {
             playerStats.usingPowerUp = true;
         }
     }
+
 
 
 }

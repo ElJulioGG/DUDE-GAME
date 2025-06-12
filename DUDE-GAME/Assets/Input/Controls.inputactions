@@ -218,8 +218,8 @@
                 {
                     "name": "",
                     "id": "7a136b73-a74c-482c-8f49-cd7b9e001012",
-                    "path": "<Gamepad>/buttonEast",
-                    "interactions": "Tap",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "PowerUp",

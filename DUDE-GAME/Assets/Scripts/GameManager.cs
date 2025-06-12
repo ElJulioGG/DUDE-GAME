@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    
     public static GameManager instance;
     [Header("PlayersStatus")]
     [SerializeField] public int playersActive = 0;
@@ -20,6 +21,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] public Sprite player2Icon;
     [SerializeField] public Sprite player3Icon;
     [SerializeField] public Sprite player4Icon;
+
+    // 0: Xbox, 1: Switch, 2: PS5
+    [SerializeField] public int player1ControllerType = 0;
+    [SerializeField] public int player2ControllerType = 0;
+    [SerializeField] public int player3ControllerType = 0;
+    [SerializeField] public int player4ControllerType = 0;
 
     //0 = no power, 1 = instakill, 2 = doublePoints, 3 = OpenFire, 4 = MaxAmmo, *5 = fireSale*, 6 = kaboom, *7 = carpinter*, 8 = death machine
     [SerializeField] public Sprite[] powerUpIcons; 

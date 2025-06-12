@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4976930805672126273}
   m_Layer: 0
   m_Name: DropRailgun
-  m_TagString: Wall
+  m_TagString: Pickup
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

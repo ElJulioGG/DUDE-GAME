@@ -85,23 +85,22 @@ public class GunHolder : MonoBehaviour
     public void RequestShoot() => shootRequested = true;
     public void RequestPickDrop() => pickDropRequested = true;
 
-    void OnTriggerEnter2D(Collider2D other)
+    public void SetNearbyPickup(WeaponPickup pickup)
     {
-        WeaponPickup pickup = other.GetComponent<WeaponPickup>();
-        if (pickup != null)
-        {
-            print("PLUUGHHHG");
-            nearbyPickup = pickup;
-        }
+        nearbyPickup = pickup;
     }
 
-    void OnTriggerExit2D(Collider2D other)
+    public void ClearNearbyPickup(WeaponPickup pickup)
     {
-        if (nearbyPickup != null && other.gameObject == nearbyPickup.gameObject)
+        if (nearbyPickup == pickup)
         {
             nearbyPickup = null;
         }
     }
+
+
+
+
     public void HandleReload()
     {
         
