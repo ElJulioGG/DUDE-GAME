@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: f4bdcd36ce0115e43a243f9973571e45
+guid: fbc575249f7f3d24aa0e6f148dc1b50e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1761730726769117966
-    second: ArmaPankracio_0
+      213: -1119156536605775240
+    second: testlv216x17_0
+  - first:
+      213: -360585640334281041
+    second: testlv216x17_1
+  - first:
+      213: -107988302542893877
+    second: testlv216x17_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +57,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -101,7 +107,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,23 +119,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ArmaPankracio_0
+      name: testlv216x17_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 7
-        width: 32
-        height: 19
+        x: 15
+        y: 167
+        width: 18
+        height: 18
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e0bc6fe03cce27810800000000000000
-      internalID: 1761730726769117966
+      spriteID: 87a6e8b3f05f770f0800000000000000
+      internalID: -1119156536605775240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: testlv216x17_1
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 167
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa6b4c44541fefaf0800000000000000
+      internalID: -360585640334281041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: testlv216x17_2
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 103
+        width: 28
+        height: 34
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bcc88030639508ef0800000000000000
+      internalID: -107988302542893877
       vertices: []
       indices: 
       edges: []
@@ -138,7 +188,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 3c78e6898454b744392d30f9579ef3ba
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +198,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ArmaPankracio_0: 1761730726769117966
+      testlv216x17_0: -1119156536605775240
+      testlv216x17_1: -360585640334281041
+      testlv216x17_2: -107988302542893877
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

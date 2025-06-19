@@ -39,10 +39,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] public bool exploringAndFighting = false;
     [SerializeField] public bool brewingPotions = false;
     [SerializeField] public bool figthingBoss = false;
-
+    
 
     [Header("Camera")]
     [SerializeField] public int activeCamera = 0;
+    [Header("LevelStatus")]
+    [SerializeField] public bool destroyProyectiles = false;
 
     [Header("Materials")]
     [SerializeField] public int material1 = 0;

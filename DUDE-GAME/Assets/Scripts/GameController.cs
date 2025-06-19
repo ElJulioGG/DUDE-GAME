@@ -22,6 +22,7 @@ public class GameController : MonoBehaviour
         ClearAllWeaponPickups(); // Clear weapons before map change
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
+        GameManager.instance.destroyProyectiles = true;
         RemovePointsCanvas();
 
         // Destroy all blood splatters
@@ -108,6 +109,7 @@ public class GameController : MonoBehaviour
 
     IEnumerator MatchBegin()
     {
+        GameManager.instance.destroyProyectiles = false;
         transitionAnim.SetTrigger("FadeOut");
         foreach (PlayerStats player in playerStats)
         {

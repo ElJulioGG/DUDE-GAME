@@ -49,6 +49,11 @@ public class BulletBehavior : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GameManager.instance.destroyProyectiles)
+        {
+            DestroyBullet();
+            return;
+        }
         if (isQuitting) return;
 
         Vector2 newPosition = previousPosition + direction * speed * Time.fixedDeltaTime;

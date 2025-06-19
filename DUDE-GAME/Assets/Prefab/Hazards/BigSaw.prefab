@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4418546661149465521}
   - component: {fileID: 7352956774663322053}
   - component: {fileID: 2981367276194015220}
+  - component: {fileID: 8636517167511448116}
   m_Layer: 0
   m_Name: BigSaw
   m_TagString: Killbox
@@ -98,7 +99,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3992746848472676548}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -156,6 +157,42 @@ MonoBehaviour:
   - {fileID: 6752875559477136351, guid: 196678aa4f3c0184ea3c0421ffdc6130, type: 3}
   - {fileID: -8661826348588917280, guid: 196678aa4f3c0184ea3c0421ffdc6130, type: 3}
   spriteChildName: Sprite
+--- !u!58 &8636517167511448116
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3992746848472676548}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.9
 --- !u!1 &5991489263159907789
 GameObject:
   m_ObjectHideFlags: 0
