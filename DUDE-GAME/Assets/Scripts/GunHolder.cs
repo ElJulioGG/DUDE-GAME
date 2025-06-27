@@ -48,7 +48,7 @@ public class GunHolder : MonoBehaviour
 
     public void SetPlayerIndex(int index) => playerIndex = index;
     public int GetPlayerIndex() => playerIndex;
-    void Update()
+    void FixedUpdate()
     {
         // Track last movement direction with a deadzone threshold
         PlayerMovement movement = GetComponent<PlayerMovement>();

@@ -6,9 +6,18 @@ public class GameManager : MonoBehaviour
 {
     
     public static GameManager instance;
+    [Header("GameStatus")]
+    [SerializeField] public bool gamePaused = false;
+    [SerializeField] public bool assignController = false;
+
     [Header("PlayersStatus")]
     [SerializeField] public int playersActive = 0;
     [SerializeField] public bool playersCanMove = true;
+    [SerializeField] public bool playersCanShoot = true;
+    [SerializeField] public bool playersCanPickDrop = true;
+    [SerializeField] public bool playersCanReload = true;
+    [SerializeField] public bool playersCanAim = true;
+    [SerializeField] public bool playersCanPowerUp = true;
     [SerializeField] public bool unlimitedBullets = false;
 
     [Header("Player Stats")]
@@ -35,10 +44,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int player3PowerUp = 0;
     [SerializeField] public int player4PowerUp = 0;
 
-    [SerializeField] public bool defendingBase = false;
-    [SerializeField] public bool exploringAndFighting = false;
-    [SerializeField] public bool brewingPotions = false;
-    [SerializeField] public bool figthingBoss = false;
     
 
     [Header("Camera")]

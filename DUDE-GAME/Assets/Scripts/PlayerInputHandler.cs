@@ -28,6 +28,24 @@ public class PlayerInputHandler : MonoBehaviour
 
         DetectAndSetControllerType();
     }
+    
+    public void reasignController(int newIndex){
+        playerInput = GetComponent<PlayerInput>();
+        index = playerInput.playerIndex;
+
+        // Link Stats
+        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
+        playerStats = allStats.FirstOrDefault(s => s.GetPlayerIndex() == newIndex);
+        // Link movement
+        var allMovers = FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None);
+        playerMovement = allMovers.FirstOrDefault(m => m.GetPlayerIndex() == newIndex);
+
+        // Link gun system
+        var allHolders = FindObjectsByType<GunHolder>(FindObjectsSortMode.None);
+        gunHolder = allHolders.FirstOrDefault(h => h.GetPlayerIndex() == newIndex);
+
+        DetectAndSetControllerType();
+    }
     private void DetectAndSetControllerType()
     {
         var device = playerInput.devices.FirstOrDefault();
@@ -44,7 +62,7 @@ public class PlayerInputHandler : MonoBehaviour
         else if (deviceName.Contains("dualshock") || deviceName.Contains("dualsense") || deviceName.Contains("ps"))
             controllerType = 2;
 
-        switch (index)
+        switch (playerInput.playerIndex)
         {
             case 0: GameManager.instance.player1ControllerType = controllerType; break;
             case 1: GameManager.instance.player2ControllerType = controllerType; break;
@@ -57,7 +75,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if ((playerMovement != null)&& GameManager.instance.playersCanMove)
+        if ((playerMovement != null) && GameManager.instance.playersCanMove)
         {
             playerMovement.SetInputVector(context.ReadValue<Vector2>());
         }
@@ -66,57 +84,30 @@ public class PlayerInputHandler : MonoBehaviour
             playerMovement.SetInputVector(Vector2.zero);
         }
     }
+    
     public void OnAim(InputAction.CallbackContext context)
     {
+        if(!GameManager.instance.playersCanAim) return;
         if (gunHolder != null)
         {
             Vector2 aimDirection = context.ReadValue<Vector2>();
             gunHolder.SetAimDirection(aimDirection);
         }
     }
+    
     public void OnInteract(InputAction.CallbackContext context)
     {
+        if(!GameManager.instance.playersCanPickDrop) return;
         if (context.performed && gunHolder != null)
         {
-            print("Player " + playerInput.playerIndex + " pick up weapon" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "");
+            print("Player " + playerInput.playerIndex + " pick up weapon");
             gunHolder.HandlePickDrop();
         }
     }
 
-    
     public void OnShoot(InputAction.CallbackContext context)
     {
+        if(!GameManager.instance.playersCanShoot) return;
         if (gunHolder == null) return;
 
         if (context.performed)
@@ -128,23 +119,24 @@ public class PlayerInputHandler : MonoBehaviour
             gunHolder.HandleStopShoot(); // Called on release
         }
     }
+    
     public void OnReload(InputAction.CallbackContext context)
     {
-        print("Reaload 1");
+        if(!GameManager.instance.playersCanReload) return;
+        print("Reload 1");
         if (context.performed && gunHolder != null)
         {
-            print("Reaload 2");
+            print("Reload 2");
             gunHolder.HandleReload();
         }
     }
+    
     public void OnPowerUp(InputAction.CallbackContext context)
     {
+        if(!GameManager.instance.playersCanPowerUp) return;
         if (context.performed && playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
         {
             playerStats.usingPowerUp = true;
         }
     }
-
-
-
 }

@@ -16,6 +16,11 @@ public class GameController : MonoBehaviour
     private GameObject activePointsCanvas;
     private int currentPowerUp;
 
+    private bool wasInAssignmentPhase = false;
+
+    [SerializeField]private ControllerMapper controllerMapper;
+   
+
     public void NextMatch()
     {
         pointsToGive = 1;
@@ -46,7 +51,7 @@ public class GameController : MonoBehaviour
 
     private void ClearAllWeaponPickups()
     {
-        WeaponPickup[] existingPickups = FindObjectsOfType<WeaponPickup>(true);
+        WeaponPickup[] existingPickups = FindObjectsByType<WeaponPickup>(FindObjectsSortMode.None);
         foreach (WeaponPickup pickup in existingPickups)
         {
             if (pickup != null && pickup.gameObject != null)
@@ -163,8 +168,57 @@ public class GameController : MonoBehaviour
         Invoke("StartGame", 0.5f);
     }
 
+    private void AssignController()
+    {
+        controllerMapper.InitializeControllerMapping();
+    }
+    private void PauseGame()
+    {
+        Time.timeScale = 0;
+
+        GameManager.instance.gamePaused = true;
+
+        GameManager.instance.playersCanShoot = false;
+        GameManager.instance.playersCanPickDrop = false;
+        GameManager.instance.playersCanReload = false;
+        GameManager.instance.playersCanAim = false;
+        GameManager.instance.playersCanPowerUp = false;
+       
+    }
+    private void UnpauseGame()
+    {
+        Time.timeScale = 1;
+         GameManager.instance.gamePaused = false;
+        
+        GameManager.instance.playersCanShoot = true;
+        GameManager.instance.playersCanPickDrop = true;
+        GameManager.instance.playersCanReload = true;
+        GameManager.instance.playersCanAim = true;
+        GameManager.instance.playersCanPowerUp = true;
+    }
+
     void Update()
     {
+        // Check if assignController value changed
+        if (GameManager.instance.assignController != wasInAssignmentPhase)
+        {
+            if (GameManager.instance.assignController)
+            {
+                // Just entered assignment phase
+                PauseGame();
+                AssignController();
+            }
+            else
+            {
+                // Just left assignment phase
+                controllerMapper.FinalizeControllerMapping();//quitar despues
+                UnpauseGame();
+            }
+            
+            // Update our tracking variable
+            wasInAssignmentPhase = GameManager.instance.assignController;
+        }
+        
         if (Input.GetKeyDown(KeyCode.L))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
