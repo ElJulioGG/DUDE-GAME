@@ -158,16 +158,20 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
-        {
-            SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.1f, 1f);
-        }
+        GameManager.instance.assignController = true;
+        Invoke("firstStart", 0.1f);
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
         AssignPlayerPositions();
         Invoke("StartGame", 0.5f);
     }
-
+    void firstStart()
+    {
+        if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
+        {
+            SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.1f, 1f);
+        }
+    }
     private void AssignController()
     {
         controllerMapper.InitializeControllerMapping();

@@ -71,7 +71,8 @@ public class PlayerCursor : MonoBehaviour
 
     private void Start()
     {
-        SetInitialPosition();
+        Invoke("SetInitialPosition", 0.1f);
+        //SetInitialPosition();
     }
 
     private void Update()
@@ -167,7 +168,7 @@ private void SetButtonColor(Button btn, Color color)
     {
         if (rectTransform != null)
         {
-            Vector2 centerPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            Vector2 centerPosition = new Vector2(Screen.width * 0.8f, Screen.height * 0.8f);
             rectTransform.anchoredPosition = centerPosition;
         }
     }
