@@ -222,7 +222,7 @@ public class GameController : MonoBehaviour
                 SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
             }
 
-            float waitTime = (i == UIIntroObjects.Length - 1) ? 1.5f : 1f;
+            float waitTime = (i == UIIntroObjects.Length - 1) ? 0.3f : 1f;
             yield return new WaitForSeconds(waitTime);
             UIIntroObjects[i].SetActive(false);
         }
