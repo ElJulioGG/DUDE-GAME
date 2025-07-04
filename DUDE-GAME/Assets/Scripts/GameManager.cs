@@ -21,6 +21,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] public bool unlimitedBullets = false;
 
     [Header("Player Stats")]
+    [SerializeField] public bool player1Playable = true;
+    [SerializeField] public bool player2Playable = true;
+    [SerializeField] public bool player3Playable = true;
+    [SerializeField] public bool player4Playable = true;
     [SerializeField] public int player1Score = 0;
     [SerializeField] public int player2Score = 0;
     [SerializeField] public int player3Score = 0;
@@ -44,41 +48,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int player3PowerUp = 0;
     [SerializeField] public int player4PowerUp = 0;
 
-    
-
     [Header("Camera")]
     [SerializeField] public int activeCamera = 0;
     [Header("LevelStatus")]
     [SerializeField] public bool destroyProyectiles = false;
 
-    [Header("Materials")]
-    [SerializeField] public int material1 = 0;
-    [SerializeField] public int material2 = 0;
-    [SerializeField] public int material3 = 0;
-    [SerializeField] public int material4 = 0;
+    
 
-    [Header("Bases Conditions")]
-    [SerializeField] public int basesDefended = 0;
+   
 
-    [Header("Area Manager")]
-    [SerializeField] public bool blockPeCausa = true;
-    [SerializeField] public bool blockTower1 = true;
-    [SerializeField] public bool blockTower2 = true;
-    [SerializeField] public bool BlockOutsideBase1A = true;
-    [SerializeField] public bool BlockOutsideBase2A = true;
-    [SerializeField] public bool BlockOutsideBase1B = true;
-    [SerializeField] public bool BlockOutsideBase2B = true;
-    [SerializeField] public bool BlockOutsideBase3B = true;
-    [SerializeField] public bool BlockOutsideBase1C = true;
-    [SerializeField] public bool BlockOutsideBase2C = true;
-    [SerializeField] public bool BlockOutsideBase3C = true;
-    [SerializeField] public bool BlockOutsideBase1D = true;
-    [SerializeField] public bool BlockOutsideBase2D = true;
-    [SerializeField] public bool BlockOutsideBase3D = true;
-    [SerializeField] public bool BlockOutsideBase1E = true;
-    [SerializeField] public bool BlockOutsideBase2E = true;
-    [SerializeField] public bool TeleportBoss = false;
-    [SerializeField] public int LastTeleportedFrom = 0;
+    
 
 
     private void Awake()

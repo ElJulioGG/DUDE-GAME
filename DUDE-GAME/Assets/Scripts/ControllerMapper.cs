@@ -14,6 +14,7 @@ public class ControllerMapper : MonoBehaviour
     [SerializeField] private PlayerCursor[] playerCursors;
     [SerializeField] private GameObject mapperCanvas;
     [SerializeField] private GameObject[] playerButtons;
+    private Dictionary<InputDevice, int> deviceToCursorMap = new();
 
     private void Start()
     {
@@ -52,7 +53,7 @@ public class ControllerMapper : MonoBehaviour
     }).ToArray();
 }
 
- private void InitializeCursors()
+ /* private void InitializeCursors()
 {
     EnableCursors();
 
@@ -83,7 +84,59 @@ public class ControllerMapper : MonoBehaviour
             playerCursors[i].gameObject.SetActive(false);
         }
     }
+} */
+private void InitializeCursors()
+{
+    EnableCursors();
+
+    List<InputDevice> connectedDevices = new();
+
+    foreach (var pad in Gamepad.all)
+    {
+        if (!connectedDevices.Contains(pad))
+            connectedDevices.Add(pad);
+    }
+
+    if (connectedDevices.Count < 4 && Keyboard.current != null)
+        connectedDevices.Add(Keyboard.current);
+
+    // Reset if device count changed (optional)
+    if (deviceToCursorMap.Count != connectedDevices.Count)
+        deviceToCursorMap.Clear();
+
+    // Asignar dispositivos a cursores disponibles
+    for (int i = 0; i < connectedDevices.Count && i < playerCursors.Length; i++)
+    {
+        var device = connectedDevices[i];
+
+        if (!deviceToCursorMap.ContainsKey(device))
+        {
+            // Buscar primer índice libre
+            for (int j = 0; j < playerCursors.Length; j++)
+            {
+                if (!deviceToCursorMap.ContainsValue(j))
+                {
+                    deviceToCursorMap[device] = j;
+                    break;
+                }
+            }
+        }
+
+        if (!deviceToCursorMap.TryGetValue(device, out int cursorIndex)) continue;
+        if (cursorIndex < 0 || cursorIndex >= playerCursors.Length) continue;
+        if (cursorIndex >= playerInputHandlers.Length) continue;
+
+        playerCursors[cursorIndex].Initialize(device, playerInputHandlers[cursorIndex]);
+        playerCursors[cursorIndex].gameObject.SetActive(true);
+    }
+
+    // Desactivar cursores no usados
+    for (int i = connectedDevices.Count; i < playerCursors.Length; i++)
+    {
+        playerCursors[i].gameObject.SetActive(false);
+    }
 }
+
 
 
     public void AssignControllerToPlayer(int controllerIndex, int playerIndex)
@@ -122,4 +175,7 @@ public class ControllerMapper : MonoBehaviour
         DisableCursors();
     }
 }
+
+
+
 

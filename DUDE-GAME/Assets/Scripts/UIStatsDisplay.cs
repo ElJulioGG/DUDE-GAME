@@ -3,20 +3,38 @@ using UnityEngine.InputSystem; // Required for Gamepad support
 
 public class UIStatsDisplay : MonoBehaviour
 {
-    [SerializeField] private GameObject[] playerUIStats;
+    [SerializeField] private GameObject[] playerUIStats; // Size = 4
+    [SerializeField] private GameObject spacingPanel;
 
     void Update()
     {
-        // Get connected gamepads (limit to 4 max)
-        int connectedGamepads = Mathf.Min(Gamepad.all.Count, 4);
+        int activeCount = 0;
 
-        // Enable only the UI stats for connected gamepads
         for (int i = 0; i < playerUIStats.Length; i++)
         {
-            playerUIStats[i].SetActive(i < connectedGamepads);
+            bool shouldBeActive = false;
+
+            // Determine if this player should be shown
+            switch (i)
+            {
+                case 0: shouldBeActive = GameManager.instance.player1Playable; break;
+                case 1: shouldBeActive = GameManager.instance.player2Playable; break;
+                case 2: shouldBeActive = GameManager.instance.player3Playable; break;
+                case 3: shouldBeActive = GameManager.instance.player4Playable; break;
+            }
+
+            // Activate/deactivate the UI and assign proper sibling index if active
+            playerUIStats[i].SetActive(shouldBeActive);
+
+            if (shouldBeActive)
+            {
+                playerUIStats[i].transform.SetSiblingIndex(activeCount);
+                activeCount++;
+            }
         }
 
-        // Optional debug log
-        //Debug.Log($"Connected Gamepads (max 4): {connectedGamepads}");
+        // Place spacingPanel at index 2 *among active elements*
+        int targetIndex = Mathf.Min(activeCount, 2);
+        spacingPanel.transform.SetSiblingIndex(targetIndex);
     }
 }

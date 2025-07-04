@@ -30,7 +30,7 @@ public class PlayerStats : MonoBehaviour
     void Start()
     {
         health = baseHealth;
-        playerAlive = true;
+       // playerAlive = true;
         gameObject.SetActive(true);
     }
 
@@ -79,8 +79,36 @@ public class PlayerStats : MonoBehaviour
         if (!playerAlive) return;
 
         health -= damageAmount;
-        SoundFXManager.instance.PlaySoundByName("NoPowerUp", transform, 1f, 0.8f);
-
+        int randomIndex = Random.Range(0, 9);
+        switch(randomIndex){
+            case 0:
+                SoundFXManager.instance.PlaySoundByName("Damage1", transform, 1f, 0.8f);
+                break;
+            case 1:
+                SoundFXManager.instance.PlaySoundByName("Damage2", transform, 1f, 0.8f);
+                break;
+            case 2:
+                SoundFXManager.instance.PlaySoundByName("Damage3", transform, 1f, 0.8f);
+                break;
+            case 3:
+                SoundFXManager.instance.PlaySoundByName("Damage4", transform, 1f, 0.8f);
+                break;
+            case 4:
+                SoundFXManager.instance.PlaySoundByName("Damage5", transform, 1f, 0.8f);
+                break;
+            case 5:
+                SoundFXManager.instance.PlaySoundByName("Damage6", transform, 1f, 0.8f);
+                break;
+            case 6:
+                SoundFXManager.instance.PlaySoundByName("Damage7", transform, 1f, 0.8f);
+                break;
+            case 7:
+                SoundFXManager.instance.PlaySoundByName("Damage8", transform, 1f, 0.8f);
+                break;
+            case 8:
+                SoundFXManager.instance.PlaySoundByName("Damage9", transform, 1f, 0.8f);
+                break;
+        }   
         if (spriteTransform != null)
         {
             //float shakeIntensity = Mathf.Clamp01((float)damageAmount / baseHealth);
@@ -187,11 +215,46 @@ public class PlayerStats : MonoBehaviour
     // Call this whenever you respawn the player
     public void Respawn()
     {
-        ResetShake();
-        gunHolder.DestroyCurrentWeapon();
-        health = baseHealth;
-        playerAlive = true;
-        gameObject.SetActive(true);
+        switch (playerIndex)
+        {
+            case 0:
+                if(GameManager.instance.player1Playable){
+                    ResetShake();
+                            gunHolder.DestroyCurrentWeapon();
+                            health = baseHealth;
+                            playerAlive = true;
+                            gameObject.SetActive(true);
+                }
+                break;
+            case 1:
+                if(GameManager.instance.player2Playable){
+                    ResetShake();
+                            gunHolder.DestroyCurrentWeapon();
+                            health = baseHealth;
+                            playerAlive = true;
+                            gameObject.SetActive(true);
+                }
+                break;
+            case 2:
+                if(GameManager.instance.player3Playable){
+                    ResetShake();
+                            gunHolder.DestroyCurrentWeapon();
+                            health = baseHealth;
+                            playerAlive = true;
+                            gameObject.SetActive(true);
+                }
+                break;
+            case 3:
+                if(GameManager.instance.player4Playable){
+                    ResetShake();
+                            gunHolder.DestroyCurrentWeapon();
+                            health = baseHealth;
+                            playerAlive = true;
+                            gameObject.SetActive(true);
+                }
+                break;
+        }
+        
     }
 
     private void OnEnable()

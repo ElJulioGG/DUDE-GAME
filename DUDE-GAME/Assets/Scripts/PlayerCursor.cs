@@ -6,12 +6,16 @@ using TMPro;
 public class PlayerCursor : MonoBehaviour
 {
     [Header("Cursor Settings")]
+    [SerializeField] private GameObject[] playerObjects; // Jugadores 0 a 3
+
     [SerializeField] private float moveSpeed = 500f;
     [SerializeField] private float deadZone = 0.1f;
+private Button assignedButton = null;
 
     [Header("UI References")]
     [SerializeField] private Image cursorImage;
     [SerializeField] private TextMeshProUGUI playerLabel;
+    [SerializeField] private TextMeshProUGUI playerLabel2;
     [SerializeField] private GameObject assignmentIndicator;
 
     [Header("Player Assignment Buttons")]
@@ -38,7 +42,7 @@ public class PlayerCursor : MonoBehaviour
     // Private fields
     private InputDevice inputDevice;
     [SerializeField] private int deviceIndex = -1;
-    private int assignedPlayerIndex = -1;
+    [SerializeField]private int assignedPlayerIndex = -1;
     private bool isAssigned = false;
     private bool isInitialized = false;
 
@@ -89,6 +93,18 @@ public class PlayerCursor : MonoBehaviour
 
 
     }
+    private bool IsButtonHoveredByAnotherCursor(Button button)
+    {
+        var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
+        foreach (var cursor in allCursors)
+        {
+            if (cursor == this) continue;
+            if (cursor.hoveredButton == button)
+                return true;
+        }
+        return false;
+    }
+
 private void HandleButtonHover()
 {
     Vector2 cursorPos = rectTransform.anchoredPosition;
@@ -102,16 +118,28 @@ private void HandleButtonHover()
 
     if (hoveredButton != currentHover)
     {
-        // Reset previous button color
-        if (hoveredButton != null)
+        if (hoveredButton != null && !isAssigned && !IsButtonHoveredByAnotherCursor(hoveredButton))
+        {
             SetButtonColor(hoveredButton, Color.white);
+            SetButtonTextColor(hoveredButton, Color.black);
+        }
+
 
         hoveredButton = currentHover;
 
         if (hoveredButton != null && !isAssigned)
         {
-            SetButtonColor(hoveredButton, playerColors[deviceIndex]);
-            cursorImage.color = playerColors[deviceIndex];
+            // Determine color based on which button we're hovering
+            Color hoverColor = Color.white;
+
+            if (hoveredButton == player1Button) hoverColor = playerColors[0];
+            else if (hoveredButton == player2Button) hoverColor = playerColors[1];
+            else if (hoveredButton == player3Button) hoverColor = playerColors[2];
+            else if (hoveredButton == player4Button) hoverColor = playerColors[3];
+
+            SetButtonColor(hoveredButton, hoverColor);
+            SetButtonTextColor(hoveredButton, Color.white);
+            //cursorImage.color = hoverColor;
         }
         else if (!isAssigned)
         {
@@ -119,6 +147,14 @@ private void HandleButtonHover()
         }
     }
 }
+
+private void SetButtonTextColor(Button btn, Color color)
+{
+    TextMeshProUGUI text = btn.GetComponentInChildren<TextMeshProUGUI>();
+    if (text != null)
+        text.color = color;
+}
+
 private void SetButtonColor(Button btn, Color color)
 {
     var colors = btn.colors;
@@ -138,11 +174,12 @@ private void SetButtonColor(Button btn, Color color)
 
         // Set unassigned appearance
         if (cursorImage != null)
-            cursorImage.color = unassignedColor;
+            //cursorImage.color = unassignedColor;
 
-        if (playerLabel != null)
-            playerLabel.text = $"Player {deviceIndex + 1}";
-
+        if (playerLabel != null){
+            playerLabel.text = $"P {deviceIndex + 1}";
+            playerLabel2.text = $"P {deviceIndex + 1}";
+        }
         isInitialized = true;
     }
 
@@ -162,15 +199,6 @@ private void SetButtonColor(Button btn, Color color)
         }
 
         return -1;
-    }
-
-    private void SetInitialPosition()
-    {
-        if (rectTransform != null)
-        {
-            Vector2 centerPosition = new Vector2(Screen.width * 0.8f, Screen.height * 0.8f);
-            rectTransform.anchoredPosition = centerPosition;
-        }
     }
 
     private void HandleMovement()
@@ -209,11 +237,14 @@ private void SetButtonColor(Button btn, Color color)
         else if (isAssigned && pad.buttonEast.wasPressedThisFrame) // B
             UnassignPlayer();
 
-        if (pad.startButton.wasPressedThisFrame && readyImage != null && readyImage.activeSelf)
+        if (pad.startButton.wasPressedThisFrame && CanStartGame())
         {
+            GameManager.instance.assignController = false;
             parentCanvas.gameObject.SetActive(false);
+            
             Debug.Log("Game Started!");
         }
+
     }
     else if (inputDevice is Keyboard kb)
     {
@@ -224,10 +255,26 @@ private void SetButtonColor(Button btn, Color color)
 
         if (kb.enterKey.wasPressedThisFrame && readyImage != null && readyImage.activeSelf)
         {
+            GameManager.instance.assignController = false;
             parentCanvas.gameObject.SetActive(false);
             Debug.Log("Game Started!");
         }
+
     }
+}
+
+
+private bool CanStartGame()
+{
+    var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
+    int assignedCount = 0;
+    foreach (var cursor in allCursors)
+    {
+        if (cursor.IsAssigned)
+            assignedCount++;
+    }
+
+    return assignedCount >= 2;
 }
 
 
@@ -241,9 +288,12 @@ private void SetButtonColor(Button btn, Color color)
         else if (IsCursorOverButton(player4Button, cursorPos)) AssignPlayer(3);
     }
 
-    private bool IsCursorOverButton(Button button, Vector2 cursorPos)
+private bool IsCursorOverButton(Button button, Vector2 cursorPos)
 {
     if (button == null || parentCanvas == null) return false;
+
+    // Only allow interaction if button GameObject is active
+    if (!button.gameObject.activeInHierarchy) return false;
 
     RectTransform buttonRect = button.GetComponent<RectTransform>();
     if (buttonRect == null) return false;
@@ -253,22 +303,53 @@ private void SetButtonColor(Button btn, Color color)
 }
 
 
+
     private void AssignPlayer(int playerIndex)
 {
+    
     if (playerIndex < 0 || playerIndex >= playerColors.Length) return;
     if (isAssigned) return;
 
+    //Verificar si ya hay un cursor asignado a ese índice
+    var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
+    foreach (var cursor in allCursors)
+    {
+        if (cursor != this && cursor.IsAssigned && cursor.AssignedPlayerIndex == playerIndex)
+        {
+            Debug.LogWarning($"Player {playerIndex + 1} ya está asignado.");
+            SoundFXManager.instance.PlaySoundByName("Deselect", transform, 0.6f, 1f);
+            GetComponent<Shaker>()?.Shake();
+
+            return; 
+        }
+    }
+    SoundFXManager.instance.PlaySoundByName("Select", transform, 0.6f, 1f);
     isAssigned = true;
     assignedPlayerIndex = playerIndex;
     assignedCursorCount++;
-
+    switch(assignedPlayerIndex){
+        case 0:
+            GameManager.instance.player1Playable = true;
+            break;
+        case 1:
+            GameManager.instance.player2Playable = true;
+            break;
+        case 2:
+            GameManager.instance.player3Playable = true;
+            break;
+        case 3:
+            GameManager.instance.player4Playable = true;
+            break;
+    }
     controllerMapper?.AssignControllerToPlayer(deviceIndex, playerIndex);
 
     if (cursorImage != null)
         cursorImage.color = playerColors[playerIndex];
 
-    if (playerLabel != null)
-        playerLabel.text = $"Player {playerIndex + 1}";
+    if (playerLabel != null){
+        playerLabel.text = $"P {playerIndex + 1}";
+        playerLabel2.text = $"P {playerIndex + 1}";
+    }
 
     if (assignmentIndicator != null)
         assignmentIndicator.SetActive(true);
@@ -284,46 +365,80 @@ private void SetButtonColor(Button btn, Color color)
 
     public void UnassignPlayer()
 {
+    
     if (!isAssigned) return;
-
+    SoundFXManager.instance.PlaySoundByName("Deselect", transform, 1f, 1f);
     isAssigned = false;
+    switch(assignedPlayerIndex){
+        case 0:
+            GameManager.instance.player1Playable = false;
+            break;
+        case 1:
+            GameManager.instance.player2Playable = false;
+            break;
+        case 2:
+            GameManager.instance.player3Playable = false;
+            break;
+        case 3:
+            GameManager.instance.player4Playable = false;
+            break;
+    }
     assignedPlayerIndex = -1;
+    
     assignedCursorCount--;
 
     if (cursorImage != null)
         cursorImage.color = unassignedColor;
 
     if (playerLabel != null)
-        playerLabel.text = $"Player {deviceIndex + 1}";
+    {
+        playerLabel.text = $"P {deviceIndex + 1}";
+        playerLabel2.text = $"P {deviceIndex + 1}";
+    }
 
     if (assignmentIndicator != null)
         assignmentIndicator.SetActive(false);
 
-    if (hoveredButton != null)
-        SetButtonColor(hoveredButton, Color.white);
+    if (assignedButton != null)
+    {
+        SetButtonColor(assignedButton, Color.white);
+        assignedButton = null;
+    }
 
     readyImage?.SetActive(false);
 
     Debug.Log("Player unassigned");
 }
+
 private void CheckIfAllReady()
 {
     var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
 
-    bool allAssigned = true;
+    int assignedCount = 0;
     foreach (var cursor in allCursors)
     {
         if (!cursor.isActiveAndEnabled) continue;
-        if (!cursor.IsAssigned)
+        if (cursor.IsAssigned)
+            assignedCount++;
+    }
+
+    // Show ready UI only if all cursors are assigned AND at least 2 players
+    bool allAssigned = true;
+    foreach (var cursor in allCursors)
+    {
+        if (cursor.isActiveAndEnabled && !cursor.IsAssigned)
         {
             allAssigned = false;
             break;
         }
     }
 
+    bool canStart = assignedCount >= 2 && allAssigned;
+
     if (readyImage != null)
-        readyImage.SetActive(allAssigned);
+        readyImage.SetActive(canStart);
 }
+
 
     private void ClampToScreenBounds()
     {
@@ -340,4 +455,15 @@ private void CheckIfAllReady()
 
         rectTransform.anchoredPosition = currentPos;
     }
+    private void ActivateAssignedPlayer()
+{
+    for (int i = 0; i < playerObjects.Length; i++)
+    {
+        if (playerObjects[i] != null)
+        {
+            playerObjects[i].SetActive(i == assignedPlayerIndex);
+        }
+    }
+}
+
 }

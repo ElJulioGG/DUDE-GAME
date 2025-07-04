@@ -5,7 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField] private LevelTimer levelTimer;
     [SerializeField] private PlayerStats[] playerStats;
+    [SerializeField] private GameObject[] playerCircles;
     [SerializeField] private GameObject[] players;
     [SerializeField] private Animator transitionAnim;
     public GameObject[] UIIntroObjects;
@@ -13,6 +15,7 @@ public class GameController : MonoBehaviour
     public bool matchEnded = false;
     [SerializeField] public int pointsToGive = 1;
     [SerializeField] private GameObject pointsCanvasPrefab;
+    [SerializeField] public int aliveCount;
     private GameObject activePointsCanvas;
     private int currentPowerUp;
 
@@ -20,10 +23,28 @@ public class GameController : MonoBehaviour
 
     [SerializeField]private ControllerMapper controllerMapper;
    
-
+    IEnumerator PlayerCirclesSpawn()
+    {
+        if(GameManager.instance.player1Playable){
+            playerCircles[0].SetActive(true);
+        }
+        yield return new WaitForSeconds(0.5f);
+        if(GameManager.instance.player2Playable){
+            playerCircles[1].SetActive(true);
+        }
+        yield return new WaitForSeconds(0.5f);
+            if(GameManager.instance.player3Playable){
+            playerCircles[2].SetActive(true);
+        }
+        yield return new WaitForSeconds(0.5f);
+            if(GameManager.instance.player4Playable){
+            playerCircles[3].SetActive(true);
+        }
+    }
     public void NextMatch()
     {
         pointsToGive = 1;
+        levelTimer.ResetTimer();
         ClearAllWeaponPickups(); // Clear weapons before map change
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
@@ -107,13 +128,61 @@ public class GameController : MonoBehaviour
         }
     }
 
+
+
+    public void ActivateAssignedPlayers()
+    {
+        aliveCount = 0;
+        if(GameManager.instance.player1Playable){
+            players[0].SetActive(true);
+            aliveCount++;
+        }else{
+            players[0].SetActive(false);
+            playerStats[0].playerAlive = false;
+        }
+        if(GameManager.instance.player2Playable){
+            players[1].SetActive(true);
+            aliveCount++;
+        }else{
+            players[1].SetActive(false);
+            playerStats[1].playerAlive = false;
+        }
+        if(GameManager.instance.player3Playable){
+            players[2].SetActive(true);
+            aliveCount++;
+        }else{
+            players[2].SetActive(false);
+            playerStats[2].playerAlive = false;
+        }
+        if(GameManager.instance.player4Playable){
+            players[3].SetActive(true);
+            aliveCount++;
+        }else{
+            players[3].SetActive(false);
+            playerStats[3].playerAlive = false;
+        }
+    }
+
     public void StartGame()
     {
         StartCoroutine(MatchBegin());
     }
+    private int CountAssignedPlayers()
+    {
+        var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
+        int count = 0;
+        foreach (var cursor in allCursors)
+        {
+            if (cursor.IsAssigned)
+                count++;
+        }
+        return count;
+    }
 
     IEnumerator MatchBegin()
     {
+        ActivateAssignedPlayers();
+
         GameManager.instance.destroyProyectiles = false;
         transitionAnim.SetTrigger("FadeOut");
         foreach (PlayerStats player in playerStats)
@@ -129,12 +198,14 @@ public class GameController : MonoBehaviour
 
             if (i == UIIntroObjects.Length - 1)
             {
+                levelTimer.StartTimer();
                 SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
-                if (!SoundFXManager.instance.IsSoundPlaying("BattleTheme"))
+                if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
                 {
-                    SoundFXManager.instance.PlaySoundByName("BattleTheme", transform, 0.5f, 1f, true);
+                    SoundFXManager.instance.PlaySoundByName("BattleLoop", transform, 0.2f, 1f, true);
                 }
                 GameManager.instance.playersCanMove = true;
+                
             }
             if (i == UIIntroObjects.Length - 2)
             {
@@ -142,10 +213,12 @@ public class GameController : MonoBehaviour
             }
             if (i == UIIntroObjects.Length - 3)
             {
+                
                 SoundFXManager.instance.PlaySoundByName("2", transform, 0.6f, 0.9f);
             }
             if (i == UIIntroObjects.Length - 4)
             {
+                StartCoroutine(PlayerCirclesSpawn());
                 SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
             }
 
@@ -155,11 +228,21 @@ public class GameController : MonoBehaviour
         }
         GameManager.instance.playersCanMove = true;
     }
-
+    
     void Start()
     {
+        SoundFXManager.instance.StopSoundByName("BattleTheme");
+        SoundFXManager.instance.StopSoundByName("FadeInIntro");
+        SoundFXManager.instance.StopSoundByName("BattleLoop");
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
+
+        if (!SoundFXManager.instance.IsSoundPlaying("BattleTheme"))
+        {
+            SoundFXManager.instance.PlaySoundByName("BattleTheme", transform, 0.3f, 1f);
+        }
         GameManager.instance.assignController = true;
-        Invoke("firstStart", 0.1f);
+        Invoke("firstStart", 0.01f);
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
         AssignPlayerPositions();
@@ -167,9 +250,10 @@ public class GameController : MonoBehaviour
     }
     void firstStart()
     {
-        if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
+        SoundFXManager.instance.StopSoundByName("BattleTheme");
+        if (!SoundFXManager.instance.IsSoundPlaying("FadeInIntro"))
         {
-            SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.1f, 1f);
+            SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.2f, 1f);
         }
     }
     private void AssignController()
@@ -230,7 +314,7 @@ public class GameController : MonoBehaviour
 
         if (!matchEnded)
         {
-            int aliveCount = 0;
+            aliveCount = 0;
             PlayerStats lastAlivePlayer = null;
 
             foreach (PlayerStats player in playerStats)
@@ -241,10 +325,12 @@ public class GameController : MonoBehaviour
                     lastAlivePlayer = player;
                 }
             }
-
+            print("aliveCount: " + aliveCount);
             if (aliveCount == 1 && lastAlivePlayer != null)
-            {
+            {   
+                
                 matchEnded = true;
+                
                 StartCoroutine(HandleLastPlayerWin(lastAlivePlayer));
             }
             else if (aliveCount == 0)
@@ -255,7 +341,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    IEnumerator HandleDraw()
+    public IEnumerator HandleDraw()
     {
         Debug.Log("Draw! No players alive.");
         yield return new WaitForSeconds(2f); // Optional delay
@@ -315,14 +401,16 @@ public class GameController : MonoBehaviour
 
     IEnumerator HandleLastPlayerWin(PlayerStats winner)
     {
+        levelTimer.StopTimer();
         yield return winner.AddPointsAfterDelay(pointsToGive);
         ShowPointsCanvas(winner.transform, pointsToGive);
-
+        if(levelTimer.timeLeft > 0){
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
         yield return new WaitForSeconds(2f);
         transitionAnim.SetTrigger("FadeIn");
         yield return new WaitForSeconds(0.5f);
         NextMatch();
+        }
     }
 
     public void SelectRandomMap()
