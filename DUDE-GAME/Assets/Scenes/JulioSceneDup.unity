@@ -11798,6 +11798,7 @@ MonoBehaviour:
   - {fileID: 649944625}
   - {fileID: 469280154}
   - {fileID: 846432102}
+  spacingPanel: {fileID: 0}
 --- !u!1 &386161489
 GameObject:
   m_ObjectHideFlags: 0
@@ -13058,9 +13059,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56a9f5194e4fc024bbbefe5783c014c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gamePaused: 0
+  assignController: 0
   playersActive: 2
   playersCanMove: 1
+  playersCanShoot: 1
+  playersCanPickDrop: 1
+  playersCanReload: 1
+  playersCanAim: 1
+  playersCanPowerUp: 1
   unlimitedBullets: 0
+  player1Playable: 1
+  player2Playable: 1
+  player3Playable: 1
+  player4Playable: 1
   player1Score: 0
   player2Score: 0
   player3Score: 0
@@ -13087,35 +13099,8 @@ MonoBehaviour:
   player2PowerUp: 0
   player3PowerUp: 0
   player4PowerUp: 0
-  defendingBase: 0
-  exploringAndFighting: 0
-  brewingPotions: 0
-  figthingBoss: 1
   activeCamera: 0
   destroyProyectiles: 0
-  material1: 0
-  material2: 0
-  material3: 0
-  material4: 0
-  basesDefended: 0
-  blockPeCausa: 1
-  blockTower1: 1
-  blockTower2: 1
-  BlockOutsideBase1A: 1
-  BlockOutsideBase2A: 1
-  BlockOutsideBase1B: 1
-  BlockOutsideBase2B: 1
-  BlockOutsideBase3B: 1
-  BlockOutsideBase1C: 1
-  BlockOutsideBase2C: 1
-  BlockOutsideBase3C: 1
-  BlockOutsideBase1D: 1
-  BlockOutsideBase2D: 1
-  BlockOutsideBase3D: 1
-  BlockOutsideBase1E: 1
-  BlockOutsideBase2E: 1
-  TeleportBoss: 0
-  LastTeleportedFrom: 0
 --- !u!1001 &437575240
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36853,11 +36838,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd0acb4f15d318447839b23f18eae39e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelTimer: {fileID: 0}
   playerStats:
   - {fileID: 721735405}
   - {fileID: 1126270524}
   - {fileID: 1750184128}
   - {fileID: 1374179798}
+  playerCircles: []
   players:
   - {fileID: 721735391}
   - {fileID: 1126270523}
@@ -36875,6 +36862,8 @@ MonoBehaviour:
   matchEnded: 0
   pointsToGive: 1
   pointsCanvasPrefab: {fileID: 1471025704}
+  aliveCount: 0
+  controllerMapper: {fileID: 0}
 --- !u!4 &1909358356
 Transform:
   m_ObjectHideFlags: 0

@@ -197,6 +197,13 @@ public class GunHolder : MonoBehaviour
             drop.transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
 
+        // --- NUEVO: si es granada, ajusta estado (soltar armada) y descuenta stock
+        var grenadeWeapon = currentGunScript as GrenadeWeapon;
+        if (grenadeWeapon != null)
+        {
+            grenadeWeapon.PreDropAdjustAmmoAndCooking();
+        }
+
         WeaponPickup pickup = drop.GetComponent<WeaponPickup>();
         pickup.weaponName = weaponName;
         pickup.savedClipAmmo = currentGunScript != null ? currentGunScript.GetCurrentClipAmmo() : 0;

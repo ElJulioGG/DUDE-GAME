@@ -4132,7 +4132,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: weaponPickups.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[0]'
@@ -4146,6 +4146,10 @@ PrefabInstance:
       propertyPath: 'weaponPickups.Array.data[2]'
       value: 
       objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
+    - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
+      propertyPath: 'weaponPickups.Array.data[3]'
+      value: 
+      objectReference: {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
     - target: {fileID: 8306062693290571066, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: m_Name
       value: WeaponBox (8)
@@ -56018,6 +56022,7 @@ MonoBehaviour:
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
+  - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 721735405}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
@@ -85449,6 +85454,7 @@ MonoBehaviour:
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
+  - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1126270524}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
@@ -102923,6 +102929,7 @@ MonoBehaviour:
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
+  - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1374179798}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
@@ -105892,6 +105899,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
+      propertyPath: weaponPickups.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
+      propertyPath: 'weaponPickups.Array.data[3]'
+      value: 
+      objectReference: {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
     - target: {fileID: 8306062693290571066, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: m_Name
       value: WeaponBox
@@ -135476,6 +135491,7 @@ MonoBehaviour:
   - {fileID: 998162439413566163, guid: 624f9ba80b6412748a2a4a56e9a6f6a2, type: 3}
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
+  - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1750184128}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
