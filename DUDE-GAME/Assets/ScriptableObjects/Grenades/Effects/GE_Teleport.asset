@@ -9,13 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b16600a61709f9a478f1471cb06df4e8, type: 3}
-  m_Name: GE_KnockbackExplosion_Std
+  m_Script: {fileID: 11500000, guid: d667a08aa7cbd4f428666a8016ec3e06, type: 3}
+  m_Name: GE_Teleport
   m_EditorClassIdentifier: 
-  radius: 5
-  hitMask:
+  offset: {x: 0, y: 0.2}
+  clearanceRadius: 0.35
+  obstacleMask:
     serializedVersion: 2
-    m_Bits: 64
-  maxForce: 40
-  useDistanceFalloff: 1
-  ignoreOwner: 0
+    m_Bits: 0
+  useSafePlacement: 1
+  ringSteps: 12
+  ringCount: 3
+  ringStepDistance: 0.25
+  keepVelocity: 0
+  requireOwnerAlive: 1

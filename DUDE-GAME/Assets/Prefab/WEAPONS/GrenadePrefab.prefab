@@ -171,7 +171,7 @@ MonoBehaviour:
   openSprite: {fileID: 8797946271071058492, guid: 25eee43580690a2498b329233848c78b, type: 3}
   armedVfx: {fileID: 0}
   explodeVfx: {fileID: 0}
-  explosionPrefab: {fileID: 5737537495222200632, guid: 290c1efe4599d4a449a96e0628d52400, type: 3}
+  explosionPrefab: {fileID: 0}
   explosionLifetime: 0.6
   matchSortingForExplosion: 1
   useBlink: 1

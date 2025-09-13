@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3863841231958471329}
   - component: {fileID: 4976930805672126273}
   m_Layer: 0
-  m_Name: DropGrenade
+  m_Name: DropKnockback
   m_TagString: Pickup
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61b2a08e876f5ac4a92832d106cbb7d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponName: GrenadeWeapon
+  weaponName: GrenadeWeapon_Knockback
   savedClipAmmo: -1
   savedReserveAmmo: -1
   throwSpeed: 15

@@ -56023,6 +56023,8 @@ MonoBehaviour:
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
   - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
+  - {fileID: 2428490954138431094, guid: 1850fb0320765f549a65d9d4ed05ed5a, type: 3}
+  - {fileID: 2428490954138431094, guid: b0380a79c5b84ca469489d286ea8b6c2, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 721735405}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
@@ -85455,6 +85457,8 @@ MonoBehaviour:
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
   - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
+  - {fileID: 2428490954138431094, guid: 1850fb0320765f549a65d9d4ed05ed5a, type: 3}
+  - {fileID: 2428490954138431094, guid: b0380a79c5b84ca469489d286ea8b6c2, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1126270524}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
@@ -102930,6 +102934,8 @@ MonoBehaviour:
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
   - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
+  - {fileID: 2428490954138431094, guid: 1850fb0320765f549a65d9d4ed05ed5a, type: 3}
+  - {fileID: 2428490954138431094, guid: b0380a79c5b84ca469489d286ea8b6c2, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1374179798}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}
@@ -135492,6 +135498,8 @@ MonoBehaviour:
   - {fileID: 8538949434422602325, guid: bac1360e669fe954e855898be697540b, type: 3}
   - {fileID: 8538949434422602325, guid: a16fe519555b90145bacc360ed8061b8, type: 3}
   - {fileID: 2428490954138431094, guid: dd0fb483e4a083c4392bb0a66765f222, type: 3}
+  - {fileID: 2428490954138431094, guid: 1850fb0320765f549a65d9d4ed05ed5a, type: 3}
+  - {fileID: 2428490954138431094, guid: b0380a79c5b84ca469489d286ea8b6c2, type: 3}
   dropPrefab: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
   playerStats: {fileID: 1750184128}
   defaultMeleePrefab: {fileID: 8538949434422602325, guid: 60fcf26aad37aad468cee13ab2e182eb, type: 3}

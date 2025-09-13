@@ -10,16 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 963233ea5a7f97d488d3289be6c4a431, type: 3}
-  m_Name: GrenadeDefinition_Explosive
+  m_Name: GrenadeDefinition_Knockback
   m_EditorClassIdentifier: 
-  effects:
-  - {fileID: 11400000, guid: 594eb0aa0fcb5bc4a880ae8200dbeeb5, type: 2}
-  - {fileID: 11400000, guid: f94bb4879d5740b46a6070ddbcd28130, type: 2}
+  canCook: 1
   fuseSeconds: 1.2
   throwSpeed: 12
   maxExtraThrow: 6
   bounciness: 0.6
   friction: 0.2
-  explosionPrefab: {fileID: 5737537495222200632, guid: 290c1efe4599d4a449a96e0628d52400, type: 3}
-  explosionLifetime: 0.6
-  matchSortingForExplosion: 1
+  effects:
+  - {fileID: 11400000, guid: f94bb4879d5740b46a6070ddbcd28130, type: 2}

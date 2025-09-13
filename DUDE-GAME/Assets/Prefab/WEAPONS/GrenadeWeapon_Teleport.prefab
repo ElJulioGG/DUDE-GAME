@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 7518039632930781780}
   - component: {fileID: 6382948025510098927}
   m_Layer: 0
-  m_Name: GrenadeWeapon
+  m_Name: GrenadeWeapon_Teleport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -1844639906179201613, guid: 25eee43580690a2498b329233848c78b, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8731162, g: 1, b: 0.6924528, a: 0.5411765}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -207,7 +207,7 @@ MonoBehaviour:
   shakeFadeOut: 1
   shakeSnapping: 0
   grenadePrefab: {fileID: 4030386285267257971, guid: 5445d31d5f80bd44cad15915f3e3b95a, type: 3}
-  definition: {fileID: 11400000, guid: 406198b60a38fbd49b286be236555026, type: 2}
+  definition: {fileID: 11400000, guid: e89231535f15d724192ba38faf531406, type: 2}
   handPoint: {fileID: 3435248558647363512}
   throwCharge01: 0
   weaponBodyRenderer: {fileID: 0}

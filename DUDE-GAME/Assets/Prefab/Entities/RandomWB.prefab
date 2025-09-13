@@ -314,6 +314,8 @@ MonoBehaviour:
   - {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
   - {fileID: 6192896243936263217, guid: fb05463feae1f984da606424a48ee46e, type: 3}
   - {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
+  - {fileID: 6192896243936263217, guid: 311fd9447434fce4b82fead6f6fb016e, type: 3}
+  - {fileID: 6192896243936263217, guid: 8cc701de14cc7d744ad9bcb8b5f67174, type: 3}
   random: 1
   selectedWeapon: 0
 --- !u!61 &5638945977224653052

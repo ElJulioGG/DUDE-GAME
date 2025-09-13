@@ -16,11 +16,6 @@ public class Grenade : MonoBehaviour
     [SerializeField] private ParticleSystem armedVfx;   // opcional
     [SerializeField] private ParticleSystem explodeVfx; // opcional
 
-    [Header("Explosion FX (Sprite Animation Prefab)")]
-    [SerializeField] private GameObject explosionPrefab;
-    [SerializeField] private float explosionLifetime = 0.6f;
-    [SerializeField] private bool matchSortingForExplosion = true;
-
     [Header("Armed Feedback")]
     [SerializeField] private bool useBlink = true;
     [SerializeField] private Color blinkColor = new Color(1f, 0.5f, 0.5f);
@@ -74,7 +69,7 @@ public class Grenade : MonoBehaviour
         if (spriteRenderer) baseColor = spriteRenderer.color;
 
         SetClosedVisual();
-        SetHeldInHand(true); // empieza “en mano”
+        SetHeldInHand(true); // empieza en mano
     }
 
     private void SetClosedVisual()
@@ -127,27 +122,25 @@ public class Grenade : MonoBehaviour
     // Segundo click: lanzar
     public void Throw(Vector2 dir, float charge01 = 0f)
     {
-        if (state == State.Safe) Arm(); // por si acaso
+        if (state == State.Safe) Arm(); 
 
         state = State.Thrown;
 
-        // 🔧 al soltar, forzamos el visual abierto (evita “volver” al cerrado)
-        SetOpenVisual();
-
+        SetOpenVisual(); 
         float speed = definition.throwSpeed + Mathf.Clamp01(charge01) * definition.maxExtraThrow;
+
         transform.SetParent(null, true);
         SetHeldInHand(false);
         rb.linearVelocity = dir.normalized * speed;
     }
 
-    /// Soltarla al mundo si estaba armada (por ejemplo, si sueltas el arma)
+    /// Soltarla al mundo si estaba armada 
     public void DropArmed()
     {
-        if (state == State.Safe) Arm();   // garantiza que quede armada
-        // mantenemos Armed (no hace falta pasar a Thrown)
-        SetOpenVisual();                  // 🔧 asegura sprite abierto
+        if (state == State.Safe) Arm();
+        SetOpenVisual();
         transform.SetParent(null, true);
-        SetHeldInHand(false);             // activa física/colisión
+        SetHeldInHand(false);
     }
 
     private void Update()
@@ -168,38 +161,41 @@ public class Grenade : MonoBehaviour
         state = State.Exploded;
         ticking = false;
 
+        if (col) col.enabled = false; // desactiva colisión
+
         if (blinkCo != null) StopCoroutine(blinkCo);
         if (beepCo != null) StopCoroutine(beepCo);
         blinkCo = beepCo = null;
 
         if (spriteRenderer) spriteRenderer.color = baseColor;
 
-        // Gameplay effects
+        // Aplicar efectos (daño, knockback, teletransporte, etc.)
         Vector2 center = transform.position;
         if (definition != null && definition.effects != null)
         {
             foreach (var eff in definition.effects)
+            {
                 if (eff != null) eff.ApplyEffect(center, ownerIndex);
+            }
         }
 
         if (armedVfx) armedVfx.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         if (explodeVfx) explodeVfx.Play();
 
-        // VFX animado opcional
-        if (explosionPrefab != null)
+        // VFX animado definido en Definition (opcional por granada)
+        if (definition != null && definition.explosionPrefab != null)
         {
-            var fx = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            if (matchSortingForExplosion)
+            var fx = Instantiate(definition.explosionPrefab, transform.position, Quaternion.identity);
+            if (spriteRenderer && definition.matchSortingForExplosion)
             {
-                var srSelf = spriteRenderer;
                 var srFx = fx.GetComponentInChildren<SpriteRenderer>();
-                if (srSelf && srFx)
+                if (srFx)
                 {
-                    srFx.sortingLayerID = srSelf.sortingLayerID;
-                    srFx.sortingOrder = srSelf.sortingOrder + 1;
+                    srFx.sortingLayerID = spriteRenderer.sortingLayerID;
+                    srFx.sortingOrder = spriteRenderer.sortingOrder + 1;
                 }
             }
-            Destroy(fx, explosionLifetime);
+            Destroy(fx, definition.explosionLifetime);
         }
 
         yield return new WaitForSeconds(0.05f);

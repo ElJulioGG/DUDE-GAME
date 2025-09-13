@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "GE_KnockbackExplosion", menuName = "Grenade/Effects/Knockback")]
+[CreateAssetMenu(fileName = "GE_KnockbackExplosion", menuName = "Grenades/Effects/Knockback")]
 public class GE_KnockbackExplosion : GrenadeEffect
 {
     [Header("Area")]
