@@ -150,19 +150,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 70
-  enableDamage: 1
   enableBounce: 1
   destroyOnPlayerHit: 0
   rotateToDirection: 1
   destroyTime: 999
   destroyOnInvisible: 0
-  spectral: 0
   damage: 200
   bounceLife: 99999
   bulletRadius: 0.1
   damageableMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   bounceableMask:
     serializedVersion: 2
     m_Bits: 128

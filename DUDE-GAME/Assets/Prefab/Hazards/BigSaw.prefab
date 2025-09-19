@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7352956774663322053}
   - component: {fileID: 2981367276194015220}
   - component: {fileID: 8636517167511448116}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BigSaw
   m_TagString: Killbox
   m_Icon: {fileID: 0}
@@ -204,7 +204,7 @@ GameObject:
   - component: {fileID: 4661872878915872842}
   - component: {fileID: 7230090418336827735}
   - component: {fileID: 1470972911976567918}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 5491358209522351571}
   - component: {fileID: 2913200305932158434}
   - component: {fileID: 4016113751692363436}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9201526637356666031}
   - component: {fileID: 1893259577950266895}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Square (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8179534547528070788}
   - component: {fileID: 5766037157670143284}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Square (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -184,7 +184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8382300855301508652}
   - component: {fileID: 65295680428062383}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Bordes (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -274,7 +274,7 @@ GameObject:
   - component: {fileID: 5638945977224653052}
   - component: {fileID: 7172326638509277579}
   - component: {fileID: 9192562882050907194}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RandomWB
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -475,7 +475,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4010783764761542413}
   - component: {fileID: 7147987205620819967}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Bordes
   m_TagString: Untagged
   m_Icon: {fileID: 0}

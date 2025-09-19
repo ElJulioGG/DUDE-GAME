@@ -530,7 +530,7 @@ MonoBehaviour:
   bulletRadius: 0.05
   damageableMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   bounceableMask:
     serializedVersion: 2
     m_Bits: 128

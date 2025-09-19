@@ -95,6 +95,20 @@ public class BulletBehavior : MonoBehaviour
 
     void HandleDamage(RaycastHit2D hit)
     {
+        // 1) Intentar dañar cualquier NPC/objeto que implemente IDamageable
+        var dmgTarget = hit.collider.GetComponentInParent<IDamageable>();
+        if (dmgTarget != null)
+        {
+            dmgTarget.TakeDamage(damage);
+            if (destroyOnPlayerHit)
+            {
+                StopAllCoroutines();
+                StartCoroutine(MoveToCollisionAndDestroy(hit.point, Vector2.zero));
+            }
+            return;
+        }
+
+        // 2) Mantener tu comportamiento actual para Player
         if (hit.collider.CompareTag("Player"))
         {
             hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);

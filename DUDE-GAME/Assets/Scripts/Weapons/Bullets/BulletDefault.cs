@@ -26,6 +26,16 @@ public class BulletDefault : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // 1) Intento genérico
+        var dmg = other.GetComponentInParent<IDamageable>();
+        if (dmg != null)
+        {
+            dmg.TakeDamage(damage);
+            // (opcional) podrías destruir la bala si quieres aquí
+            return;
+        }
+
+        // 2) Tu lógica existente con Player
         if (other.CompareTag("Player"))
         {
             PlayerStats stats = other.GetComponent<PlayerStats>();
@@ -33,16 +43,13 @@ public class BulletDefault : MonoBehaviour
             {
                 stats.TakeDamage(damage);
 
-                // Increase blood level up to max
                 if (childRenderer != null && bloodySprites != null && currentBloodLevel < bloodySprites.Length)
                 {
                     childRenderer.sprite = bloodySprites[currentBloodLevel];
-                    currentBloodLevel++; // Go to next blood level
+                    currentBloodLevel++;
                 }
-
-                // Optionally destroy after max level
-                // if (currentBloodLevel >= bloodySprites.Length) Destroy(gameObject);
             }
         }
     }
+
 }
