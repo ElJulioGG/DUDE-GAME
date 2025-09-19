@@ -445,7 +445,10 @@ public class GameController : MonoBehaviour
             }
         }
     }
-
+    public void Awake()
+    {
+        Cursor.visible = false;
+    }
     public void DoublePoints()
     {
         SoundFXManager.instance.PlaySoundByName("DoublePoints", transform, 0.9f, 0.9f);
