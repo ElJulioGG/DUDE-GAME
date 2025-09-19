@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject[] playerCircles;
     [SerializeField] private GameObject[] players;
     [SerializeField] private Animator transitionAnim;
+    [SerializeField] private GameObject TimerText;
     public GameObject[] UIIntroObjects;
     public GameObject[] maps;
     public bool matchEnded = false;
@@ -195,11 +196,13 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < UIIntroObjects.Length; i++)
         {
             UIIntroObjects[i].SetActive(true);
+            TimerText.SetActive(false);
 
             if (i == UIIntroObjects.Length - 1)
             {
                 levelTimer.StartTimer();
                 SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
+                TimerText.SetActive(true);
                 if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
                 {
                     SoundFXManager.instance.PlaySoundByName("BattleLoop", transform, 0.2f, 1f, true);
@@ -222,7 +225,7 @@ public class GameController : MonoBehaviour
                 SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
             }
 
-            float waitTime = (i == UIIntroObjects.Length - 1) ? 0.3f : 1f;
+            float waitTime = (i == UIIntroObjects.Length - 1) ? 0.9f : 1f;
             yield return new WaitForSeconds(waitTime);
             UIIntroObjects[i].SetActive(false);
         }
