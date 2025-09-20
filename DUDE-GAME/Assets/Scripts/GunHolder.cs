@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GunHolder : MonoBehaviour
@@ -170,38 +170,73 @@ public class GunHolder : MonoBehaviour
     {
         if (currentWeapon == null) return;
 
-        string weaponName = currentWeapon.name.Replace("(Clone)", "").Trim();
+        var grenadeWeapon = currentGunScript as GrenadeWeapon;
 
-        // Calculate spawn position based on movement
-        Vector3 spawnPosition = transform.position;
-        float dropDistance = 1f; // 1 unit away when throwing
-
-        // Check if player is moving (use a small threshold)
-        bool isMoving = lastMovementDirection.sqrMagnitude > 0.01f;
-        //print(isMoving);
-
-        if (isMoving)
+        // 1) Si hay granada cocinándose, LÁNZALA (o suéltala en sitio si no apuntas) y SAL
+        if (grenadeWeapon != null && grenadeWeapon.HasCooking)
         {
-            // Drop 1 unit away in movement direction
-            spawnPosition += (Vector3)lastMovementDirection.normalized * dropDistance;
+            Vector2 dir = (lastAimDirection.sqrMagnitude > 0.01f) ? lastAimDirection : Vector2.zero;
+            if (grenadeWeapon.TryThrowCooked(dir))
+                return;
         }
-        // Else: keep spawnPosition at player's position
 
-        // Instantiate the drop
+        // 2) Si la granada explotó en la mano ESTE FRAME, NO dropear (evita duplicado)
+        if (grenadeWeapon != null && grenadeWeapon.WasConsumedInHand)
+        {
+            // Opcional: si ya no queda muni, asegúrate de limpiar a melee
+            if (grenadeWeapon.GetCurrentClipAmmo() <= 0)
+            {
+                Destroy(currentWeapon);
+                currentWeapon = null;
+                currentGunScript = null;
+                currentMeleeScript = null;
+                hasWeapon = false;
+
+                if (defaultMeleePrefab != null)
+                {
+                    currentWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+                    currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
+                    activeWeapon = "melee";
+                    currentMeleeScript?.SetAimDirection(lastAimDirection);
+                }
+            }
+            return;
+        }
+
+        // 3) Si es un arma de granada sin munición, NO crees pickup (solo limpia a melee)
+        if (grenadeWeapon != null && grenadeWeapon.GetCurrentClipAmmo() <= 0)
+        {
+            Destroy(currentWeapon);
+            currentWeapon = null;
+            currentGunScript = null;
+            currentMeleeScript = null;
+            hasWeapon = false;
+
+            if (defaultMeleePrefab != null)
+            {
+                currentWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+                currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
+                activeWeapon = "melee";
+                currentMeleeScript?.SetAimDirection(lastAimDirection);
+            }
+            return;
+        }
+
+        // --- LÓGICA NORMAL DE DROPEO (igual que ya la tienes) ---
+        string weaponName = currentWeapon.name.Replace("(Clone)", "").Trim();
+        Vector3 spawnPosition = transform.position;
+        float dropDistance = 1f;
+
+        bool isMoving = lastMovementDirection.sqrMagnitude > 0.01f;
+        if (isMoving)
+            spawnPosition += (Vector3)lastMovementDirection.normalized * dropDistance;
+
         GameObject drop = Instantiate(dropPrefab, spawnPosition, Quaternion.identity);
 
-        // Rotate drop to face last aim direction
         if (lastAimDirection != Vector2.zero)
         {
             float angle = Mathf.Atan2(lastAimDirection.y, lastAimDirection.x) * Mathf.Rad2Deg;
             drop.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-        }
-
-        // --- NUEVO: si es granada, ajusta estado (soltar armada) y descuenta stock
-        var grenadeWeapon = currentGunScript as GrenadeWeapon;
-        if (grenadeWeapon != null)
-        {
-            grenadeWeapon.PreDropAdjustAmmoAndCooking();
         }
 
         WeaponPickup pickup = drop.GetComponent<WeaponPickup>();
@@ -209,26 +244,15 @@ public class GunHolder : MonoBehaviour
         pickup.savedClipAmmo = currentGunScript != null ? currentGunScript.GetCurrentClipAmmo() : 0;
         pickup.savedReserveAmmo = currentGunScript != null ? currentGunScript.GetReserveAmmo() : 0;
 
+        if (isMoving) pickup.Throw(lastMovementDirection);
+        else pickup.Throw(Vector2.zero);
 
-        // Only throw with force if player was moving
-        if (isMoving)
-        {
-            pickup.Throw(lastMovementDirection);
-        }
-        else
-        {
-            // Just drop in place (no throw force)
-            pickup.Throw(Vector2.zero);
-        }
-
-        // Clean up current weapon
         Destroy(currentWeapon);
         currentWeapon = null;
         currentGunScript = null;
         currentMeleeScript = null;
         hasWeapon = false;
 
-        // Give back default melee
         if (defaultMeleePrefab != null)
         {
             currentWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
@@ -238,6 +262,8 @@ public class GunHolder : MonoBehaviour
             currentMeleeScript?.SetAimDirection(lastAimDirection);
         }
     }
+
+
     public void DestroyCurrentWeapon()
     {
         // Don't destroy if it's the default melee weapon
@@ -312,9 +338,9 @@ public class GunHolder : MonoBehaviour
     public void SetAimDirection(Vector2 direction)
     {
         if (direction.sqrMagnitude > 0.01f)
-        {
             lastAimDirection = direction.normalized;
-        }
+        else
+            lastAimDirection = Vector2.zero;
 
         if (currentWeapon != null)
         {
@@ -324,4 +350,5 @@ public class GunHolder : MonoBehaviour
                 currentMeleeScript.SetAimDirection(lastAimDirection);
         }
     }
+
 }

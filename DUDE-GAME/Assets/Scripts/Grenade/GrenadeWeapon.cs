@@ -1,20 +1,32 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class GrenadeWeapon : WeaponBase
 {
     [Header("Grenade Setup")]
-    [SerializeField] private Grenade grenadePrefab;        
-    [SerializeField] private GrenadeDefinition definition; 
-    [SerializeField] private Transform handPoint;          
-    [SerializeField] private float throwCharge01 = 0f;     
+    [SerializeField] private Grenade grenadePrefab;
+    [SerializeField] private GrenadeDefinition definition;
+    [SerializeField] private Transform handPoint;
+    [SerializeField, Range(0f, 1f)] private float throwCharge01 = 0f;
 
     [Header("Visual (arma)")]
-    [SerializeField] private SpriteRenderer weaponBodyRenderer; 
-    [SerializeField] private bool forceGrenadeOnTop = true;     
+    [SerializeField] private SpriteRenderer weaponBodyRenderer;
+    [SerializeField] private bool forceGrenadeOnTop = true;
 
-    private Grenade cooking;               
+    private Grenade cooking;
     private GunHolder holder;
+
+    // Flag: la granada se consumió (explotó) en la mano recientemente
+    private bool consumedInHandThisFrame = false;
+    public bool WasConsumedInHand => consumedInHandThisFrame;
+
+    private IEnumerator ClearConsumedFlagEndOfFrame()
+    {
+        yield return null; // al final del frame
+        consumedInHandThisFrame = false;
+    }
+
+    public bool HasCooking => cooking != null;
 
     private void Awake()
     {
@@ -24,7 +36,7 @@ public class GrenadeWeapon : WeaponBase
 
     private void OnEnable()
     {
-        reserveAmmo = 0;
+        reserveAmmo = 0; // las granadas no recargan
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
     }
 
@@ -34,52 +46,55 @@ public class GrenadeWeapon : WeaponBase
         return transform.right.normalized;
     }
 
+    /// Shoot AHORA SOLO ARMA (no lanza)
     public override void Shoot()
     {
-        if (cooking == null)
-        {
-            if (currentClipAmmo <= 0 || grenadePrefab == null || definition == null)
-                return;
+        if (cooking != null) return; // ya hay una cocinándose
 
-            Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
-            cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity, parent);
-            cooking.Init(definition, GetOwnerIndexSafe());
-            cooking.Arm(); // empieza el fuse en la mano (si te demoras explota)
-
-            // 1) Oculta el sprite del arma mientras cocinas 
-            if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
-
-            if (forceGrenadeOnTop)
-            {
-                var gsr = cooking.GetComponentInChildren<SpriteRenderer>();
-                if (gsr && weaponBodyRenderer)
-                {
-                    gsr.sortingLayerID = weaponBodyRenderer.sortingLayerID;
-                    gsr.sortingOrder = weaponBodyRenderer.sortingOrder + 1;
-                }
-            }
-
+        if (currentClipAmmo <= 0 || grenadePrefab == null || definition == null)
             return;
-        }
 
-        Vector2 dir = GetAimDir();
+        Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
+        cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity, parent);
+        cooking.Init(definition, GetOwnerIndexSafe());
+        cooking.SetOwner(this);          
+        cooking.Arm();                   // empieza fuse en la mano
+
+        // ocultar el cuerpo del arma para que se vea solo la granada
+        if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
+
+        if (forceGrenadeOnTop)
+        {
+            var gsr = cooking.GetComponentInChildren<SpriteRenderer>();
+            if (gsr && weaponBodyRenderer)
+            {
+                gsr.sortingLayerID = weaponBodyRenderer.sortingLayerID;
+                gsr.sortingOrder = weaponBodyRenderer.sortingOrder + 1;
+            }
+        }
+    }
+
+    /// Llamado por el botón "lanzar cosas"
+    public bool TryThrowCooked(Vector2 dir)
+    {
+        if (cooking == null) return false;
+
         cooking.Throw(dir, throwCharge01);
         cooking = null;
 
-        // Volver a mostrar el sprite del arma (si a�n hay stock)
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
 
-        // Consumir 1 del stock; el HUD se actualizar� en WeaponBase.Update()
         currentClipAmmo = Mathf.Max(0, currentClipAmmo - 1);
-
-        // Sin stock: destruir y volver a melee mediante tu GunHolder
         if (currentClipAmmo <= 0)
             StartCoroutine(AutoDestroyThisWeaponNextFrame());
+
+        return true;
     }
+
 
     private IEnumerator AutoDestroyThisWeaponNextFrame()
     {
-        yield return null;
+        yield return null; // evita pelear con el flujo del holder
         if (holder != null) holder.DestroyCurrentWeapon();
         else Destroy(gameObject);
     }
@@ -88,8 +103,7 @@ public class GrenadeWeapon : WeaponBase
     {
         if (cooking != null)
         {
-            cooking.DropArmed();              
-            cooking = null;
+            cooking.transform.SetParent(null, true);
         }
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
@@ -98,7 +112,9 @@ public class GrenadeWeapon : WeaponBase
     private void OnDestroy()
     {
         if (cooking != null)
+        {
             cooking.transform.SetParent(null, true);
+        }
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
     }
@@ -110,17 +126,21 @@ public class GrenadeWeapon : WeaponBase
         return ps != null ? ps.GetPlayerIndex() : -1;
     }
 
-    public void PreDropAdjustAmmoAndCooking()
+    public void NotifyHeldGrenadeExploded(Grenade g)
     {
-        if (cooking != null)
+        if (cooking == g)
         {
-            cooking.DropArmed();   
             cooking = null;
 
-            currentClipAmmo = Mathf.Max(0, currentClipAmmo - 1);
-        }
+            consumedInHandThisFrame = true;              
+            StartCoroutine(ClearConsumedFlagEndOfFrame()); // se limpia al final del frame
 
-        if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
+            if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
+
+            currentClipAmmo = Mathf.Max(0, currentClipAmmo - 1);
+            if (currentClipAmmo <= 0)
+                StartCoroutine(AutoDestroyThisWeaponNextFrame());
+        }
     }
 
 }

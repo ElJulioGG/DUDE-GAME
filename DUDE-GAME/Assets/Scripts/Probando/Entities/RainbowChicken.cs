@@ -11,11 +11,9 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [SerializeField, Min(1)] private int maxHP = 5;
 
     [Header("Ventana anti-dobles impactos")]
-    [Tooltip("Colapsa perdigones o golpes simultáneos en 1 hit (evita multi-drop).")]
     [SerializeField, Range(0f, 0.3f)] private float hitWindowSeconds = 0.1f;
 
     [Header("DROP (Modo A: Prefabs)")]
-    [Tooltip("Arrastra aquí los prefabs Drop* (cada uno con WeaponPickup).")]
     [SerializeField] private List<GameObject> possiblePickupPrefabs = new();
 
     //[Header("DROP (Modo B: Prefab genérico + nombres)")]
@@ -27,9 +25,18 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [SerializeField] private bool dropOnDeath = true;
     [SerializeField, Min(0)] private int extraDeathDrops = 0;
 
-    [Header("Feedback (placeholders)")]
+    // ================== SFX ==================
+    [Header("SFX")]
+    [SerializeField] private string spawnSfxName = "ChickenSpawn";
     [SerializeField] private string hitSfxName = "ChickenHit";
     [SerializeField] private string deathSfxName = "ChickenDeath";
+    [SerializeField, Range(0f, 1f)] private float spawnVolume = 0.7f;
+    [SerializeField, Range(0f, 1f)] private float hitVolume = 0.8f;
+    [SerializeField, Range(0f, 1f)] private float deathVolume = 0.9f;
+    [SerializeField] private bool randomizePitch = true;
+    [SerializeField, Range(0.5f, 2f)] private float spawnPitchMin = 0.95f, spawnPitchMax = 1.05f;
+    [SerializeField, Range(0.5f, 2f)] private float hitPitchMin = 0.95f, hitPitchMax = 1.05f;
+    [SerializeField, Range(0.5f, 2f)] private float deathPitchMin = 0.95f, deathPitchMax = 1.05f;
     [SerializeField] private bool shakeOnHit = true;
 
     [Header("Eventos")]
@@ -39,38 +46,38 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     // ================== MOVIMIENTO ==================
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 2.5f;
-    [Tooltip("Tiempo medio entre cambios de rumbo (se randomiza ±25%).")]
     [SerializeField] private float directionChangeInterval = 1.5f;
 
     [Header("Evitación de obstáculos")]
-    [Tooltip("Radio corporal para casts de evitación (tamaño del 'cuerpo').")]
     [SerializeField] private float bodyRadius = 0.25f;
-    [Tooltip("Distancia de mirada hacia adelante para prever choques.")]
     [SerializeField] private float lookAheadDistance = 0.75f;
-    [Tooltip("Direcciones muestreadas al elegir nuevo rumbo (360°/n).")]
     [SerializeField, Range(6, 32)] private int sampleDirections = 16;
-    [Tooltip("Hasta dónde mide qué tan despejada está una dirección.")]
     [SerializeField] private float maxProbeDistance = 4f;
 
     [Header("Capas de colisión")]
-    [Tooltip("Capas sólidas a evitar (muros, cajas, tilemap sólido).")]
     [SerializeField] private LayerMask obstacleMask;
-    [Tooltip("Hazards letales para jugadores; la gallina los evita, no cruza.")]
     [SerializeField] private LayerMask hazardMask;
 
     [Header("Anti-atasco")]
-    [Tooltip("Cada cuánto se verifica si está atascada.")]
     [SerializeField] private float stuckCheckPeriod = 0.5f;
-    [Tooltip("Distancia mínima avanzada para NO considerarse atascada.")]
     [SerializeField] private float minAdvanceDistance = 0.06f;
 
     [Header("Suavizado y estabilidad")]
-    [Tooltip("Suavizado del giro hacia el rumbo objetivo (s).")]
     [SerializeField] private float turnSmoothTime = 0.08f;
-    [Tooltip("Cooldown tras cambiar por evitación, evita flip-flop en bordes.")]
     [SerializeField] private float avoidCooldown = 0.08f;
-    [Tooltip("Multiplica el radio al castear (<1 reduce roces con esquinas).")]
     [SerializeField, Range(0.7f, 1.2f)] private float castRadiusShrink = 0.9f;
+
+    // ================== ANIMACIÓN (1 sprite derecha) ==================
+    [Header("Animación (1 sprite derecha)")]
+    [SerializeField] private Animator animator;        
+    [SerializeField] private SpriteRenderer sprite;    
+    [SerializeField] private Transform visualRoot;     
+    [SerializeField] private string animParamMoving = "Moving";
+    [SerializeField] private string animParamSpeed = "Speed";
+    [SerializeField] private float idleSpeedThreshold = 0.02f;
+    [SerializeField] private float speedToAnimMultiplier = 1f;
+    [Tooltip("Rota el visual ±90° para simular Up/Down con el sprite de derecha.")]
+    [SerializeField] private bool rotateForUpDown = true;
 
     // ================== Privados ==================
     private int _hp;
@@ -80,14 +87,17 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     private Collider2D _col;
     private Shaker _shaker;
 
-    private Vector2 _dir = Vector2.right;          
-    private Vector2 _desiredDir = Vector2.right;   
-    private Vector2 _dirVel;                       
+    private Vector2 _dir = Vector2.right;
+    private Vector2 _desiredDir = Vector2.right;
+    private Vector2 _dirVel;
 
     private float _nextDirTime;
     private float _lastStuckCheck;
     private Vector2 _lastStuckPos;
     private float _avoidUntil = 0f;
+
+    private Vector2 _prevPos;
+    private Vector2 _lastNonZeroDir = Vector2.right;
 
     private LayerMask CombinedAvoidMask => obstacleMask | hazardMask;
 
@@ -100,8 +110,11 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         _rb.bodyType = RigidbodyType2D.Kinematic;
         _rb.gravityScale = 0f;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        _col.isTrigger = false;
 
-        _col.isTrigger = false; // sólido
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (sprite == null) sprite = GetComponentInChildren<SpriteRenderer>();
+        if (visualRoot == null && sprite != null) visualRoot = sprite.transform;
     }
 
     private void OnEnable()
@@ -115,23 +128,30 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         _lastStuckPos = _rb.position;
         _lastStuckCheck = Time.time + stuckCheckPeriod;
         _avoidUntil = 0f;
+
+        _prevPos = _rb.position;
+        _lastNonZeroDir = Vector2.right;
+
+        PlaySfx(spawnSfxName, spawnVolume, RandomPitch(spawnPitchMin, spawnPitchMax));
     }
 
-    // ================== Movimiento FLUIDO ==================
     private void FixedUpdate()
     {
+        // 1) cambio de rumbo por tiempo
         if (Time.time >= _nextDirTime)
         {
             PickBestDirection();
             _nextDirTime = Time.time + RandomizeInterval(directionChangeInterval);
         }
 
+        // 2) evitación
         if (Time.time >= _avoidUntil && AheadBlocked(_desiredDir, lookAheadDistance))
         {
             PickBestDirection();
             _avoidUntil = Time.time + avoidCooldown;
         }
 
+        // 3) anti-atasco
         if (Time.time >= _lastStuckCheck)
         {
             float moved = Vector2.Distance(_rb.position, _lastStuckPos);
@@ -144,12 +164,61 @@ public class RainbowChicken : MonoBehaviour, IDamageable
             _lastStuckCheck = Time.time + stuckCheckPeriod;
         }
 
-        // Suavizado de giro + desplazamiento a paso de física
+        // 4) suavizado + movimiento
         _dir = Vector2.SmoothDamp(_dir, _desiredDir, ref _dirVel, turnSmoothTime, Mathf.Infinity, Time.fixedDeltaTime);
         if (_dir.sqrMagnitude < 0.0001f) _dir = _desiredDir;
 
         Vector2 next = _rb.position + _dir.normalized * moveSpeed * Time.fixedDeltaTime;
         _rb.MovePosition(next);
+
+        // 5) animación + orientación visual
+        UpdateAnimatorAndFacing(next);
+    }
+
+    private void UpdateAnimatorAndFacing(Vector2 newPos)
+    {
+        if (animator == null || sprite == null || visualRoot == null)
+        {
+            _prevPos = newPos;
+            return;
+        }
+
+        Vector2 vel = (newPos - _prevPos) / Time.fixedDeltaTime;
+        _prevPos = newPos;
+
+        float speed = vel.magnitude;
+        bool moving = speed > idleSpeedThreshold;
+        Vector2 d = moving ? vel.normalized : _lastNonZeroDir;
+        if (d.sqrMagnitude > 0.0001f) _lastNonZeroDir = d;
+
+        // --- Parámetros Animator ---
+        animator.SetBool(animParamMoving, moving);
+        animator.SetFloat(animParamSpeed, speed * speedToAnimMultiplier);
+
+        // --- Orientación visual con 1 sprite derecha ---
+        // Horizontal domina sobre vertical para estabilidad
+        if (Mathf.Abs(d.x) >= Mathf.Abs(d.y))
+        {
+            // Derecha/Izquierda
+            visualRoot.localRotation = Quaternion.identity; // sin rotación
+            sprite.flipX = d.x < 0f; // izquierda => flipX
+        }
+        else
+        {
+            // Arriba/Abajo (rotamos el visual ±90°)
+            if (rotateForUpDown)
+            {
+                sprite.flipX = false; // evita espejo vertical extraño
+                float z = (d.y >= 0f) ? 90f : -90f; // Up/Down
+                visualRoot.localRotation = Quaternion.Euler(0f, 0f, z);
+            }
+            else
+            {
+                // Alternativa: no rotar, siempre derecha (placeholder absoluto)
+                visualRoot.localRotation = Quaternion.identity;
+                sprite.flipX = false;
+            }
+        }
     }
 
     private void PickBestDirection()
@@ -161,9 +230,8 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         {
             float ang = (i / (float)sampleDirections) * Mathf.PI * 2f;
             Vector2 candidate = new Vector2(Mathf.Cos(ang), Mathf.Sin(ang));
-
             float clearance = MeasureClearance(candidate, maxProbeDistance);
-            float alignment = Mathf.Clamp01(Vector2.Dot(candidate, _dir) * 0.5f + 0.5f); // favorece continuidad
+            float alignment = Mathf.Clamp01(Vector2.Dot(candidate, _dir) * 0.5f + 0.5f);
             float score = clearance + alignment * 0.1f;
 
             if (score > bestScore)
@@ -192,27 +260,21 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         return hit.collider ? hit.distance : maxDist;
     }
 
-    private static float RandomizeInterval(float mean)
-    {
-        return Random.Range(mean * 0.75f, mean * 1.25f);
-    }
+    private static float RandomizeInterval(float mean) => Random.Range(mean * 0.75f, mean * 1.25f);
 
+    // ================== DAÑO / DROP ==================
     public void TakeDamage(int amount = 1)
     {
-        if (Time.time < _nextHitAllowedTime) return;      
+        if (Time.time < _nextHitAllowedTime) return;
         _nextHitAllowedTime = Time.time + hitWindowSeconds;
-
         if (_hp <= 0) return;
 
-        _hp -= 1; // SIEMPRE 1 por interacción
+        _hp -= 1;
 
-        if (SoundFXManager.instance != null && !string.IsNullOrEmpty(hitSfxName))
-            SoundFXManager.instance.PlaySoundByName(hitSfxName, transform, 0.8f, 1f, false);
-        if (shakeOnHit && _shaker != null) _shaker.Shake();
-
+        PlaySfx(hitSfxName, hitVolume, RandomPitch(hitPitchMin, hitPitchMax));
+        if (shakeOnHit) _shaker?.Shake();
         onDamaged?.Invoke();
 
-        // Drop por golpe
         DropOnePickup();
 
         if (_hp <= 0) Die();
@@ -220,24 +282,22 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        PlaySfx(deathSfxName, deathVolume, RandomPitch(deathPitchMin, deathPitchMax));
+
         if (dropOnDeath)
         {
             DropOnePickup();
             for (int i = 0; i < extraDeathDrops; i++) DropOnePickup();
         }
 
-        if (SoundFXManager.instance != null && !string.IsNullOrEmpty(deathSfxName))
-            SoundFXManager.instance.PlaySoundByName(deathSfxName, transform, 0.9f, 1f, false);
-
         onDeath?.Invoke();
-        Destroy(gameObject); // por ahora solo desaparece
+        Destroy(gameObject);
     }
 
     private void DropOnePickup()
     {
         Vector2 spawnPos = _rb.position + Random.insideUnitCircle * dropSpawnRadius;
 
-        // MODO A: prefabs ya configurados
         if (possiblePickupPrefabs != null && possiblePickupPrefabs.Count > 0)
         {
             var prefab = possiblePickupPrefabs[Random.Range(0, possiblePickupPrefabs.Count)];
@@ -245,7 +305,6 @@ public class RainbowChicken : MonoBehaviour, IDamageable
             return;
         }
 
-        //// MODO B: prefab genérico + nombre
         //if (genericPickupPrefab != null && possibleWeaponNames != null && possibleWeaponNames.Count > 0)
         //{
         //    string wname = possibleWeaponNames[Random.Range(0, possibleWeaponNames.Count)];
@@ -260,18 +319,31 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         //}
     }
 
-    // Hazards/obstáculos: no dañan a la gallina; solo reorientan rumbo.
+    // ============== SFX utils ==============
+    private void PlaySfx(string clipName, float volume, float pitch = 1f, bool loop = false)
+    {
+        if (SoundFXManager.instance == null) return;
+        if (string.IsNullOrEmpty(clipName)) return;
+        SoundFXManager.instance.PlaySoundByName(clipName, transform, volume, pitch, loop);
+    }
+
+    private float RandomPitch(float min, float max)
+    {
+        if (!randomizePitch) return 1f;
+        if (min > max) (min, max) = (max, min);
+        return Random.Range(min, max);
+    }
+
+    // ============== reorientación por colisiones ==============
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsInMask(other.gameObject.layer, CombinedAvoidMask))
             PickBestDirection();
     }
-
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (IsInMask(other.gameObject.layer, CombinedAvoidMask))
             PickBestDirection();
     }
-
     private static bool IsInMask(int layer, LayerMask mask) => (mask.value & (1 << layer)) != 0;
 }

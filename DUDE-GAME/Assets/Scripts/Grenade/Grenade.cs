@@ -5,6 +5,8 @@ using UnityEngine;
 public class Grenade : MonoBehaviour
 {
     public enum State { Safe, Armed, Thrown, Exploded }
+    private GrenadeWeapon ownerWeapon;
+    public void SetOwner(GrenadeWeapon owner) { ownerWeapon = owner; }
 
     [Header("Config")]
     [SerializeField] private GrenadeDefinition definition;
@@ -83,7 +85,6 @@ public class Grenade : MonoBehaviour
         if (armedVfx) armedVfx.Play();
     }
 
-    /// En mano (kinemática, sin colisión) vs mundo (dinámica, con colisión)
     private void SetHeldInHand(bool held)
     {
         if (!rb) rb = GetComponent<Rigidbody2D>();
@@ -122,17 +123,27 @@ public class Grenade : MonoBehaviour
     // Segundo click: lanzar
     public void Throw(Vector2 dir, float charge01 = 0f)
     {
-        if (state == State.Safe) Arm(); 
+        if (state == State.Safe) Arm();
 
         state = State.Thrown;
+        SetOpenVisual();
 
-        SetOpenVisual(); 
         float speed = definition.throwSpeed + Mathf.Clamp01(charge01) * definition.maxExtraThrow;
 
         transform.SetParent(null, true);
         SetHeldInHand(false);
-        rb.linearVelocity = dir.normalized * speed;
+
+        if (dir.sqrMagnitude <= 0.0001f)
+        {
+            rb.linearVelocity = Vector2.zero;   
+            rb.angularVelocity = 0f;
+        }
+        else
+        {
+            rb.linearVelocity = dir.normalized * speed;
+        }
     }
+
 
     /// Soltarla al mundo si estaba armada 
     public void DropArmed()
@@ -197,7 +208,11 @@ public class Grenade : MonoBehaviour
             }
             Destroy(fx, definition.explosionLifetime);
         }
-
+        if (ownerWeapon != null)
+        {
+            ownerWeapon.NotifyHeldGrenadeExploded(this);
+            ownerWeapon = null; // evitar dobles notificaciones
+        }
         yield return new WaitForSeconds(0.05f);
         Destroy(gameObject);
     }
