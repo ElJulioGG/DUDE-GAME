@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 465022238857104739}
   - component: {fileID: 1456803390410853780}
   - component: {fileID: 4030386285267257971}
+  - component: {fileID: 1914305836030983859}
+  - component: {fileID: 1984228542650478102}
   m_Layer: 0
   m_Name: GrenadePrefab
   m_TagString: Untagged
@@ -171,9 +173,6 @@ MonoBehaviour:
   openSprite: {fileID: 8797946271071058492, guid: 25eee43580690a2498b329233848c78b, type: 3}
   armedVfx: {fileID: 0}
   explodeVfx: {fileID: 0}
-  explosionPrefab: {fileID: 0}
-  explosionLifetime: 0.6
-  matchSortingForExplosion: 1
   useBlink: 1
   blinkColor: {r: 1, g: 0.5, b: 0.5, a: 1}
   minBlinkInterval: 0.08
@@ -185,3 +184,67 @@ MonoBehaviour:
   maxBeepInterval: 0.4
   minBeepPitch: 1
   maxBeepPitch: 1.6
+--- !u!61 &1914305836030983859
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4282596813598894448}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.5, y: 0.5}
+    newSize: {x: 0.5, y: 0.5}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!114 &1984228542650478102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4282596813598894448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61b2a08e876f5ac4a92832d106cbb7d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponName: GrenadeWeapon
+  savedClipAmmo: -1
+  savedReserveAmmo: -1
+  throwSpeed: 10
+  minDamageSpeed: 4
+  damageOnHit: 10

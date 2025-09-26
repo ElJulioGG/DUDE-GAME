@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,6 +12,19 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject[] players;
     [SerializeField] private Animator transitionAnim;
     [SerializeField] private GameObject TimerText;
+
+    [SerializeField] private GameObject[] Mutators;
+    [SerializeField] private int mutatorsPerMatch = 1; // how many to spawn each match
+    [SerializeField] private float minDistance = 2f;
+    [SerializeField] private float maxDistance = 8f;
+    [SerializeField] private LayerMask collisionMask;
+    [SerializeField] private Camera matchCamera; // assign your main or match camera
+
+    private List<GameObject> activeMutators = new List<GameObject>();
+
+
+
+
     public GameObject[] UIIntroObjects;
     public GameObject[] maps;
     public bool matchEnded = false;
@@ -46,6 +60,7 @@ public class GameController : MonoBehaviour
     {
         pointsToGive = 1;
         levelTimer.ResetTimer();
+        ClearAllMutators();
         ClearAllWeaponPickups(); // Clear weapons before map change
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
@@ -71,6 +86,59 @@ public class GameController : MonoBehaviour
         Invoke("StartGame", 0.5f);
     }
 
+
+    private void SpawnMutators()
+    {
+        if (Mutators == null || Mutators.Length == 0 || matchCamera == null)
+        {
+            Debug.LogWarning("Missing Mutators or Camera!");
+            return;
+        }
+
+        int spawned = 0;
+        int attempts = 0;
+        int maxAttempts = 50;
+
+        while (spawned < mutatorsPerMatch && attempts < maxAttempts)
+        {
+            attempts++;
+
+            // Random forward distance
+            float distance = Random.Range(minDistance, maxDistance);
+
+            // Random offset so they don’t overlap
+            Vector2 circle = Random.insideUnitCircle * 3f;
+            Vector3 offset = matchCamera.transform.right * circle.x + matchCamera.transform.up * circle.y;
+
+            Vector3 candidatePos = matchCamera.transform.position +
+                                   matchCamera.transform.forward * distance +
+                                   offset;
+
+            // Check if free
+            if (!Physics.CheckSphere(candidatePos, 0.5f, collisionMask))
+            {
+                GameObject prefab = Mutators[Random.Range(0, Mutators.Length)];
+
+                GameObject instance = Instantiate(prefab, candidatePos, Quaternion.identity);
+                activeMutators.Add(instance);
+
+                spawned++;
+            }
+        }
+
+        Debug.Log($"Spawned {spawned} mutators this match.");
+    }
+    public void ClearAllMutators()
+    {
+        foreach (GameObject mutator in activeMutators)
+        {
+            if (mutator != null)
+                Destroy(mutator);
+        }
+
+        activeMutators.Clear();
+        Debug.Log("Cleared all mutators.");
+    }
     private void ClearAllWeaponPickups()
     {
         WeaponPickup[] existingPickups = FindObjectsByType<WeaponPickup>(FindObjectsSortMode.None);
@@ -82,6 +150,8 @@ public class GameController : MonoBehaviour
             }
         }
         Debug.Log($"Cleared {existingPickups.Length} weapon pickups");
+
+
     }
 
     public void ShowPointsCanvas(Transform winnerTransform, int points)
@@ -230,8 +300,10 @@ public class GameController : MonoBehaviour
             UIIntroObjects[i].SetActive(false);
         }
         GameManager.instance.playersCanMove = true;
+        SpawnMutators();
+
     }
-    
+
     void Start()
     {
         SoundFXManager.instance.StopSoundByName("BattleTheme");

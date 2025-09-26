@@ -148058,6 +148058,15 @@ MonoBehaviour:
   - {fileID: 1374179797}
   transitionAnim: {fileID: 1792064436}
   TimerText: {fileID: 1890349412}
+  Mutators:
+  - {fileID: 2160772453637557581, guid: 98031fa972d0517458c2fd944187ecc5, type: 3}
+  mutatorsPerMatch: 1
+  minDistance: 2
+  maxDistance: 8
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 128
+  matchCamera: {fileID: 519420031}
   UIIntroObjects:
   - {fileID: 208720102}
   - {fileID: 908037949}
