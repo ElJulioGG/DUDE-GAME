@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private Animator transitionAnim;
     [SerializeField] private GameObject TimerText;
 
+    [SerializeField] private GameObject[] UIPowerUps;
     [SerializeField] private GameObject[] Mutators;
     [SerializeField] private int mutatorsPerMatch = 1; // how many to spawn each match
     [SerializeField] private float minDistance = 2f;
@@ -509,6 +510,7 @@ public class GameController : MonoBehaviour
     public void Instakill()
     {
         SoundFXManager.instance.PlaySoundByName("Instakill", transform, 0.9f, 0.9f);
+        UIPowerUps[0].SetActive(true);
         foreach (PlayerStats player in playerStats)
         {
             if (player.playerAlive)
@@ -524,6 +526,7 @@ public class GameController : MonoBehaviour
     public void DoublePoints()
     {
         SoundFXManager.instance.PlaySoundByName("DoublePoints", transform, 0.9f, 0.9f);
+        UIPowerUps[1].SetActive(true);
         pointsToGive *= 2;
     }
 }
