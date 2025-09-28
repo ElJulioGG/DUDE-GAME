@@ -54,7 +54,6 @@ public class GE_Teleport : GrenadeEffect
         // Posición objetivo
         Vector2 target = center + offset;
 
-        // Si pedimos ubicación segura, ajustamos si está bloqueado
         if (useSafePlacement && Physics2D.OverlapCircle(target, clearanceRadius, obstacleMask) != null)
         {
             // Explora en anillos concéntricos
@@ -68,7 +67,7 @@ public class GE_Teleport : GrenadeEffect
                     if (!Physics2D.OverlapCircle(cand, clearanceRadius, obstacleMask))
                     {
                         target = cand;
-                        ring = ringCount + 1; // break both loops
+                        ring = ringCount + 1; 
                         break;
                     }
                 }

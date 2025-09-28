@@ -103,22 +103,22 @@ public class GunHolder : MonoBehaviour
 
     public void HandleReload()
     {
-        
+
         // Only reload if we have a gun equipped (not melee)
         if (currentGunScript != null && !currentGunScript.IsReloading())
         {
-            
+
             // Only reload if we need to (clip isn't full or we have reserve ammo)
             if (currentGunScript.GetCurrentClipAmmo() < currentGunScript.clipSize &&
                 currentGunScript.GetReserveAmmo() > 0)
             {
-                
+
                 StartCoroutine(currentGunScript.Reload());
-                
+
             }
         }
     }
-    public void EquipWeapon(string weaponName,WeaponPickup pickup)
+    public void EquipWeapon(string weaponName, WeaponPickup pickup)
     {
         if (currentWeapon != null)
         {
@@ -172,7 +172,6 @@ public class GunHolder : MonoBehaviour
 
         var grenadeWeapon = currentGunScript as GrenadeWeapon;
 
-        // 1) Si hay granada cocinándose, LÁNZALA (o suéltala en sitio si no apuntas) y SAL
         if (grenadeWeapon != null && grenadeWeapon.HasCooking)
         {
             Vector2 dir = (lastAimDirection.sqrMagnitude > 0.01f) ? lastAimDirection : Vector2.zero;
@@ -180,10 +179,8 @@ public class GunHolder : MonoBehaviour
                 return;
         }
 
-        // 2) Si la granada explotó en la mano ESTE FRAME, NO dropear (evita duplicado)
         if (grenadeWeapon != null && grenadeWeapon.WasConsumedInHand)
         {
-            // Opcional: si ya no queda muni, asegúrate de limpiar a melee
             if (grenadeWeapon.GetCurrentClipAmmo() <= 0)
             {
                 Destroy(currentWeapon);
@@ -203,7 +200,6 @@ public class GunHolder : MonoBehaviour
             return;
         }
 
-        // 3) Si es un arma de granada sin munición, NO crees pickup (solo limpia a melee)
         if (grenadeWeapon != null && grenadeWeapon.GetCurrentClipAmmo() <= 0)
         {
             Destroy(currentWeapon);
@@ -222,7 +218,6 @@ public class GunHolder : MonoBehaviour
             return;
         }
 
-        // --- LÓGICA NORMAL DE DROPEO (igual que ya la tienes) ---
         string weaponName = currentWeapon.name.Replace("(Clone)", "").Trim();
         Vector3 spawnPosition = transform.position;
         float dropDistance = 1f;
@@ -297,6 +292,26 @@ public class GunHolder : MonoBehaviour
     }
     public void HandlePickDrop()
     {
+        Grenade g = FindNearbyArmedGrenade(transform.position, 1.0f);
+        if (g != null)
+        {
+            GrenadeWeapon gw = currentGunScript as GrenadeWeapon;
+            if (gw == null)
+            {
+                EquipWeapon("GrenadeWeapon", new WeaponPickup { savedClipAmmo = -1, savedReserveAmmo = -1 });
+                gw = currentGunScript as GrenadeWeapon;
+            }
+
+            if (gw != null && gw.TryPickupExisting(g))
+            {
+                hasWeapon = true;
+                activeWeapon = "GrenadeWeapon";
+                currentMeleeScript = null;
+                gw.SetAimDirection(lastAimDirection);
+                return; 
+            }
+        }
+
         if (nearbyPickup != null && !hasWeapon)
         {
             var pickup = nearbyPickup;
@@ -315,7 +330,7 @@ public class GunHolder : MonoBehaviour
     {
         if (currentWeapon != null && playerStats.playerAlive)
         {
-            if (currentGunScript != null )
+            if (currentGunScript != null)
             {
                 // Change this to use the new firing methods
                 currentGunScript.StartFiring();
@@ -350,5 +365,30 @@ public class GunHolder : MonoBehaviour
                 currentMeleeScript.SetAimDirection(lastAimDirection);
         }
     }
+
+    private Grenade FindNearbyArmedGrenade(Vector2 center, float radius)
+    {
+        var hits = Physics2D.OverlapCircleAll(center, radius);
+        Grenade best = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var h in hits)
+        {
+            var g = h.GetComponent<Grenade>();
+            if (g == null) continue;
+            if (g.CurrentState == Grenade.State.Exploded) continue;
+            if (g.IsHeld) continue;                
+            if (!g.IsTicking) continue;            
+
+            float d = Vector2.SqrMagnitude((Vector2)g.transform.position - center);
+            if (d < bestDist)
+            {
+                bestDist = d;
+                best = g;
+            }
+        }
+        return best;
+    }
+
 
 }

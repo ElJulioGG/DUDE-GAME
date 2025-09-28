@@ -6,6 +6,7 @@ public class Grenade : MonoBehaviour
 {
     public enum State { Safe, Armed, Thrown, Exploded }
     private GrenadeWeapon ownerWeapon;
+    private bool heldInHand = false;
     public void SetOwner(GrenadeWeapon owner) { ownerWeapon = owner; }
 
     [Header("Config")]
@@ -46,7 +47,10 @@ public class Grenade : MonoBehaviour
     public bool IsSafe => state == State.Safe;
     public bool IsArmed => state == State.Armed;
     public bool IsThrown => state == State.Thrown;
-
+    public bool IsHeld => heldInHand;
+    public bool IsTicking => ticking;
+    public float FuseLeft => fuseLeft;
+    public State CurrentState => state;
     public void Init(GrenadeDefinition def, int ownerPlayerIndex)
     {
         definition = def;
@@ -58,11 +62,7 @@ public class Grenade : MonoBehaviour
 
         rb.gravityScale = 0f;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb.sharedMaterial = new PhysicsMaterial2D
-        {
-            bounciness = definition.bounciness,
-            friction = definition.friction
-        };
+        rb.sharedMaterial = new PhysicsMaterial2D { bounciness = definition.bounciness, friction = definition.friction };
 
         state = State.Safe;
         fuseLeft = definition.fuseSeconds;
@@ -90,6 +90,8 @@ public class Grenade : MonoBehaviour
         if (!rb) rb = GetComponent<Rigidbody2D>();
         if (!col) col = GetComponent<Collider2D>();
 
+        heldInHand = held; // <- marca estado real
+
         if (held)
         {
             rb.bodyType = RigidbodyType2D.Kinematic;
@@ -104,6 +106,18 @@ public class Grenade : MonoBehaviour
         }
     }
 
+    public void AttachToHand(GrenadeWeapon newOwner, Transform hand)
+    {
+        if (state == State.Exploded) return;
+
+        ownerWeapon = newOwner;             
+        transform.SetParent(hand, true);
+        transform.position = hand.position;
+        SetHeldInHand(true);
+        SetOpenVisual();              
+    }
+
+
     // Primer click: abrir/armar
     public void Arm()
     {
@@ -111,10 +125,9 @@ public class Grenade : MonoBehaviour
 
         state = State.Armed;
         ticking = true;
-        fuseLeft = definition.fuseSeconds;
-
+        fuseLeft = definition.fuseSeconds; 
         SetOpenVisual();
-        SetHeldInHand(true); // sigue en mano con fuse activo
+        SetHeldInHand(true);
 
         if (useBlink && blinkCo == null) blinkCo = StartCoroutine(BlinkRoutine());
         if (useBeep && beepCo == null) beepCo = StartCoroutine(BeepRoutine());
@@ -135,7 +148,7 @@ public class Grenade : MonoBehaviour
 
         if (dir.sqrMagnitude <= 0.0001f)
         {
-            rb.linearVelocity = Vector2.zero;   
+            rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
         else
@@ -172,7 +185,7 @@ public class Grenade : MonoBehaviour
         state = State.Exploded;
         ticking = false;
 
-        if (col) col.enabled = false; // desactiva colisión
+        if (col) col.enabled = false;
 
         if (blinkCo != null) StopCoroutine(blinkCo);
         if (beepCo != null) StopCoroutine(beepCo);
@@ -180,20 +193,16 @@ public class Grenade : MonoBehaviour
 
         if (spriteRenderer) spriteRenderer.color = baseColor;
 
-        // Aplicar efectos (daño, knockback, teletransporte, etc.)
         Vector2 center = transform.position;
         if (definition != null && definition.effects != null)
         {
             foreach (var eff in definition.effects)
-            {
                 if (eff != null) eff.ApplyEffect(center, ownerIndex);
-            }
         }
 
         if (armedVfx) armedVfx.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         if (explodeVfx) explodeVfx.Play();
 
-        // VFX animado definido en Definition (opcional por granada)
         if (definition != null && definition.explosionPrefab != null)
         {
             var fx = Instantiate(definition.explosionPrefab, transform.position, Quaternion.identity);
@@ -208,11 +217,14 @@ public class Grenade : MonoBehaviour
             }
             Destroy(fx, definition.explosionLifetime);
         }
-        if (ownerWeapon != null)
+
+        // Notificar SOLO si explota en mano
+        if (heldInHand && ownerWeapon != null)
         {
             ownerWeapon.NotifyHeldGrenadeExploded(this);
-            ownerWeapon = null; // evitar dobles notificaciones
+            ownerWeapon = null;
         }
+
         yield return new WaitForSeconds(0.05f);
         Destroy(gameObject);
     }
@@ -254,4 +266,5 @@ public class Grenade : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, 0.5f);
     }
+
 }

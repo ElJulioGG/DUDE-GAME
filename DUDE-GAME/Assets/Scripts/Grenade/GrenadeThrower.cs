@@ -23,14 +23,9 @@ public class GrenadeThrower : MonoBehaviour
 
     private void Update()
     {
-        // Apuntar con el mouse (test)
         Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         aimDir = (mouseWorld - (Vector2)hand.position).normalized;
 
-        // Click izquierdo:
-        // - Si no hay granada: spawnea cerrada en la mano.
-        // - Si hay granada y está "Safe": primer click -> abrir/armar.
-        // - Si hay granada y está "Armed": segundo click -> lanzar.
         if (Input.GetMouseButtonDown(0))
         {
             if (current == null)

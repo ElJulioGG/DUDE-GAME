@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 963233ea5a7f97d488d3289be6c4a431, type: 3}
   m_Name: GrenadeDefinition_Knockback
   m_EditorClassIdentifier: 
-  canCook: 1
-  fuseSeconds: 1.2
-  throwSpeed: 12
-  maxExtraThrow: 6
-  bounciness: 0.6
-  friction: 0.2
   effects:
   - {fileID: 11400000, guid: f94bb4879d5740b46a6070ddbcd28130, type: 2}
+  fuseSeconds: 2.4
+  throwSpeed: 18
+  maxExtraThrow: 16
+  bounciness: 0.6
+  friction: 0.2
+  explosionPrefab: {fileID: 0}
+  explosionLifetime: 0.6
+  matchSortingForExplosion: 1

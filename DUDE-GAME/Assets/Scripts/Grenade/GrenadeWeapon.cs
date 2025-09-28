@@ -16,7 +16,6 @@ public class GrenadeWeapon : WeaponBase
     private Grenade cooking;
     private GunHolder holder;
 
-    // Flag: la granada se consumió (explotó) en la mano recientemente
     private bool consumedInHandThisFrame = false;
     public bool WasConsumedInHand => consumedInHandThisFrame;
 
@@ -46,10 +45,9 @@ public class GrenadeWeapon : WeaponBase
         return transform.right.normalized;
     }
 
-    /// Shoot AHORA SOLO ARMA (no lanza)
     public override void Shoot()
     {
-        if (cooking != null) return; // ya hay una cocinándose
+        if (cooking != null) return; 
 
         if (currentClipAmmo <= 0 || grenadePrefab == null || definition == null)
             return;
@@ -57,10 +55,9 @@ public class GrenadeWeapon : WeaponBase
         Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
         cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity, parent);
         cooking.Init(definition, GetOwnerIndexSafe());
-        cooking.SetOwner(this);          
-        cooking.Arm();                   // empieza fuse en la mano
+        cooking.SetOwner(this);
+        cooking.Arm();                 
 
-        // ocultar el cuerpo del arma para que se vea solo la granada
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
 
         if (forceGrenadeOnTop)
@@ -74,7 +71,6 @@ public class GrenadeWeapon : WeaponBase
         }
     }
 
-    /// Llamado por el botón "lanzar cosas"
     public bool TryThrowCooked(Vector2 dir)
     {
         if (cooking == null) return false;
@@ -94,7 +90,7 @@ public class GrenadeWeapon : WeaponBase
 
     private IEnumerator AutoDestroyThisWeaponNextFrame()
     {
-        yield return null; // evita pelear con el flujo del holder
+        yield return null; 
         if (holder != null) holder.DestroyCurrentWeapon();
         else Destroy(gameObject);
     }
@@ -132,8 +128,8 @@ public class GrenadeWeapon : WeaponBase
         {
             cooking = null;
 
-            consumedInHandThisFrame = true;              
-            StartCoroutine(ClearConsumedFlagEndOfFrame()); // se limpia al final del frame
+            consumedInHandThisFrame = true;
+            StartCoroutine(ClearConsumedFlagEndOfFrame());
 
             if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
 
@@ -142,5 +138,21 @@ public class GrenadeWeapon : WeaponBase
                 StartCoroutine(AutoDestroyThisWeaponNextFrame());
         }
     }
+
+    public bool TryPickupExisting(Grenade g)
+    {
+        if (g == null) return false;
+        if (cooking != null) return false; 
+
+        Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
+
+        g.AttachToHand(this, parent);
+        cooking = g;
+
+        if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
+
+        return true;
+    }
+
 
 }
