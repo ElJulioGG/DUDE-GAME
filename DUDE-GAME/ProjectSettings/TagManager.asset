@@ -46,8 +46,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: FONDO
+  - name: FondoShader
+    uniqueID: 27451837
+    locked: 0
+  - name: Fondo
     uniqueID: 1808498383
+    locked: 0
+  - name: UI
+    uniqueID: 3733455475
+    locked: 0
+  - name: Entities
+    uniqueID: 42864455
     locked: 0
   m_RenderingLayers:
   - Default

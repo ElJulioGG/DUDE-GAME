@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BackGround
-  m_Shader: {fileID: -6465566751694194690, guid: b2ffbda940c92a84ba1b9934c4bda07e, type: 3}
+  m_Name: BackGround2
+  m_Shader: {fileID: -6465566751694194690, guid: 7e76d0473a27f7e4e842ff5b440a8c43, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -55,7 +55,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _EnableExternalAlpha: 0
-    - _PixelResolution: 420
+    - _PixelResolution: 430
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ScrollSpeed: 1
