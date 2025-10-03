@@ -279,7 +279,8 @@ public class GameController : MonoBehaviour
                     SoundFXManager.instance.PlaySoundByName("BattleLoop", transform, 0.2f, 1f, true);
                 }
                 GameManager.instance.playersCanMove = true;
-                
+                GameManager.instance.playersCanPowerUp = true;
+
             }
             if (i == UIIntroObjects.Length - 2)
             {
@@ -483,6 +484,7 @@ public class GameController : MonoBehaviour
     IEnumerator HandleLastPlayerWin(PlayerStats winner)
     {
         levelTimer.StopTimer();
+        GameManager.instance.playersCanPowerUp = false;
         yield return winner.AddPointsAfterDelay(pointsToGive);
         ShowPointsCanvas(winner.transform, pointsToGive);
         if(levelTimer.timeLeft > 0){
