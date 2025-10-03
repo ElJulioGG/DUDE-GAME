@@ -27,6 +27,10 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private AnimationCurve shakeEaseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private bool useCurveInsteadOfEase = false;
 
+    [Header("Particles")]
+    [SerializeField] private ParticleSystem RippleParticle;
+    [SerializeField] private ParticleSystem AuraParticle;
+
     void Start()
     {
         health = baseHealth;
@@ -39,6 +43,11 @@ public class PlayerStats : MonoBehaviour
         playerIndex = index;
     }
 
+    public void ActivateParticlesPowerUP()
+    {
+        RippleParticle.Play();
+        AuraParticle.Play();
+    }
     public IEnumerator AddPointsAfterDelay(int pointsToAdd)
     {
         yield return new WaitForSeconds(1.5f);

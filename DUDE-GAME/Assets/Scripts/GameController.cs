@@ -433,6 +433,7 @@ public class GameController : MonoBehaviour
             if (playerStats[i].usingPowerUp)
             {
                 TriggerPowerUp(playerStats[i].playerIndex);
+                
                 playerStats[i].usingPowerUp = false;
             }
         }
@@ -463,12 +464,16 @@ public class GameController : MonoBehaviour
         switch (currentPowerUp)
         {
             case 0:
-                SoundFXManager.instance.PlaySoundByName("NoPowerUp", transform, 1f, 1f);
+                SoundFXManager.instance.PlaySoundByName("Pablo", transform, 1f, 1f);
                 break;
             case 1:
+                SoundFXManager.instance.PlaySoundByName("PowerUp2", transform, 1f, 1f);
+                playerStats[playerIndex].ActivateParticlesPowerUP();
                 Instakill();
                 break;
             case 2:
+                SoundFXManager.instance.PlaySoundByName("PowerUp1", transform, 1f, 1f);
+                playerStats[playerIndex].ActivateParticlesPowerUP();
                 DoublePoints();
                 break;
                 // Other powerup cases...
