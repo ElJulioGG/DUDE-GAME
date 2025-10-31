@@ -27,6 +27,7 @@ public class GrenadeWeapon : WeaponBase
     }
 
     public bool HasCooking => cooking != null;
+    public int OwnerPlayerIndex => GetOwnerIndexSafe();
 
     private void Awake()
     {
@@ -157,11 +158,57 @@ public class GrenadeWeapon : WeaponBase
         if (g == null) return false;
         if (cooking != null) return false; 
 
-        Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
+        AdoptExistingGrenade(g);
+        return cooking != null;
+    }
+
+    public Grenade DetachHeldGrenadeForTransfer()
+    {
+        if (cooking == null) return null;
+        if (cooking.CurrentState == Grenade.State.Exploded)
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[GRENADE] Weapon {name} DETACH_HELD aborted exploded grenade");
+#endif
+            cooking = null;
+            return null;
+        }
+
+        Grenade g = cooking;
+        cooking = null;
+
+        g.DetachFromHand();
+        g.SetOwner(null);
+
+        consumedInHandThisFrame = true;
+        StartCoroutine(ClearConsumedFlagEndOfFrame());
+
+        if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
+
+        currentClipAmmo = Mathf.Max(0, currentClipAmmo - 1);
+        if (currentClipAmmo <= 0)
+            StartCoroutine(AutoDestroyThisWeaponNextFrame());
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} TryPickupExisting target={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} ticking={g.IsTicking} def={g.Definition?.name ?? "null"} owner={g.OwnerIndex}");
+        Debug.Log($"[GRENADE] Weapon {name} DETACH_HELD grenade={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
+#endif
+
+        return g;
+    }
+
+    public void AdoptExistingGrenade(Grenade g)
+    {
+        if (g == null) return;
+        if (g.CurrentState == Grenade.State.Exploded) return;
+
+        Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
+        if (parent == null) parent = transform;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] Weapon {name} AdoptExisting begin grenade={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
 #endif
 
         if (g.Definition != null && g.Definition != definition)
@@ -173,19 +220,27 @@ public class GrenadeWeapon : WeaponBase
             definition = g.Definition;
         }
 
-        g.AttachToHand(this, parent);
+        g.SetOwner(this);
+        g.AttachToHand(parent, GetOwnerIndexSafe());
         cooking = g;
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
 
+        if (forceGrenadeOnTop)
+        {
+            var gsr = g.GetComponentInChildren<SpriteRenderer>();
+            if (gsr && weaponBodyRenderer)
+            {
+                gsr.sortingLayerID = weaponBodyRenderer.sortingLayerID;
+                gsr.sortingOrder = weaponBodyRenderer.sortingOrder + 1;
+            }
+        }
+
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} Adopted {g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
+        Debug.Log($"[GRENADE] Weapon {name} AdoptExisting end grenade={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2}");
 #endif
-
-        return true;
     }
-
 
 }
 

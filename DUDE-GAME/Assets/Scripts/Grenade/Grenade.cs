@@ -132,17 +132,38 @@ public class Grenade : MonoBehaviour
 
     public void AttachToHand(GrenadeWeapon newOwner, Transform hand)
     {
-        if (state == State.Exploded) return;
+        SetOwner(newOwner);
+        int newOwnerIndex = ownerIndex;
+        if (newOwner != null)
+        {
+            newOwnerIndex = newOwner.OwnerPlayerIndex;
+        }
+        AttachToHand(hand, newOwnerIndex);
+    }
 
-        ownerWeapon = newOwner;             
-        transform.SetParent(hand, true);
-        transform.position = hand.position;
+    public void AttachToHand(Transform newHand, int newOwnerIndex)
+    {
+        if (state == State.Exploded) return;
+        if (newHand == null) return;
+
+        int previousOwnerIndex = ownerIndex;
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} AttachToHand begin owner={previousOwnerIndex} -> {newOwnerIndex} state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"}");
+#endif
+
+        ownerIndex = newOwnerIndex;
+        transform.SetParent(newHand, true);
+        transform.position = newHand.position;
         SetHeldInHand(true);
-        SetOpenVisual();              
+        if (state == State.Safe)
+            SetClosedVisual();
+        else
+            SetOpenVisual();
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} AttachToHand newOwner={(newOwner != null ? newOwner.name : "null")} state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE] {name} AttachToHand end owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
 #endif
     }
 
@@ -211,6 +232,20 @@ public class Grenade : MonoBehaviour
         // DEBUG:
         Debug.Log($"[GRENADE] {name} DropArmed state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
 #endif
+    }
+
+    public void DetachFromHand()
+    {
+        if (state == State.Exploded) return;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} DetachFromHand owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
+#endif
+
+        transform.SetParent(null, true);
+        SetHeldInHand(false);
+        ownerWeapon = null;
     }
 
     private void Update()

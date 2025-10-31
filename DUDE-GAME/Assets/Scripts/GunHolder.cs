@@ -24,6 +24,10 @@ public class GunHolder : MonoBehaviour
     // **New**: Track the last aim direction
     private Vector2 lastAimDirection = Vector2.right; // Default aiming right
 
+    private const float STEAL_RADIUS = 1.0f;
+    private const float STEAL_COOLDOWN = 0.35f;
+    private float lastStealTime = -999f;
+
     // Input request flags
     private bool shootRequested = false;
     private bool pickDropRequested = false;
@@ -299,6 +303,9 @@ public class GunHolder : MonoBehaviour
     }
     public void HandlePickDrop()
     {
+        if (TryStealNearbyGrenade())
+            return;
+
         Grenade g = FindNearbyArmedGrenade(transform.position, 1.0f);
         if (g != null)
         {
@@ -418,7 +425,138 @@ public class GunHolder : MonoBehaviour
         return best;
     }
 
+    private bool CanStealNow() => Time.time - lastStealTime >= STEAL_COOLDOWN;
 
+    private bool TryStealNearbyGrenade()
+    {
+        if (!CanStealNow()) return false;
+        if (playerStats != null && !playerStats.playerAlive) return false;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, STEAL_RADIUS);
+        if (hits == null || hits.Length == 0) return false;
+
+        GunHolder victimHolder = null;
+        GrenadeWeapon victimWeapon = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var hit in hits)
+        {
+            if (hit == null) continue;
+            var candidateHolder = hit.GetComponentInParent<GunHolder>();
+            if (candidateHolder == null || candidateHolder == this) continue;
+            if (candidateHolder.playerStats != null && !candidateHolder.playerStats.playerAlive) continue;
+            if (Time.time - candidateHolder.lastStealTime < STEAL_COOLDOWN) continue;
+
+            var candidateWeapon = candidateHolder.currentGunScript as GrenadeWeapon;
+            if (candidateWeapon == null) continue;
+            if (!candidateWeapon.HasCooking) continue;
+
+            float sqrDist = Vector2.SqrMagnitude((Vector2)candidateHolder.transform.position - (Vector2)transform.position);
+            if (sqrDist < bestDist)
+            {
+                bestDist = sqrDist;
+                victimHolder = candidateHolder;
+                victimWeapon = candidateWeapon;
+            }
+        }
+
+        if (victimWeapon == null || victimHolder == null)
+            return false;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} attempting steal from {victimHolder.name} weaponHasCooking={victimWeapon.HasCooking}");
+#endif
+
+        Grenade stolen = victimWeapon.DetachHeldGrenadeForTransfer();
+        if (stolen == null)
+            return false;
+
+        victimHolder.lastStealTime = Time.time;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} stole grenade={stolen.name} fuseLeft={stolen.FuseLeft:F2} ownerWas={stolen.OwnerIndex}");
+#endif
+
+        if (victimHolder != null)
+        {
+            victimHolder.DestroyCurrentWeapon();
+        }
+
+        if (currentWeapon != null && activeWeapon != "melee")
+        {
+            if (currentGunScript is GrenadeWeapon existingGrenadeWeapon)
+            {
+#if GRENADE_DEBUG
+                Grenade released = existingGrenadeWeapon.DetachHeldGrenadeForTransfer();
+                if (released != null)
+                {
+                    // DEBUG:
+                    Debug.Log($"[GRENADE] {name} released own grenade {released.name} while preparing to steal fuseLeft={released.FuseLeft:F2}");
+                }
+#else
+                existingGrenadeWeapon.DetachHeldGrenadeForTransfer();
+#endif
+                DestroyCurrentWeapon();
+            }
+            else
+            {
+                DropCurrentWeapon();
+            }
+        }
+
+        GrenadeWeapon myGrenadeWeapon = currentGunScript as GrenadeWeapon;
+        if (myGrenadeWeapon == null)
+        {
+            EquipWeapon("GrenadeWeapon", new WeaponPickup { savedClipAmmo = -1, savedReserveAmmo = -1 });
+            myGrenadeWeapon = currentGunScript as GrenadeWeapon;
+        }
+
+        if (myGrenadeWeapon == null)
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.LogWarning($"[GRENADE] {name} failed to adopt stolen grenade {stolen.name} – no GrenadeWeapon equipped");
+#endif
+            lastStealTime = Time.time;
+            return true;
+        }
+
+        myGrenadeWeapon.AdoptExistingGrenade(stolen);
+
+        if (!myGrenadeWeapon.HasCooking)
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.LogWarning($"[GRENADE] {name} failed to hold stolen grenade {stolen.name} after adoption");
+#endif
+            lastStealTime = Time.time;
+            return true;
+        }
+
+        hasWeapon = true;
+        activeWeapon = "GrenadeWeapon";
+        currentMeleeScript = null;
+        myGrenadeWeapon.SetAimDirection(lastAimDirection);
+
+        lastStealTime = Time.time;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} STEAL success grenade={stolen.name} fuseLeft={stolen.FuseLeft:F2} newOwnerIndex={playerIndex}");
+#endif
+
+        if (victimHolder != null)
+            victimHolder.lastStealTime = Time.time;
+
+        if (SoundFXManager.instance != null)
+        {
+            SoundFXManager.instance.PlaySoundByName("Pickup", transform, 0.8f, 1f, false);
+        }
+
+        return true;
+    }
 }
 
 
