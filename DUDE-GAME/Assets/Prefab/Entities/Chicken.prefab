@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2456830481936228503}
   - component: {fileID: 1873229740340314767}
   m_Layer: 8
-  m_Name: RainbowChicken
+  m_Name: Chicken
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -96,8 +96,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.0061101913, y: 0.0061103823}
-  m_Size: {x: 0.3400776, y: 0.5356102}
+  m_Offset: {x: 0, y: 0.01}
+  m_Size: {x: 0.37, y: 0.65}
   m_Direction: 0
 --- !u!114 &1873229740340314767
 MonoBehaviour:
@@ -120,22 +120,27 @@ MonoBehaviour:
   - {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
   - {fileID: 6192896243936263217, guid: 311fd9447434fce4b82fead6f6fb016e, type: 3}
   - {fileID: 6192896243936263217, guid: 8cc701de14cc7d744ad9bcb8b5f67174, type: 3}
-  genericPickupPrefab: {fileID: 0}
-  possibleWeaponNames: []
   dropSpawnRadius: 0.25
   dropOnDeath: 1
   extraDeathDrops: 0
   spawnSfxName: 
-  hitSfxName: 
-  deathSfxName: 
+  hitSfxName: ChickenHit
+  randomDeathSfxNames:
+  - ChickenDeath1
+  - ChickenDeath2
+  - ChickenDeath3
+  deathNoisesCount: 3
+  deathNoiseVolume: 0.8
+  deathNoisePitchMin: 0.9
+  deathNoisePitchMax: 1.1
   spawnVolume: 0.5
-  hitVolume: 0.5
+  hitVolume: 1
   deathVolume: 1
   randomizePitch: 1
   spawnPitchMin: 0.95
   spawnPitchMax: 1.05
-  hitPitchMin: 0.95
-  hitPitchMax: 1.05
+  hitPitchMin: 0.586
+  hitPitchMax: 1.271
   deathPitchMin: 0.95
   deathPitchMax: 1.05
   shakeOnHit: 1
@@ -170,6 +175,8 @@ MonoBehaviour:
   idleSpeedThreshold: 0.02
   speedToAnimMultiplier: 1
   rotateForUpDown: 0
+  spawnFeatherParticles: {fileID: 1001579894881165956, guid: 54051356a1aa60f45b179bb31298c595, type: 3}
+  spawnFeatherParticles2: {fileID: 8062947110153377792, guid: 9ac6489152bb6ad44835b920c414ca6d, type: 3}
 --- !u!1 &7413951606059240052
 GameObject:
   m_ObjectHideFlags: 0

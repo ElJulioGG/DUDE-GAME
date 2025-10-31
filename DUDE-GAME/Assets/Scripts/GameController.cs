@@ -22,6 +22,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private Camera matchCamera; // assign your main or match camera
 
     private List<GameObject> activeMutators = new List<GameObject>();
+    [SerializeField] private int mutator1InChance = 10;
+    [SerializeField] private GameObject mutatorSpawnIndicator;
 
 
 
@@ -90,45 +92,70 @@ public class GameController : MonoBehaviour
 
     private void SpawnMutators()
     {
+        StartCoroutine(SpawnMutatorsCoroutine());
+    }
+
+    private IEnumerator SpawnMutatorsCoroutine()
+    {
         if (Mutators == null || Mutators.Length == 0 || matchCamera == null)
         {
             Debug.LogWarning("Missing Mutators or Camera!");
-            return;
+            yield break;
         }
 
         int spawned = 0;
         int attempts = 0;
-        int maxAttempts = 50;
+        int maxAttempts = 500;
+        Camera cam = matchCamera;
 
         while (spawned < mutatorsPerMatch && attempts < maxAttempts)
         {
             attempts++;
 
-            // Random forward distance
-            float distance = Random.Range(minDistance, maxDistance);
+            // Random point inside camera view (slightly inset to avoid edges)
+            float viewportX = Random.Range(0.05f, 0.95f);
+            float viewportY = Random.Range(0.05f, 0.95f);
 
-            // Random offset so they don’t overlap
-            Vector2 circle = Random.insideUnitCircle * 3f;
-            Vector3 offset = matchCamera.transform.right * circle.x + matchCamera.transform.up * circle.y;
+            // Convert viewport to world
+            Vector3 viewportPos = new Vector3(viewportX, viewportY, cam.nearClipPlane);
+            Vector3 worldPos = cam.ViewportToWorldPoint(viewportPos);
+            worldPos.z = 0f;
 
-            Vector3 candidatePos = matchCamera.transform.position +
-                                   matchCamera.transform.forward * distance +
-                                   offset;
+            // Optional: small random offset to spread them more
+            worldPos += (Vector3)Random.insideUnitCircle * 0.5f;
 
-            // Check if free
-            if (!Physics.CheckSphere(candidatePos, 0.5f, collisionMask))
+            // Check if area is free (no overlap with walls)
+            if (Physics2D.OverlapCircle(worldPos, 0.1f, collisionMask) == null)
             {
                 GameObject prefab = Mutators[Random.Range(0, Mutators.Length)];
 
-                GameObject instance = Instantiate(prefab, candidatePos, Quaternion.identity);
-                activeMutators.Add(instance);
+                //  Spawn indicator first (optional visual feedback)
+                if (mutatorSpawnIndicator != null)
+                {
+                    Instantiate(mutatorSpawnIndicator, worldPos, Quaternion.identity);
+                    yield return new WaitForSeconds(1.5f); // small delay before spawning mutator
+                }
 
+                //  Spawn actual mutator
+                GameObject instance = Instantiate(prefab, worldPos, Quaternion.identity);
+                activeMutators.Add(instance);
                 spawned++;
+
+                // Wait 1.5 seconds before next spawn
+                yield return new WaitForSeconds(.5f);
+            }
+            else
+            {
+                // Slight delay even if it failed (keeps rhythm)
+                yield return new WaitForSeconds(0.1f);
             }
         }
 
-        Debug.Log($"Spawned {spawned} mutators this match.");
+        Debug.Log($"Spawned {spawned} mutators out of {mutatorsPerMatch} after {attempts} attempts.");
     }
+
+   
+
     public void ClearAllMutators()
     {
         foreach (GameObject mutator in activeMutators)
@@ -302,7 +329,12 @@ public class GameController : MonoBehaviour
             UIIntroObjects[i].SetActive(false);
         }
         GameManager.instance.playersCanMove = true;
-        SpawnMutators();
+        int randomMutatorID = Random.Range(1, mutator1InChance+1); // 1 en 10
+        if(randomMutatorID == 1)
+        {
+            SpawnMutators();
+        }
+        
 
     }
 

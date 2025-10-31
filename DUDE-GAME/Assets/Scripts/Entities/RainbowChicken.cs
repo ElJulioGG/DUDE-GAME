@@ -29,7 +29,14 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [Header("SFX")]
     [SerializeField] private string spawnSfxName = "ChickenSpawn";
     [SerializeField] private string hitSfxName = "ChickenHit";
-    [SerializeField] private string deathSfxName = "ChickenDeath";
+    //[SerializeField] private string deathSfxName = "ChickenDeath";
+
+    [Header("Death Random Noises")]
+    [SerializeField] private List<string> randomDeathSfxNames = new(); // e.g. "ChickenNoise1", "ChickenNoise2"
+    [SerializeField, Range(1, 5)] private int deathNoisesCount = 3;
+    [SerializeField, Range(0f, 1f)] private float deathNoiseVolume = 0.8f;
+    [SerializeField, Range(0.5f, 2f)] private float deathNoisePitchMin = 0.9f, deathNoisePitchMax = 1.1f;
+
     [SerializeField, Range(0f, 1f)] private float spawnVolume = 0.7f;
     [SerializeField, Range(0f, 1f)] private float hitVolume = 0.8f;
     [SerializeField, Range(0f, 1f)] private float deathVolume = 0.9f;
@@ -79,6 +86,12 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [Tooltip("Rota el visual ±90° para simular Up/Down con el sprite de derecha.")]
     [SerializeField] private bool rotateForUpDown = true;
 
+
+    // ================== Spawn ==================
+
+    [SerializeField] private GameObject spawnFeatherParticles;
+    [SerializeField] private GameObject spawnFeatherParticles2;
+
     // ================== Privados ==================
     private int _hp;
     private float _nextHitAllowedTime = -999f;
@@ -115,7 +128,15 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (sprite == null) sprite = GetComponentInChildren<SpriteRenderer>();
         if (visualRoot == null && sprite != null) visualRoot = sprite.transform;
+
+        Instantiate(spawnFeatherParticles, transform.position, Quaternion.identity);
+        Instantiate(spawnFeatherParticles2, transform.position, Quaternion.identity);
+        SoundFXManager.instance.PlaySoundByName("chicken", transform, 1f, 1f, false);
+        SoundFXManager.instance.PlaySoundByName("pillowHit", transform, 1f, 1f, false);
+        SoundFXManager.instance.PlaySoundByName("puffSmoke", transform, 1f, 1f, false);
     }
+    
+    
 
     private void OnEnable()
     {
@@ -282,7 +303,11 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
     private void Die()
     {
-        PlaySfx(deathSfxName, deathVolume, RandomPitch(deathPitchMin, deathPitchMax));
+        // Main death sound
+        //PlaySfx(deathSfxName, deathVolume, RandomPitch(deathPitchMin, deathPitchMax));
+
+       
+        PlayRandomDeathNoises();
 
         if (dropOnDeath)
         {
@@ -293,6 +318,19 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         onDeath?.Invoke();
         Destroy(gameObject);
     }
+
+    private void PlayRandomDeathNoises()
+    {
+        if (randomDeathSfxNames == null || randomDeathSfxNames.Count == 0 || SoundFXManager.instance == null)
+            return;
+
+        string clip = randomDeathSfxNames[Random.Range(0, randomDeathSfxNames.Count)];
+        float pitch = RandomPitch(deathNoisePitchMin, deathNoisePitchMax);
+        float vol = deathNoiseVolume * Random.Range(0.8f, 1.2f);
+
+        SoundFXManager.instance.PlaySoundByName(clip, transform, vol, pitch, false);
+    }
+
 
     private void DropOnePickup()
     {
