@@ -306,12 +306,11 @@ public class GunHolder : MonoBehaviour
         if (TryStealNearbyGrenade())
             return;
 
-        Grenade g = FindNearbyArmedGrenade(transform.position, 1.0f);
-        if (g != null)
+        if (FindNearbyArmedGrenade(out var nearbyGrenade, out var grenadeDistance))
         {
 #if GRENADE_DEBUG
             // DEBUG:
-            Debug.Log($"[GRENADE] {name} HandlePickDrop found grenade {g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} ticking={g.IsTicking} def={g.Definition?.name ?? "null"} owner={g.OwnerIndex}");
+            Debug.Log($"[PICKUP] {name} HandlePickDrop adopting live grenade id={nearbyGrenade.Id} dist={grenadeDistance:F2} state={nearbyGrenade.CurrentState} fuseLeft={nearbyGrenade.FuseLeft:F2} def={nearbyGrenade.Definition?.name ?? "null"} owner={nearbyGrenade.OwnerIndex}");
 #endif
             GrenadeWeapon gw = currentGunScript as GrenadeWeapon;
             if (gw == null)
@@ -320,17 +319,23 @@ public class GunHolder : MonoBehaviour
                 gw = currentGunScript as GrenadeWeapon;
             }
 
-            if (gw != null && gw.TryPickupExisting(g))
+            if (gw != null)
             {
+                gw.AdoptExistingGrenade(nearbyGrenade);
+                if (gw.HasCooking)
+                {
+                    hasWeapon = true;
+                    activeWeapon = "GrenadeWeapon";
+                    currentMeleeScript = null;
+                    gw.SetAimDirection(lastAimDirection);
+                    return;
+                }
 #if GRENADE_DEBUG
-                // DEBUG:
-                Debug.Log($"[GRENADE] {name} adopted grenade {g.name} fuseLeft={g.FuseLeft:F2} state={g.CurrentState}");
+                else
+                {
+                    Debug.LogWarning($"[PICKUP] {name} failed to adopt grenade id={nearbyGrenade.Id} state={nearbyGrenade.CurrentState} fuseLeft={nearbyGrenade.FuseLeft:F2}");
+                }
 #endif
-                hasWeapon = true;
-                activeWeapon = "GrenadeWeapon";
-                currentMeleeScript = null;
-                gw.SetAimDirection(lastAimDirection);
-                return; 
             }
         }
 
@@ -392,37 +397,36 @@ public class GunHolder : MonoBehaviour
         }
     }
 
-    private Grenade FindNearbyArmedGrenade(Vector2 center, float radius)
+    private bool FindNearbyArmedGrenade(out Grenade best, out float bestDist)
     {
-        var hits = Physics2D.OverlapCircleAll(center, radius);
-        Grenade best = null;
-        float bestDist = float.MaxValue;
+        best = null;
+        bestDist = float.MaxValue;
 
-        foreach (var h in hits)
+        var grenades = FindObjectsByType<Grenade>(FindObjectsSortMode.None);
+        Vector2 selfPos = transform.position;
+
+        foreach (var grenade in grenades)
         {
-            var g = h.GetComponent<Grenade>();
-            if (g == null) continue;
-            if (g.CurrentState == Grenade.State.Exploded) continue;
-            if (g.IsHeld) continue;                
-            if (!g.IsTicking) continue;            
+            if (grenade == null) continue;
+            if (grenade.CurrentState == Grenade.State.Exploded) continue;
+            if (grenade.IsHeld) continue;
 
-            float d = Vector2.SqrMagnitude((Vector2)g.transform.position - center);
-            if (d < bestDist)
+            float distance = Vector2.Distance(selfPos, grenade.transform.position);
+            if (distance < bestDist && distance <= 1.2f)
             {
-                bestDist = d;
-                best = g;
+                best = grenade;
+                bestDist = distance;
             }
         }
 
 #if GRENADE_DEBUG
         if (best != null)
         {
-            // DEBUG:
-            Debug.Log($"[GRENADE] {name} FindNearbyArmedGrenade picked {best.name} dist={Mathf.Sqrt(bestDist):F2} fuseLeft={best.FuseLeft:F2} def={best.Definition?.name ?? "null"} state={best.CurrentState}");
+            Debug.Log($"[PICKUP] FindNearbyArmedGrenade picked id={best.Id} dist={bestDist:F2} fuseLeft={best.FuseLeft:F2} def={best.Definition?.name ?? "null"} state={best.CurrentState}");
         }
 #endif
 
-        return best;
+        return best != null;
     }
 
     private bool CanStealNow() => Time.time - lastStealTime >= STEAL_COOLDOWN;
@@ -465,7 +469,7 @@ public class GunHolder : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} attempting steal from {victimHolder.name} weaponHasCooking={victimWeapon.HasCooking}");
+        Debug.Log($"[GRENADE][STEAL] {name} attempting steal from {victimHolder.name} weaponHasCooking={victimWeapon.HasCooking}");
 #endif
 
         Grenade stolen = victimWeapon.DetachHeldGrenadeForTransfer();
@@ -476,7 +480,7 @@ public class GunHolder : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} stole grenade={stolen.name} fuseLeft={stolen.FuseLeft:F2} ownerWas={stolen.OwnerIndex}");
+        Debug.Log($"[GRENADE][STEAL] {name} stole grenadeId={stolen.Id} fuseLeft={stolen.FuseLeft:F2} ownerWas={stolen.OwnerIndex}");
 #endif
 
         if (victimHolder != null)
@@ -493,7 +497,7 @@ public class GunHolder : MonoBehaviour
                 if (released != null)
                 {
                     // DEBUG:
-                    Debug.Log($"[GRENADE] {name} released own grenade {released.name} while preparing to steal fuseLeft={released.FuseLeft:F2}");
+                    Debug.Log($"[GRENADE][STEAL] {name} released own grenadeId={released.Id} while preparing to steal fuseLeft={released.FuseLeft:F2}");
                 }
 #else
                 existingGrenadeWeapon.DetachHeldGrenadeForTransfer();
@@ -517,7 +521,7 @@ public class GunHolder : MonoBehaviour
         {
 #if GRENADE_DEBUG
             // DEBUG:
-            Debug.LogWarning($"[GRENADE] {name} failed to adopt stolen grenade {stolen.name} – no GrenadeWeapon equipped");
+            Debug.LogWarning($"[GRENADE][STEAL] {name} failed to adopt stolen grenade id={stolen.Id} - no GrenadeWeapon equipped");
 #endif
             lastStealTime = Time.time;
             return true;
@@ -529,7 +533,7 @@ public class GunHolder : MonoBehaviour
         {
 #if GRENADE_DEBUG
             // DEBUG:
-            Debug.LogWarning($"[GRENADE] {name} failed to hold stolen grenade {stolen.name} after adoption");
+            Debug.LogWarning($"[GRENADE][STEAL] {name} failed to hold stolen grenade id={stolen.Id} after adoption");
 #endif
             lastStealTime = Time.time;
             return true;
@@ -544,7 +548,7 @@ public class GunHolder : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} STEAL success grenade={stolen.name} fuseLeft={stolen.FuseLeft:F2} newOwnerIndex={playerIndex}");
+        Debug.Log($"[GRENADE][STEAL] {name} success grenadeId={stolen.Id} fuseLeft={stolen.FuseLeft:F2} newOwnerIndex={playerIndex}");
 #endif
 
         if (victimHolder != null)

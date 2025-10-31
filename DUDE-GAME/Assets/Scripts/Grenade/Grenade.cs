@@ -6,6 +6,8 @@ public class Grenade : MonoBehaviour
 {
     // Enable the GRENADE_DEBUG scripting define to surface hot-potato diagnostics.
     public enum State { Safe, Armed, Thrown, Exploded }
+    private static int _idSeed;
+    [SerializeField, HideInInspector] private int _id;
     private GrenadeWeapon ownerWeapon;
     private bool heldInHand = false;
     public void SetOwner(GrenadeWeapon owner) { ownerWeapon = owner; }
@@ -46,6 +48,14 @@ public class Grenade : MonoBehaviour
     private Coroutine blinkCo;
     private Coroutine beepCo;
 
+    private void Awake()
+    {
+        if (_id == 0)
+        {
+            _id = ++_idSeed;
+        }
+    }
+
     public bool IsSafe => state == State.Safe;
     public bool IsArmed => state == State.Armed;
     public bool IsThrown => state == State.Thrown;
@@ -53,6 +63,7 @@ public class Grenade : MonoBehaviour
     public bool IsTicking => ticking;
     public float FuseLeft => fuseLeft;
     public State CurrentState => state;
+    public int Id => _id;
     public GrenadeDefinition Definition => definition;
     public int OwnerIndex => ownerIndex;
     public void Init(GrenadeDefinition def, int ownerPlayerIndex)
@@ -61,7 +72,7 @@ public class Grenade : MonoBehaviour
         {
 #if GRENADE_DEBUG
             // DEBUG:
-            Debug.Log($"[GRENADE] {name} Init SKIPPED state={state} ticking={ticking} fuseLeft={fuseLeft:F2} currentDef={definition?.name ?? "null"} requestedDef={def?.name ?? "null"} owner={ownerIndex}");
+            Debug.Log($"[GRENADE][{_id}] Init SKIPPED state={state} ticking={ticking} fuseLeft={fuseLeft:F2} currentDef={definition?.name ?? "null"} requestedDef={def?.name ?? "null"} owner={ownerIndex}\n{System.Environment.StackTrace}");
 #endif
             return;
         }
@@ -89,7 +100,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} Init OK state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE][{_id}] Init OK state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
 #endif
     }
 
@@ -126,7 +137,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} SetHeldInHand(held={held}) state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE][{_id}] SetHeldInHand(held={held}) state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} ownerIndex={ownerIndex}");
 #endif
     }
 
@@ -149,7 +160,7 @@ public class Grenade : MonoBehaviour
         int previousOwnerIndex = ownerIndex;
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} AttachToHand begin owner={previousOwnerIndex} -> {newOwnerIndex} state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"}");
+        Debug.Log($"[GRENADE][{_id}] AttachToHand begin owner={previousOwnerIndex} -> {newOwnerIndex} state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"}");
 #endif
 
         ownerIndex = newOwnerIndex;
@@ -163,7 +174,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} AttachToHand end owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
+        Debug.Log($"[GRENADE][{_id}] AttachToHand end owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
 #endif
     }
 
@@ -185,7 +196,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE][{_id}][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
 #endif
     }
 
@@ -215,7 +226,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE][{_id}][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
 #endif
     }
 
@@ -230,7 +241,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} DropArmed state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE][{_id}] DropArmed state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
 #endif
     }
 
@@ -240,7 +251,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] {name} DetachFromHand owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
+        Debug.Log($"[GRENADE][{_id}] DetachFromHand owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
 #endif
 
         transform.SetParent(null, true);
@@ -309,7 +320,7 @@ public class Grenade : MonoBehaviour
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+        Debug.Log($"[GRENADE][{_id}][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
 #endif
 
         yield return new WaitForSeconds(0.05f);
@@ -346,6 +357,27 @@ public class Grenade : MonoBehaviour
             }
             yield return new WaitForSeconds(interval);
         }
+    }
+
+    private void OnValidate()
+    {
+#if UNITY_EDITOR
+        if (_id == 0)
+        {
+            _id = ++_idSeed;
+        }
+
+        int grenadeLayer = LayerMask.NameToLayer("GrenadeLive");
+        if (gameObject.layer != grenadeLayer)
+        {
+            Debug.LogWarning($"[GRENADE][{_id}] Wrong layer: {LayerMask.LayerToName(gameObject.layer)} (expected GrenadeLive)", this);
+        }
+
+        if (tag != "Grenade")
+        {
+            Debug.LogWarning($"[GRENADE][{_id}] Wrong tag: {tag} (expected Grenade)", this);
+        }
+#endif
     }
 
     private void OnDrawGizmosSelected()

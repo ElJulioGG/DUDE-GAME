@@ -74,7 +74,7 @@ public class GrenadeWeapon : WeaponBase
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} Shoot spawned {cooking.name} state={cooking.CurrentState} fuseLeft={cooking.FuseLeft:F2} def={definition?.name ?? "null"} owner={GetOwnerIndexSafe()}");
+        Debug.Log($"[GRENADE][WEAPON {name}] Shoot spawned id={cooking.Id} state={cooking.CurrentState} fuseLeft={cooking.FuseLeft:F2} def={definition?.name ?? "null"} owner={GetOwnerIndexSafe()}");
 #endif
     }
 
@@ -95,7 +95,7 @@ public class GrenadeWeapon : WeaponBase
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} TryThrowCooked threw {thrown.name} state={thrown.CurrentState} fuseLeft={thrown.FuseLeft:F2} def={thrown.Definition?.name ?? "null"}");
+        Debug.Log($"[GRENADE][WEAPON {name}] TryThrowCooked threw id={thrown.Id} state={thrown.CurrentState} fuseLeft={thrown.FuseLeft:F2} def={thrown.Definition?.name ?? "null"}");
 #endif
 
         return true;
@@ -169,7 +169,7 @@ public class GrenadeWeapon : WeaponBase
         {
 #if GRENADE_DEBUG
             // DEBUG:
-            Debug.Log($"[GRENADE] Weapon {name} DETACH_HELD aborted exploded grenade");
+            Debug.Log($"[GRENADE][WEAPON {name}] DETACH_HELD aborted exploded grenade");
 #endif
             cooking = null;
             return null;
@@ -192,7 +192,7 @@ public class GrenadeWeapon : WeaponBase
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} DETACH_HELD grenade={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
+        Debug.Log($"[GRENADE][WEAPON {name}] DETACH_HELD id={g.Id} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
 #endif
 
         return g;
@@ -202,20 +202,27 @@ public class GrenadeWeapon : WeaponBase
     {
         if (g == null) return;
         if (g.CurrentState == Grenade.State.Exploded) return;
+        if (cooking != null && cooking != g)
+        {
+#if GRENADE_DEBUG
+            Debug.LogWarning($"[GRENADE][WEAPON {name}] AdoptExisting refused because already cooking id={cooking.Id}");
+#endif
+            return;
+        }
 
         Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
         if (parent == null) parent = transform;
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} AdoptExisting begin grenade={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
+        Debug.Log($"[GRENADE][WEAPON {name}] AdoptExisting begin id={g.Id} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
 #endif
 
         if (g.Definition != null && g.Definition != definition)
         {
 #if GRENADE_DEBUG
             // DEBUG:
-            Debug.Log($"[GRENADE] Weapon {name} adopting definition {g.Definition.name} (previous={definition?.name ?? "null"})");
+            Debug.Log($"[GRENADE][WEAPON {name}] adopting definition {g.Definition.name} (previous={definition?.name ?? "null"})");
 #endif
             definition = g.Definition;
         }
@@ -238,7 +245,7 @@ public class GrenadeWeapon : WeaponBase
 
 #if GRENADE_DEBUG
         // DEBUG:
-        Debug.Log($"[GRENADE] Weapon {name} AdoptExisting end grenade={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2}");
+        Debug.Log($"[GRENADE][WEAPON {name}] AdoptExisting end id={g.Id} state={g.CurrentState} fuseLeft={g.FuseLeft:F2}");
 #endif
     }
 

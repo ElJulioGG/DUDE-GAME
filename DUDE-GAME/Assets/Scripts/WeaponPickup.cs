@@ -143,20 +143,40 @@ public class WeaponPickup : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
+        var grenade = other.GetComponentInParent<Grenade>();
+        if (grenade != null)
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[PICKUP] IGNORE live grenade id={grenade.Id} state={grenade.CurrentState} fuseLeft={grenade.FuseLeft:F2} def={grenade.Definition?.name ?? "null"}");
+#endif
+            return;
+        }
+
         GunHolder gunHolder = other.GetComponent<GunHolder>();
 
         if (gunHolder != null)
         {
             gunHolder.SetNearbyPickup(this);
 #if GRENADE_DEBUG
-            // DEBUG:
-            Debug.Log($"[PICKUP] {name} enter trigger holder={gunHolder.name} weapon={weaponName} clip={savedClipAmmo} reserve={savedReserveAmmo}");
+        // DEBUG:
+            Debug.Log($"[PICKUP] Taking WeaponPickup {name} holder={gunHolder.name} weapon={weaponName} clip={savedClipAmmo} reserve={savedReserveAmmo}");
 #endif
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        var grenade = other.GetComponentInParent<Grenade>();
+        if (grenade != null)
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[PICKUP] IGNORE exit for live grenade id={grenade.Id} state={grenade.CurrentState}");
+#endif
+            return;
+        }
+
         GunHolder gunHolder = other.GetComponent<GunHolder>();
 
         if (gunHolder != null)
