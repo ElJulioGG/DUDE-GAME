@@ -1,16 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 using DG.Tweening;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class WeaponPickup : MonoBehaviour
 {
+    // Enable the GRENADE_DEBUG scripting define to inspect pickup adoption flows.
     public string weaponName;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
 
     //public GameObject weaponPrefab;
 
-    // Estas variables guardan el estado de munici�n
+    // Estas variables guardan el estado de munición
     public int savedClipAmmo = -1;
     public int savedReserveAmmo = -1;
 
@@ -74,6 +75,11 @@ public class WeaponPickup : MonoBehaviour
     {
         weaponName = name;
         UpdateSprite();
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[PICKUP] WeaponPickup {gameObject.name} SetWeapon weaponName={weaponName} clip={savedClipAmmo} reserve={savedReserveAmmo}");
+#endif
     }
 
     private void UpdateSprite()
@@ -142,6 +148,10 @@ public class WeaponPickup : MonoBehaviour
         if (gunHolder != null)
         {
             gunHolder.SetNearbyPickup(this);
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[PICKUP] {name} enter trigger holder={gunHolder.name} weapon={weaponName} clip={savedClipAmmo} reserve={savedReserveAmmo}");
+#endif
         }
     }
 
@@ -152,8 +162,15 @@ public class WeaponPickup : MonoBehaviour
         if (gunHolder != null)
         {
             gunHolder.ClearNearbyPickup(this);
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[PICKUP] {name} exit trigger holder={gunHolder.name} weapon={weaponName}");
+#endif
         }
     }
 
 
 }
+
+
+

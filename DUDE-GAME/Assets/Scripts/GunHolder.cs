@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class GunHolder : MonoBehaviour
 {
+    // Enable the GRENADE_DEBUG scripting define to surface grenade pickup diagnostics.
     [SerializeField] private Transform weaponHolder;
     [SerializeField] private GameObject[] allWeapons;
     [SerializeField] private GameObject dropPrefab;
@@ -139,6 +140,12 @@ public class GunHolder : MonoBehaviour
 
                 hasWeapon = true;
                 activeWeapon = weaponName;
+
+#if GRENADE_DEBUG
+                // DEBUG:
+                string pickupInfo = pickup != null ? $"clip={pickup.savedClipAmmo} reserve={pickup.savedReserveAmmo}" : "pickup=null";
+                Debug.Log($"[PICKUP] {name} EquipWeapon weapon={weaponName} hasGun={currentGunScript != null} {pickupInfo}");
+#endif
 
                 if (currentGunScript != null)
                 {
@@ -295,6 +302,10 @@ public class GunHolder : MonoBehaviour
         Grenade g = FindNearbyArmedGrenade(transform.position, 1.0f);
         if (g != null)
         {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[GRENADE] {name} HandlePickDrop found grenade {g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} ticking={g.IsTicking} def={g.Definition?.name ?? "null"} owner={g.OwnerIndex}");
+#endif
             GrenadeWeapon gw = currentGunScript as GrenadeWeapon;
             if (gw == null)
             {
@@ -304,6 +315,10 @@ public class GunHolder : MonoBehaviour
 
             if (gw != null && gw.TryPickupExisting(g))
             {
+#if GRENADE_DEBUG
+                // DEBUG:
+                Debug.Log($"[GRENADE] {name} adopted grenade {g.name} fuseLeft={g.FuseLeft:F2} state={g.CurrentState}");
+#endif
                 hasWeapon = true;
                 activeWeapon = "GrenadeWeapon";
                 currentMeleeScript = null;
@@ -316,6 +331,10 @@ public class GunHolder : MonoBehaviour
         {
             var pickup = nearbyPickup;
             nearbyPickup = null;
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[PICKUP] {name} taking WeaponPickup {pickup.name} weapon={pickup.weaponName} clip={pickup.savedClipAmmo} reserve={pickup.savedReserveAmmo}");
+#endif
             EquipWeapon(pickup.weaponName, pickup);
             Destroy(pickup.gameObject);
         }
@@ -387,8 +406,19 @@ public class GunHolder : MonoBehaviour
                 best = g;
             }
         }
+
+#if GRENADE_DEBUG
+        if (best != null)
+        {
+            // DEBUG:
+            Debug.Log($"[GRENADE] {name} FindNearbyArmedGrenade picked {best.name} dist={Mathf.Sqrt(bestDist):F2} fuseLeft={best.FuseLeft:F2} def={best.Definition?.name ?? "null"} state={best.CurrentState}");
+        }
+#endif
+
         return best;
     }
 
 
 }
+
+

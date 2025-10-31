@@ -4,6 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class Grenade : MonoBehaviour
 {
+    // Enable the GRENADE_DEBUG scripting define to surface hot-potato diagnostics.
     public enum State { Safe, Armed, Thrown, Exploded }
     private GrenadeWeapon ownerWeapon;
     private bool heldInHand = false;
@@ -39,6 +40,7 @@ public class Grenade : MonoBehaviour
     private bool ticking;
     private State state = State.Safe;
     private int ownerIndex = -1;
+    private bool hasInitialized = false;
 
     private Color baseColor = Color.white;
     private Coroutine blinkCo;
@@ -51,8 +53,19 @@ public class Grenade : MonoBehaviour
     public bool IsTicking => ticking;
     public float FuseLeft => fuseLeft;
     public State CurrentState => state;
+    public GrenadeDefinition Definition => definition;
+    public int OwnerIndex => ownerIndex;
     public void Init(GrenadeDefinition def, int ownerPlayerIndex)
     {
+        if (hasInitialized && (ticking || state != State.Safe))
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[GRENADE] {name} Init SKIPPED state={state} ticking={ticking} fuseLeft={fuseLeft:F2} currentDef={definition?.name ?? "null"} requestedDef={def?.name ?? "null"} owner={ownerIndex}");
+#endif
+            return;
+        }
+
         definition = def;
         ownerIndex = ownerPlayerIndex;
 
@@ -72,6 +85,12 @@ public class Grenade : MonoBehaviour
 
         SetClosedVisual();
         SetHeldInHand(true); // empieza en mano
+        hasInitialized = true;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} Init OK state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
     }
 
     private void SetClosedVisual()
@@ -104,6 +123,11 @@ public class Grenade : MonoBehaviour
             rb.bodyType = RigidbodyType2D.Dynamic;
             if (col) col.enabled = true;
         }
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} SetHeldInHand(held={held}) state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
     }
 
     public void AttachToHand(GrenadeWeapon newOwner, Transform hand)
@@ -115,6 +139,11 @@ public class Grenade : MonoBehaviour
         transform.position = hand.position;
         SetHeldInHand(true);
         SetOpenVisual();              
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} AttachToHand newOwner={(newOwner != null ? newOwner.name : "null")} state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
     }
 
 
@@ -123,6 +152,7 @@ public class Grenade : MonoBehaviour
     {
         if (state != State.Safe) return;
 
+        State previous = state;
         state = State.Armed;
         ticking = true;
         fuseLeft = definition.fuseSeconds; 
@@ -131,6 +161,11 @@ public class Grenade : MonoBehaviour
 
         if (useBlink && blinkCo == null) blinkCo = StartCoroutine(BlinkRoutine());
         if (useBeep && beepCo == null) beepCo = StartCoroutine(BeepRoutine());
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
     }
 
     // Segundo click: lanzar
@@ -138,6 +173,7 @@ public class Grenade : MonoBehaviour
     {
         if (state == State.Safe) Arm();
 
+        State previous = state;
         state = State.Thrown;
         SetOpenVisual();
 
@@ -155,6 +191,11 @@ public class Grenade : MonoBehaviour
         {
             rb.linearVelocity = dir.normalized * speed;
         }
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
     }
 
 
@@ -165,6 +206,11 @@ public class Grenade : MonoBehaviour
         SetOpenVisual();
         transform.SetParent(null, true);
         SetHeldInHand(false);
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] {name} DropArmed state={state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
     }
 
     private void Update()
@@ -182,6 +228,7 @@ public class Grenade : MonoBehaviour
     {
         if (state == State.Exploded) yield break;
 
+        State previous = state;
         state = State.Exploded;
         ticking = false;
 
@@ -224,6 +271,11 @@ public class Grenade : MonoBehaviour
             ownerWeapon.NotifyHeldGrenadeExploded(this);
             ownerWeapon = null;
         }
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
+#endif
 
         yield return new WaitForSeconds(0.05f);
         Destroy(gameObject);
@@ -268,3 +320,5 @@ public class Grenade : MonoBehaviour
     }
 
 }
+
+

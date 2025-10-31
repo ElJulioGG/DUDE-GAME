@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
+    // Enable the GRENADE_DEBUG scripting define to log round resets impacting grenades.
     [SerializeField] private LevelTimer levelTimer;
     [SerializeField] private PlayerStats[] playerStats;
     [SerializeField] private GameObject[] playerCircles;
@@ -62,6 +63,10 @@ public class GameController : MonoBehaviour
     public void NextMatch()
     {
         pointsToGive = 1;
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log("[ROUND] NextMatch start â€“ resetting round state");
+#endif
         levelTimer.ResetTimer();
         ClearAllMutators();
         ClearAllWeaponPickups(); // Clear weapons before map change
@@ -169,6 +174,10 @@ public class GameController : MonoBehaviour
     }
     private void ClearAllWeaponPickups()
     {
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log("[ROUND] ClearAllWeaponPickups â€“ destroying pickups in world");
+#endif
         WeaponPickup[] existingPickups = FindObjectsByType<WeaponPickup>(FindObjectsSortMode.None);
         foreach (WeaponPickup pickup in existingPickups)
         {
@@ -177,7 +186,10 @@ public class GameController : MonoBehaviour
                 Destroy(pickup.gameObject);
             }
         }
-        Debug.Log($"Cleared {existingPickups.Length} weapon pickups");
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[ROUND] Cleared {existingPickups.Length} weapon pickups");
+#endif
 
 
     }
@@ -569,3 +581,5 @@ public class GameController : MonoBehaviour
         pointsToGive *= 2;
     }
 }
+
+

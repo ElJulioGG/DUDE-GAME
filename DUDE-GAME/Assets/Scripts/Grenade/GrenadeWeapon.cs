@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GrenadeWeapon : WeaponBase
 {
+    // Enable the GRENADE_DEBUG scripting define to surface grenade lifecycle diagnostics.
     [Header("Grenade Setup")]
     [SerializeField] private Grenade grenadePrefab;
     [SerializeField] private GrenadeDefinition definition;
@@ -69,11 +70,18 @@ public class GrenadeWeapon : WeaponBase
                 gsr.sortingOrder = weaponBodyRenderer.sortingOrder + 1;
             }
         }
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] Weapon {name} Shoot spawned {cooking.name} state={cooking.CurrentState} fuseLeft={cooking.FuseLeft:F2} def={definition?.name ?? "null"} owner={GetOwnerIndexSafe()}");
+#endif
     }
 
     public bool TryThrowCooked(Vector2 dir)
     {
         if (cooking == null) return false;
+
+        var thrown = cooking;
 
         cooking.Throw(dir, throwCharge01);
         cooking = null;
@@ -83,6 +91,11 @@ public class GrenadeWeapon : WeaponBase
         currentClipAmmo = Mathf.Max(0, currentClipAmmo - 1);
         if (currentClipAmmo <= 0)
             StartCoroutine(AutoDestroyThisWeaponNextFrame());
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] Weapon {name} TryThrowCooked threw {thrown.name} state={thrown.CurrentState} fuseLeft={thrown.FuseLeft:F2} def={thrown.Definition?.name ?? "null"}");
+#endif
 
         return true;
     }
@@ -146,13 +159,34 @@ public class GrenadeWeapon : WeaponBase
 
         Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
 
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] Weapon {name} TryPickupExisting target={g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} ticking={g.IsTicking} def={g.Definition?.name ?? "null"} owner={g.OwnerIndex}");
+#endif
+
+        if (g.Definition != null && g.Definition != definition)
+        {
+#if GRENADE_DEBUG
+            // DEBUG:
+            Debug.Log($"[GRENADE] Weapon {name} adopting definition {g.Definition.name} (previous={definition?.name ?? "null"})");
+#endif
+            definition = g.Definition;
+        }
+
         g.AttachToHand(this, parent);
         cooking = g;
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
+
+#if GRENADE_DEBUG
+        // DEBUG:
+        Debug.Log($"[GRENADE] Weapon {name} Adopted {g.name} state={g.CurrentState} fuseLeft={g.FuseLeft:F2} def={g.Definition?.name ?? "null"}");
+#endif
 
         return true;
     }
 
 
 }
+
+
