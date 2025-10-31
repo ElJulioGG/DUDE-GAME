@@ -18,6 +18,7 @@ public class MutatorSpawnIndicator : MonoBehaviour
     public float rotateDuration = 2f;
     public Ease rotateEase = Ease.Linear;
     public bool fullRotation = true;
+    public float spawnSfxVolume = 0.7f;
 
     
 
@@ -25,7 +26,7 @@ public class MutatorSpawnIndicator : MonoBehaviour
 
     void Start()
     {
-        SoundFXManager.instance.PlaySoundByName("SpawnMutator", gameObject.transform, 1f, 1f, false);
+        SoundFXManager.instance.PlaySoundByName("SpawnMutator", gameObject.transform, spawnSfxVolume, 1f, false);
         tweens = GetComponent<Obj_Tweens>();
 
         if (playPop)

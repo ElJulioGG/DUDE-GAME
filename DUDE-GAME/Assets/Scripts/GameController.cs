@@ -27,8 +27,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject mutatorSpawnIndicator;
 
 
-
-
     public GameObject[] UIIntroObjects;
     public GameObject[] maps;
     public bool matchEnded = false;

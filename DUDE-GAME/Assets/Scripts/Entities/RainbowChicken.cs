@@ -293,6 +293,17 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         _hp -= 1;
 
         PlaySfx(hitSfxName, hitVolume, RandomPitch(hitPitchMin, hitPitchMax));
+
+        int randomIndexSound = Random.Range(0, 1);
+        if (randomIndexSound== 0)
+        {
+            Instantiate(spawnFeatherParticles, transform.position, Quaternion.identity);
+        }
+        else
+        {
+            Instantiate(spawnFeatherParticles2, transform.position, Quaternion.identity);
+        }
+     
         if (shakeOnHit) _shaker?.Shake();
         onDamaged?.Invoke();
 
@@ -308,6 +319,9 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
        
         PlayRandomDeathNoises();
+
+        Instantiate(spawnFeatherParticles, transform.position, Quaternion.identity);
+        Instantiate(spawnFeatherParticles2, transform.position, Quaternion.identity);
 
         if (dropOnDeath)
         {

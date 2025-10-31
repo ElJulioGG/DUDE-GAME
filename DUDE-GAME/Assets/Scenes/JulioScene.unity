@@ -192897,7 +192897,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   matchCamera: {fileID: 519420031}
-  mutator1InChance: 1
+  mutator1InChance: 3
   mutatorSpawnIndicator: {fileID: 5617504409203771024, guid: 3a402e8a63836cc4fb0d73a2084973dc, type: 3}
   UIIntroObjects:
   - {fileID: 208720102}
