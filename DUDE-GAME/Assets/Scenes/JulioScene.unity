@@ -26697,6 +26697,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: be178576c6facdf49908b2a9bdfa6faa, type: 3}
   - {fileID: 8300000, guid: 566ba4f057de4f540b383f6bc15be8ec, type: 3}
   - {fileID: 8300000, guid: 6c63cf1a932808c41a6d9a4a85dd92e5, type: 3}
+  - {fileID: 8300000, guid: aa5d0d952a219164b806e47a1ae318b3, type: 3}
+  - {fileID: 8300000, guid: 9165305cd548d1641a3ee6625ef15512, type: 3}
+  - {fileID: 8300000, guid: 43f136c74f9377c4986324ab4425a085, type: 3}
 --- !u!1001 &368306302
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -192858,7 +192861,14 @@ MonoBehaviour:
   - {fileID: 1919224323}
   - {fileID: 2003491062}
   maps:
+  - {fileID: 1722222614}
+  - {fileID: 1012784665}
+  - {fileID: 1492145687}
+  - {fileID: 801754437}
+  - {fileID: 1712122343}
   - {fileID: 1490403223}
+  - {fileID: 1414107497}
+  - {fileID: 836677486}
   matchEnded: 0
   pointsToGive: 1
   pointsCanvasPrefab: {fileID: 1471025704}
