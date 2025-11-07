@@ -8,6 +8,7 @@ public class PlayerAssignmentUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private bool debug;
     [SerializeField] private TextMeshProUGUI instructionText;
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button resetButton;
@@ -77,14 +78,17 @@ public class PlayerAssignmentUI : MonoBehaviour
 
     private void Update()
     {
-        UpdateInstructionText();
+        
+            UpdateInstructionText();
+        
+        
         UpdateStartButtonState();
     }
 
     private void UpdateInstructionText()
     {
         if (instructionText == null) return;
-
+        if (!debug) return;
         int connectedCount = Mathf.Min(Gamepad.all.Count, 4);
         if (connectedCount < 4) connectedCount += 1; // Include keyboard if space
 

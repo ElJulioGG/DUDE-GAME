@@ -6278,24 +6278,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: weaponPickups.Array.size
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[0]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: ecbbf228224c0274c80dc0f9a77284df, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[1]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[2]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[3]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: ecbbf228224c0274c80dc0f9a77284df, type: 3}
     - target: {fileID: 8306062693290571066, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: m_Name
       value: WeaponBox (8)
@@ -54461,7 +54461,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &614739615
 RectTransform:
   m_ObjectHideFlags: 0
@@ -54501,9 +54501,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'DebugText
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -123806,20 +123804,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: weaponPickups.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[0]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: ecbbf228224c0274c80dc0f9a77284df, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[1]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[2]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: ecbbf228224c0274c80dc0f9a77284df, type: 3}
     - target: {fileID: 8306062693290571066, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: m_Name
       value: WeaponBox (8)
@@ -124236,20 +124234,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: weaponPickups.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[0]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: ecbbf228224c0274c80dc0f9a77284df, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[1]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: a00ee6f76def55b47a8485d2345a8ed0, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[2]'
       value: 
-      objectReference: {fileID: 6192896243936263217, guid: d658bdd6c4241e3459469385ecd02f74, type: 3}
+      objectReference: {fileID: 6192896243936263217, guid: ecbbf228224c0274c80dc0f9a77284df, type: 3}
     - target: {fileID: 8306062693290571066, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: m_Name
       value: WeaponBox (9)
@@ -130351,6 +130349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainPanel: {fileID: 619464179}
   titleText: {fileID: 1231039212}
+  debug: 0
   instructionText: {fileID: 614739616}
   startGameButton: {fileID: 88981390}
   resetButton: {fileID: 0}
@@ -192897,7 +192896,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   matchCamera: {fileID: 519420031}
-  mutator1InChance: 1
+  mutator1InChance: 3
   mutatorSpawnIndicator: {fileID: 5617504409203771024, guid: 3a402e8a63836cc4fb0d73a2084973dc, type: 3}
   UIIntroObjects:
   - {fileID: 208720102}

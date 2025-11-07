@@ -26,7 +26,7 @@ public class MutatorSpawnIndicator : MonoBehaviour
 
     void Start()
     {
-        SoundFXManager.instance.PlaySoundByName("SpawnMutator", gameObject.transform, spawnSfxVolume, 1f, false);
+        SoundFXManager.instance.PlaySoundByName("SpawnMutator", gameObject.transform, 0.70f, 1f, false);
         tweens = GetComponent<Obj_Tweens>();
 
         if (playPop)
