@@ -311,9 +311,9 @@ public class GameController : MonoBehaviour
                 levelTimer.StartTimer();
                 SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
                 TimerText.SetActive(true);
-                if (!SoundFXManager.instance.IsSoundPlaying("BattleLoop"))
+                if (!SoundFXManager.instance.IsMusicPlaying("BattleLoop"))
                 {
-                    SoundFXManager.instance.PlaySoundByName("BattleLoop", transform, 0.2f, 1f, true);
+                    SoundFXManager.instance.PlayMusic("BattleLoop", transform, 0.3f, 1f, true);
                 }
                 GameManager.instance.playersCanMove = true;
                 GameManager.instance.playersCanPowerUp = true;
@@ -350,29 +350,29 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        SoundFXManager.instance.StopSoundByName("BattleTheme");
-        SoundFXManager.instance.StopSoundByName("FadeInIntro");
-        SoundFXManager.instance.StopSoundByName("BattleLoop");
+        SoundFXManager.instance.StopMusicByName("BattleTheme");
+        SoundFXManager.instance.StopMusicByName("FadeInIntro");
+        SoundFXManager.instance.StopMusicByName("BattleLoop");
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
 
-        if (!SoundFXManager.instance.IsSoundPlaying("BattleTheme"))
+        if (!SoundFXManager.instance.IsMusicPlaying("BattleTheme"))
         {
-            SoundFXManager.instance.PlaySoundByName("BattleTheme", transform, 0.3f, 1f);
+            SoundFXManager.instance.PlayMusic("BattleTheme", transform, 0.3f, 1f,true);
         }
         GameManager.instance.assignController = true;
         Invoke("firstStart", 0.01f);
         SelectRandomMap();
         GameManager.instance.playersCanMove = false;
         AssignPlayerPositions();
-        Invoke("StartGame", 0.5f);
+        Invoke("StartGame", 1.35f);
     }
     void firstStart()
     {
-        SoundFXManager.instance.StopSoundByName("BattleTheme");
-        if (!SoundFXManager.instance.IsSoundPlaying("FadeInIntro"))
+        SoundFXManager.instance.StopMusicByName("BattleTheme");
+        if (!SoundFXManager.instance.IsMusicPlaying("FadeInIntro"))
         {
-            SoundFXManager.instance.PlaySoundByName("FadeInIntro", transform, 0.2f, 1f);
+            SoundFXManager.instance.PlayMusic("FadeInIntro", transform, 0.3f, 1f);
         }
     }
     private void AssignController()

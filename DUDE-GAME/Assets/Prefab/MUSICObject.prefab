@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3878718825312666688}
   - component: {fileID: 5207021965212413144}
-  - component: {fileID: 1618180213446590331}
   m_Layer: 0
-  m_Name: SFXObject
+  m_Name: MUSICObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -130,13 +129,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!165 &1618180213446590331
-AudioHighPassFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3862816336733483593}
-  m_Enabled: 1
-  m_CutoffFrequency: 951
-  m_HighpassResonanceQ: 1

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,13 +6,28 @@ public class SoundFXManager : MonoBehaviour
 {
     public static SoundFXManager instance { get; private set; }
 
-    [SerializeField] private AudioSource soundFXPrefab;
-    [SerializeField] private AudioClip[] soundFXClips;
+    [Header("Prefabs")]
+    [SerializeField] private AudioSource soundFXPrefab;   // SFX source prefab
+    [SerializeField] private AudioSource musicPrefab;     // Music source prefab
 
-    private Dictionary<string, AudioClip> clipLookup;
-    private Dictionary<string, Queue<AudioSource>> audioSourcePool;
-    private Dictionary<string, List<AudioSource>> activeSources;
-    private Transform soundParent;
+    [Header("Clips")]
+    [SerializeField] private AudioClip[] soundFXClips;    // All SFX clips
+    [SerializeField] private AudioClip[] musicClips;      // All music clips
+
+    // Lookups
+    private Dictionary<string, AudioClip> sfxLookup;
+    private Dictionary<string, AudioClip> musicLookup;
+
+    // SFX pooling
+    private Dictionary<string, Queue<AudioSource>> sfxPool;
+    private Dictionary<string, List<AudioSource>> activeSFX;
+
+    // Music
+    private AudioSource musicA;
+    private AudioSource musicB;
+    private bool usingA = true;
+
+    private Transform poolParent;
 
     private void Awake()
     {
@@ -20,13 +35,7 @@ public class SoundFXManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeClipLookup();
-            audioSourcePool = new Dictionary<string, Queue<AudioSource>>();
-            activeSources = new Dictionary<string, List<AudioSource>>();
-
-            // Create a parent object for all audio sources
-            soundParent = new GameObject("SoundFX_Pool").transform;
-            soundParent.SetParent(transform);
+            Initialize();
         }
         else
         {
@@ -34,155 +43,211 @@ public class SoundFXManager : MonoBehaviour
         }
     }
 
-    private void InitializeClipLookup()
+    private void Initialize()
     {
-        clipLookup = new Dictionary<string, AudioClip>();
+        poolParent = new GameObject("Audio_Pool").transform;
+        poolParent.SetParent(transform);
+
+        // Lookup tables
+        sfxLookup = new Dictionary<string, AudioClip>();
+        musicLookup = new Dictionary<string, AudioClip>();
+
         foreach (var clip in soundFXClips)
-        {
-            if (clip != null && !clipLookup.ContainsKey(clip.name))
-            {
-                clipLookup.Add(clip.name, clip);
-            }
-        }
+            if (clip != null && !sfxLookup.ContainsKey(clip.name))
+                sfxLookup.Add(clip.name, clip);
+
+        foreach (var clip in musicClips)
+            if (clip != null && !musicLookup.ContainsKey(clip.name))
+                musicLookup.Add(clip.name, clip);
+
+        sfxPool = new Dictionary<string, Queue<AudioSource>>();
+        activeSFX = new Dictionary<string, List<AudioSource>>();
+
+        // Music sources
+        musicA = Instantiate(musicPrefab, poolParent);
+        musicB = Instantiate(musicPrefab, poolParent);
+
+        musicA.loop = true;
+        musicB.loop = true;
+
+        musicA.volume = 0;
+        musicB.volume = 0;
+
+        musicA.gameObject.SetActive(false);
+        musicB.gameObject.SetActive(false);
     }
+
+    // =========================================================
+    //                       PLAY SFX
+    // =========================================================
 
     public void PlaySoundByName(string clipName, Transform spawnTransform, float volume = 1f, float pitch = 1f, bool loop = false)
     {
-        if (!clipLookup.TryGetValue(clipName, out AudioClip clipToPlay))
+        if (!sfxLookup.TryGetValue(clipName, out AudioClip clip))
         {
-            Debug.LogWarning($"SoundFXManager: AudioClip '{clipName}' not found.");
+            Debug.LogWarning($"SFX '{clipName}' not found.");
             return;
         }
 
-        AudioSource source = GetAudioSourceFromPool(clipName, spawnTransform.position);
-        if (source == null) return;
+        AudioSource src = GetSFXSource(clipName, spawnTransform.position);
+        if (src == null) return;
 
-        source.clip = clipToPlay;
-        source.volume = volume;
-        source.pitch = pitch;
-        source.loop = loop;
-        source.Play();
+        src.clip = clip;
+        src.volume = volume;
+        src.pitch = pitch;
+        src.loop = loop;
+        src.Play();
 
-        if (!activeSources.ContainsKey(clipName))
-            activeSources[clipName] = new List<AudioSource>();
+        if (!activeSFX.ContainsKey(clipName))
+            activeSFX[clipName] = new List<AudioSource>();
 
-        activeSources[clipName].Add(source);
+        activeSFX[clipName].Add(src);
 
         if (!loop)
-        {
-            StartCoroutine(ReturnToPoolAfterPlay(source, clipName, clipToPlay.length));
-        }
+            StartCoroutine(ReturnSFXToPool(src, clipName, clip.length));
     }
 
-    private AudioSource GetAudioSourceFromPool(string clipName, Vector3 position)
+    private AudioSource GetSFXSource(string clipName, Vector3 position)
     {
-        // Clean up null references in pool first
-        CleanPool(clipName);
-
-        if (!audioSourcePool.TryGetValue(clipName, out Queue<AudioSource> pool))
+        if (!sfxPool.TryGetValue(clipName, out Queue<AudioSource> pool))
         {
             pool = new Queue<AudioSource>();
-            audioSourcePool[clipName] = pool;
+            sfxPool.Add(clipName, pool);
         }
 
-        AudioSource source = null;
+        AudioSource src = null;
 
-        // Try to get from pool
-        while (pool.Count > 0 && source == null)
+        while (pool.Count > 0 && src == null)
         {
-            source = pool.Dequeue();
-            if (source == null) continue; // Skip destroyed objects
+            src = pool.Dequeue();
         }
 
-        // Create new if needed
-        if (source == null)
+        if (src == null)
         {
-            GameObject newObj = Instantiate(soundFXPrefab.gameObject, position, Quaternion.identity, soundParent);
-            source = newObj.GetComponent<AudioSource>();
-            if (source == null)
-            {
-                Debug.LogError("SoundFXPrefab is missing AudioSource component!");
-                return null;
-            }
+            GameObject obj = Instantiate(soundFXPrefab.gameObject, position, Quaternion.identity, poolParent);
+            src = obj.GetComponent<AudioSource>();
         }
 
-        source.transform.position = position;
-        source.gameObject.SetActive(true);
-        return source;
+        src.transform.position = position;
+        src.gameObject.SetActive(true);
+
+        return src;
     }
 
-    private void CleanPool(string clipName)
-    {
-        if (audioSourcePool.TryGetValue(clipName, out Queue<AudioSource> pool))
-        {
-            // Remove any null references
-            var tempList = new List<AudioSource>(pool);
-            tempList.RemoveAll(x => x == null);
-            pool.Clear();
-            foreach (var source in tempList) pool.Enqueue(source);
-        }
-
-        if (activeSources.TryGetValue(clipName, out List<AudioSource> activeList))
-        {
-            activeList.RemoveAll(x => x == null);
-        }
-    }
-
-    private IEnumerator ReturnToPoolAfterPlay(AudioSource source, string clipName, float delay)
+    private IEnumerator ReturnSFXToPool(AudioSource src, string clipName, float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        // Check if source was destroyed while waiting
-        if (source == null || !source.gameObject) yield break;
+        if (src == null) yield break;
 
-        if (activeSources.ContainsKey(clipName))
-            activeSources[clipName].Remove(source);
+        if (activeSFX.ContainsKey(clipName))
+            activeSFX[clipName].Remove(src);
 
-        if (source != null)
-        {
-            source.Stop();
-            source.loop = false;
-            source.gameObject.SetActive(false);
+        src.Stop();
+        src.loop = false;
+        src.gameObject.SetActive(false);
 
-            if (!audioSourcePool.ContainsKey(clipName))
-                audioSourcePool[clipName] = new Queue<AudioSource>();
-
-            audioSourcePool[clipName].Enqueue(source);
-        }
+        sfxPool[clipName].Enqueue(src);
     }
 
     public void StopSoundByName(string clipName)
     {
-        if (!activeSources.ContainsKey(clipName)) return;
+        if (!activeSFX.ContainsKey(clipName)) return;
 
-        foreach (var source in activeSources[clipName])
+        foreach (var src in activeSFX[clipName])
         {
-            if (source != null && source.gameObject && source.isPlaying)
-            {
-                source.Stop();
-                source.loop = false;
-                source.gameObject.SetActive(false);
+            if (src == null) continue;
 
-                if (!audioSourcePool.ContainsKey(clipName))
-                    audioSourcePool[clipName] = new Queue<AudioSource>();
-
-                audioSourcePool[clipName].Enqueue(source);
-            }
+            src.Stop();
+            src.loop = false;
+            src.gameObject.SetActive(false);
+            sfxPool[clipName].Enqueue(src);
         }
 
-        activeSources[clipName].Clear();
+        activeSFX[clipName].Clear();
     }
 
     public bool IsSoundPlaying(string clipName)
     {
-        if (activeSources.TryGetValue(clipName, out List<AudioSource> sources))
+        if (activeSFX.TryGetValue(clipName, out List<AudioSource> sources))
         {
-            foreach (var source in sources)
+            foreach (var src in sources)
             {
-                if (source != null && source.gameObject && source.isPlaying)
+                if (src != null && src.gameObject.activeSelf && src.isPlaying)
                     return true;
             }
         }
         return false;
     }
+
+    public void PlayMusic(string clipName, Transform spawnTransform, float volume = 1f, float pitch = 1f, bool loop = true)
+    {
+        if (!musicLookup.TryGetValue(clipName, out AudioClip clip))
+        {
+            Debug.LogWarning($"Music '{clipName}' not found.");
+            return;
+        }
+
+        // Stop both sources instantly
+        musicA.Stop();
+        musicB.Stop();
+        musicA.gameObject.SetActive(false);
+        musicB.gameObject.SetActive(false);
+
+        // Select the active music source (flip for next time)
+        AudioSource next = usingA ? musicA : musicB;
+        usingA = !usingA;
+
+        // Apply settings
+        next.clip = clip;
+        next.loop = loop;
+        next.volume = volume;
+        next.pitch = pitch;  // now pitch is respected if you want it
+        next.gameObject.SetActive(true);
+
+        // Play immediately, no fade
+        next.Play();
+    }
+
+
+    public void StopMusic()
+    {
+        musicA.Stop();
+        musicB.Stop();
+        musicA.gameObject.SetActive(false);
+        musicB.gameObject.SetActive(false);
+    }
+    public void StopMusicByName(string clipName)
+    {
+        if (!musicLookup.ContainsKey(clipName))
+            return;
+
+        AudioClip target = musicLookup[clipName];
+
+        if (musicA.isPlaying && musicA.clip == target)
+        {
+            musicA.Stop();
+            musicA.gameObject.SetActive(false);
+        }
+
+        if (musicB.isPlaying && musicB.clip == target)
+        {
+            musicB.Stop();
+            musicB.gameObject.SetActive(false);
+        }
+    }
+
+    public bool IsMusicPlaying(string clipName)
+    {
+        if (!musicLookup.ContainsKey(clipName))
+            return false;
+
+        AudioClip target = musicLookup[clipName];
+
+        bool aMatch = musicA.isPlaying && musicA.clip == target;
+        bool bMatch = musicB.isPlaying && musicB.clip == target;
+
+        return aMatch || bMatch;
+    }
+
 }
