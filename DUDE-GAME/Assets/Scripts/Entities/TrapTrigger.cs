@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class TrapTrigger : MonoBehaviour
 {
+
+    [SerializeField] private bool active;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -12,5 +14,13 @@ public class TrapTrigger : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+
+        }
     }
 }

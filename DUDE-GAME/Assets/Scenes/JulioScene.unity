@@ -6829,7 +6829,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 400}
+  m_AnchoredPosition: {x: 0, y: -108}
   m_SizeDelta: {x: 220, y: 290}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &208720104
@@ -26681,7 +26681,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   soundFXPrefab: {fileID: 5207021965212413144, guid: db94183c8cd978c46a20a4244ea5e658, type: 3}
-  musicPrefab: {fileID: 0}
+  musicPrefab: {fileID: 5207021965212413144, guid: 797c7fed1979fc64aa83f4090443c5c9, type: 3}
   soundFXClips:
   - {fileID: 8300000, guid: 0a71113d5cc6f8841a6b4db7f2bb5e13, type: 3}
   - {fileID: 8300000, guid: 4b256e453aaaa424a9b2d18c21fb3461, type: 3}
@@ -26733,7 +26733,11 @@ MonoBehaviour:
   - {fileID: 8300000, guid: aa5d0d952a219164b806e47a1ae318b3, type: 3}
   - {fileID: 8300000, guid: 9165305cd548d1641a3ee6625ef15512, type: 3}
   - {fileID: 8300000, guid: 43f136c74f9377c4986324ab4425a085, type: 3}
-  musicClips: []
+  musicClips:
+  - {fileID: 8300000, guid: 7ada5be287969e54cbfaf963d85199bc, type: 3}
+  - {fileID: 8300000, guid: 93bf906c106c4234d995e7a71a688ce5, type: 3}
+  - {fileID: 8300000, guid: d9725e22b84a26b43a6e6aa34b807ec7, type: 3}
+  - {fileID: 0}
 --- !u!1001 &368306302
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78418,7 +78422,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 400}
+  m_AnchoredPosition: {x: 0, y: -108.00003}
   m_SizeDelta: {x: 220, y: 290}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &908037951
@@ -193197,7 +193201,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 402}
+  m_AnchoredPosition: {x: 0, y: -106.00003}
   m_SizeDelta: {x: 220, y: 290}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1919224325
@@ -194079,7 +194083,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1960367002
 BoxCollider2D:
   m_ObjectHideFlags: 0

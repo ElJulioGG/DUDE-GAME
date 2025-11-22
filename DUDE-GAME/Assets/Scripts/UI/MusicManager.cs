@@ -5,6 +5,7 @@ public class MusicManager : MonoBehaviour
 {
     private static MusicManager instance;
     public string[] scenesWithoutMusic;
+    
 
     void Awake()
     {
