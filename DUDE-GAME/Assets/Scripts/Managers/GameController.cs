@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
     private List<GameObject> activeMutators = new List<GameObject>();
     [SerializeField] private int mutator1InChance = 10;
     [SerializeField] private GameObject mutatorSpawnIndicator;
-
+    [SerializeField] private PoisonStormController poisonStormController;
 
     public GameObject[] UIIntroObjects;
     public GameObject[] maps;
@@ -61,10 +61,17 @@ public class GameController : MonoBehaviour
     public void NextMatch()
     {
         pointsToGive = 1;
-#if GRENADE_DEBUG
-        // DEBUG:
-        Debug.Log("[ROUND] NextMatch start â€“ resetting round state");
-#endif
+
+        // Resetear tormenta al iniciar un nuevo round
+        if (poisonStormController != null)
+        {
+            poisonStormController.OnMatchReset();
+        }
+
+        //#if GRENADE_DEBUG
+        //        // DEBUG:
+        //        Debug.Log("[ROUND] NextMatch start resetting round state");
+        //#endif
         levelTimer.ResetTimer();
         ClearAllMutators();
         ClearAllWeaponPickups(); // Clear weapons before map change
@@ -318,6 +325,12 @@ public class GameController : MonoBehaviour
                 GameManager.instance.playersCanMove = true;
                 GameManager.instance.playersCanPowerUp = true;
 
+                // Avisar a la tormenta que la partida ha comenzado
+                if (poisonStormController != null)
+                {
+                    poisonStormController.OnMatchStarted();
+                }
+
             }
             if (i == UIIntroObjects.Length - 2)
             {
@@ -546,15 +559,26 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        // Apagar todos los mapas
         foreach (GameObject map in maps)
-        {
             map.SetActive(false);
-        }
 
+        // Elegir uno al azar
         int randomIndex = Random.Range(0, maps.Length);
-        maps[randomIndex].SetActive(true);
-        Debug.Log($"Map reloaded: {maps[randomIndex].name}");
+        GameObject selectedMap = maps[randomIndex];
+        selectedMap.SetActive(true);
+
+        Debug.Log($"Map reloaded: {selectedMap.name}");
+
+        // Buscar automáticamente el PoisonStorm en el mapa activo
+        poisonStormController = selectedMap.GetComponentInChildren<PoisonStormController>(true);
+
+        if (poisonStormController == null)
+            Debug.LogWarning($"El mapa {selectedMap.name} NO tiene PoisonStormController");
+        //else
+        //    Debug.Log($"PoisonStorm asignado desde {selectedMap.name}: {poisonStormController.name}");
     }
+
 
     public void Instakill()
     {
