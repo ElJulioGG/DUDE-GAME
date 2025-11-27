@@ -53,38 +53,6 @@ public class ControllerMapper : MonoBehaviour
     }).ToArray();
 }
 
- /* private void InitializeCursors()
-{
-    EnableCursors();
-
-    List<InputDevice> assignedDevices = new List<InputDevice>();
-
-    // 1. Agregar hasta 4 Gamepads
-    foreach (var pad in Gamepad.all)
-    {
-        assignedDevices.Add(pad);
-        if (assignedDevices.Count >= 4) break;
-    }
-
-    // 2. Si hay menos de 4, usar teclado como último dispositivo
-    if (assignedDevices.Count < 4)
-    {
-        assignedDevices.Add(Keyboard.current);
-    }
-
-    for (int i = 0; i < playerInputHandlers.Length; i++)
-    {
-        if (i < assignedDevices.Count)
-        {
-            playerCursors[i].Initialize(assignedDevices[i], playerInputHandlers[i]);
-            playerCursors[i].gameObject.SetActive(true);
-        }
-        else
-        {
-            playerCursors[i].gameObject.SetActive(false);
-        }
-    }
-} */
 private void InitializeCursors()
 {
     EnableCursors();
@@ -136,8 +104,6 @@ private void InitializeCursors()
         playerCursors[i].gameObject.SetActive(false);
     }
 }
-
-
 
     public void AssignControllerToPlayer(int controllerIndex, int playerIndex)
     {

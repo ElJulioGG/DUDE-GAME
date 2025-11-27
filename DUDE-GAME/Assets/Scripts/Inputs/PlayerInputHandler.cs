@@ -81,6 +81,7 @@ public class PlayerInputHandler : MonoBehaviour
         }
         else
         {
+            if((playerMovement != null))
             playerMovement.SetInputVector(Vector2.zero);
         }
     }
