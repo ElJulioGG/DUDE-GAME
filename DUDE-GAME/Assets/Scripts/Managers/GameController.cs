@@ -294,6 +294,7 @@ public class GameController : MonoBehaviour
 
         GameManager.instance.destroyProyectiles = false;
         transitionAnim.SetTrigger("FadeOut");
+        SoundFXManager.instance.PlaySoundByName("DoorOpen", transform, 0.9f, 0.9f);
         foreach (PlayerStats player in playerStats)
         {
             player.SetPlayerHealth(player.baseHealth);
@@ -350,6 +351,7 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
+        
         SoundFXManager.instance.StopMusicByName("BattleTheme");
         SoundFXManager.instance.StopMusicByName("FadeInIntro");
         SoundFXManager.instance.StopMusicByName("BattleLoop");
@@ -358,12 +360,14 @@ public class GameController : MonoBehaviour
 
         if (!SoundFXManager.instance.IsMusicPlaying("BattleTheme"))
         {
-            SoundFXManager.instance.PlayMusic("BattleTheme", transform, 0.3f, 1f,true);
+            SoundFXManager.instance.PlayMusic("BattleTheme", transform, 0.5f, 1f,true);
         }
         GameManager.instance.assignController = true;
-        Invoke("firstStart", 0.01f);
-        SelectRandomMap();
         GameManager.instance.playersCanMove = false;
+        
+      
+        SelectRandomMap();
+       
         AssignPlayerPositions();
         Invoke("StartGame", 1.35f);
     }
@@ -372,7 +376,7 @@ public class GameController : MonoBehaviour
         SoundFXManager.instance.StopMusicByName("BattleTheme");
         if (!SoundFXManager.instance.IsMusicPlaying("FadeInIntro"))
         {
-            SoundFXManager.instance.PlayMusic("FadeInIntro", transform, 0.3f, 1f);
+            SoundFXManager.instance.PlayMusic("FadeInIntro", transform, 0.3f, 1f,false);
         }
     }
     private void AssignController()
@@ -394,6 +398,7 @@ public class GameController : MonoBehaviour
     }
     private void UnpauseGame()
     {
+        Invoke("firstStart", 0.1f);
         Time.timeScale = 1;
          GameManager.instance.gamePaused = false;
         
@@ -465,6 +470,7 @@ public class GameController : MonoBehaviour
         Debug.Log("Draw! No players alive.");
         yield return new WaitForSeconds(2f); // Optional delay
         transitionAnim.SetTrigger("FadeIn");
+        SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 0.9f, 1f);
         yield return new WaitForSeconds(0.5f);
         NextMatch(); // Restart match without awarding points
     }
@@ -507,7 +513,7 @@ public class GameController : MonoBehaviour
         switch (currentPowerUp)
         {
             case 0:
-                SoundFXManager.instance.PlaySoundByName("Pablo", transform, 1f, 1f);
+                SoundFXManager.instance.PlaySoundByName("DenyPowerUp", transform, 1f, 1f);
                 break;
             case 1:
                 SoundFXManager.instance.PlaySoundByName("PowerUp2", transform, 1f, 1f);
@@ -533,6 +539,7 @@ public class GameController : MonoBehaviour
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
         yield return new WaitForSeconds(2f);
         transitionAnim.SetTrigger("FadeIn");
+        SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 0.9f, 1f);
         yield return new WaitForSeconds(0.5f);
         NextMatch();
         }
@@ -570,6 +577,7 @@ public class GameController : MonoBehaviour
     }
     public void Awake()
     {
+        PauseGame();
         Cursor.visible = false;
     }
     public void DoublePoints()

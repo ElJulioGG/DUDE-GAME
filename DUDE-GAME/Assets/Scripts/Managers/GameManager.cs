@@ -53,11 +53,18 @@ public class GameManager : MonoBehaviour
     [Header("LevelStatus")]
     [SerializeField] public bool destroyProyectiles = false;
 
-    
 
-   
 
-    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F11))
+        {
+            Screen.fullScreen = !Screen.fullScreen;
+        }
+    }
+
+
+
 
 
     private void Awake()

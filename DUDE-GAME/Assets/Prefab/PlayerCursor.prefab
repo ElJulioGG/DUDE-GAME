@@ -51,15 +51,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f72d03b3cd8d86449dc29f1a21d2ca8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerObjects: []
   moveSpeed: 500
   deadZone: 0.1
   cursorImage: {fileID: 8095753645694414722}
   playerLabel: {fileID: 6885279803731346053}
+  playerLabel2: {fileID: 0}
   assignmentIndicator: {fileID: 6891697906933896099}
   player1Button: {fileID: 0}
   player2Button: {fileID: 0}
   player3Button: {fileID: 0}
   player4Button: {fileID: 0}
+  unassignedColor: {r: 0, g: 0, b: 0, a: 1}
+  readyImage: {fileID: 0}
+  deviceIndex: -1
+  assignedPlayerIndex: -1
+  rectTransform: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &508678791581816064
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,7 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -330,7 +338,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
