@@ -146,10 +146,10 @@ public class WeaponPickup : MonoBehaviour
         var grenade = other.GetComponentInParent<Grenade>();
         if (grenade != null)
         {
-#if GRENADE_DEBUG
-            // DEBUG:
-            Debug.Log($"[PICKUP] IGNORE live grenade id={grenade.Id} state={grenade.CurrentState} fuseLeft={grenade.FuseLeft:F2} def={grenade.Definition?.name ?? "null"}");
-#endif
+//#if GRENADE_DEBUG
+//            // DEBUG:
+//            Debug.Log($"[PICKUP] IGNORE live grenade id={grenade.Id} state={grenade.CurrentState} fuseLeft={grenade.FuseLeft:F2} def={grenade.Definition?.name ?? "null"}");
+//#endif
             return;
         }
 
@@ -158,10 +158,10 @@ public class WeaponPickup : MonoBehaviour
         if (gunHolder != null)
         {
             gunHolder.SetNearbyPickup(this);
-#if GRENADE_DEBUG
-        // DEBUG:
-            Debug.Log($"[PICKUP] Taking WeaponPickup {name} holder={gunHolder.name} weapon={weaponName} clip={savedClipAmmo} reserve={savedReserveAmmo}");
-#endif
+//#if GRENADE_DEBUG
+//        // DEBUG:
+//            Debug.Log($"[PICKUP] Taking WeaponPickup {name} holder={gunHolder.name} weapon={weaponName} clip={savedClipAmmo} reserve={savedReserveAmmo}");
+//#endif
         }
     }
 

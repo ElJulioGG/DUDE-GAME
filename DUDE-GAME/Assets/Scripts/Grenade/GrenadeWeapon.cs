@@ -72,10 +72,10 @@ public class GrenadeWeapon : WeaponBase
             }
         }
 
-#if GRENADE_DEBUG
-        // DEBUG:
-        Debug.Log($"[GRENADE][WEAPON {name}] Shoot spawned id={cooking.Id} state={cooking.CurrentState} fuseLeft={cooking.FuseLeft:F2} def={definition?.name ?? "null"} owner={GetOwnerIndexSafe()}");
-#endif
+//#if GRENADE_DEBUG
+//        // DEBUG:
+//        Debug.Log($"[GRENADE][WEAPON {name}] Shoot spawned id={cooking.Id} state={cooking.CurrentState} fuseLeft={cooking.FuseLeft:F2} def={definition?.name ?? "null"} owner={GetOwnerIndexSafe()}");
+//#endif
     }
 
     public bool TryThrowCooked(Vector2 dir)
@@ -93,10 +93,10 @@ public class GrenadeWeapon : WeaponBase
         if (currentClipAmmo <= 0)
             StartCoroutine(AutoDestroyThisWeaponNextFrame());
 
-#if GRENADE_DEBUG
-        // DEBUG:
-        Debug.Log($"[GRENADE][WEAPON {name}] TryThrowCooked threw id={thrown.Id} state={thrown.CurrentState} fuseLeft={thrown.FuseLeft:F2} def={thrown.Definition?.name ?? "null"}");
-#endif
+//#if GRENADE_DEBUG
+//        // DEBUG:
+//        Debug.Log($"[GRENADE][WEAPON {name}] TryThrowCooked threw id={thrown.Id} state={thrown.CurrentState} fuseLeft={thrown.FuseLeft:F2} def={thrown.Definition?.name ?? "null"}");
+//#endif
 
         return true;
     }
