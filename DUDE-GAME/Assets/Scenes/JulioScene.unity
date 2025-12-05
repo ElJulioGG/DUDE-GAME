@@ -4896,6 +4896,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1712122345}
     m_Modifications:
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
       objectReference: {fileID: 721735405}
@@ -48135,6 +48139,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1012784666}
     m_Modifications:
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
       objectReference: {fileID: 721735405}
@@ -66236,6 +66244,10 @@ PrefabInstance:
     - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: 'weaponPickups.Array.data[2]'
       value: 
+      objectReference: {fileID: 6192896243936263217, guid: 0682f58f91027754c84fe15b022ee90a, type: 3}
+    - target: {fileID: 5249061520816785696, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
+      propertyPath: 'weaponPickups.Array.data[3]'
+      value: 
       objectReference: {fileID: 6192896243936263217, guid: 8cc701de14cc7d744ad9bcb8b5f67174, type: 3}
     - target: {fileID: 7172326638509277579, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
       propertyPath: m_Color.b
@@ -79158,6 +79170,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1722222615}
     m_Modifications:
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
       objectReference: {fileID: 721735405}
@@ -80900,7 +80916,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &791749945
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89164,6 +89180,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1492145689}
     m_Modifications:
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
       objectReference: {fileID: 721735405}
@@ -89339,6 +89359,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 801754439}
     m_Modifications:
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
@@ -111831,6 +111855,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1414107499}
     m_Modifications:
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
@@ -137820,6 +137848,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 836677488}
     m_Modifications:
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
@@ -187456,6 +187488,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1490403225}
     m_Modifications:
     - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
+      propertyPath: autoStartOnMatchBegin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2005524664140871191, guid: 9e7a7df5b25f4de4eadb9e5baab45d76, type: 3}
       propertyPath: 'players.Array.data[0]'
       value: 
       objectReference: {fileID: 721735405}
@@ -213557,6 +213593,14 @@ MonoBehaviour:
   - {fileID: 2003491062}
   maps:
   - {fileID: 791749944}
+  - {fileID: 836677486}
+  - {fileID: 1414107497}
+  - {fileID: 1712122343}
+  - {fileID: 1490403223}
+  - {fileID: 801754437}
+  - {fileID: 1492145687}
+  - {fileID: 1012784665}
+  - {fileID: 1722222614}
   matchEnded: 0
   pointsToGive: 1
   pointsCanvasPrefab: {fileID: 1471025704}
