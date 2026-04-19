@@ -30,6 +30,12 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!GameManager.instance.playersCanMove)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
         Vector2 desiredVelocity = moveInput * maxSpeed;
         Vector2 velocityDiff = desiredVelocity - rb.linearVelocity;
 

@@ -38,6 +38,10 @@ public class MeleeWeaponBase : MonoBehaviour
             Vector3 scale = transform.localScale;
             scale.y = dir.x < 0 ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y);
             transform.localScale = scale;
+
+            // Propagate aim direction to hitbox's MeleeDefault
+            if (hitbox != null)
+                hitbox.GetComponent<MeleeDefault>()?.SetAimDirection(aimDirection);
         }
     }
 
@@ -47,7 +51,10 @@ public class MeleeWeaponBase : MonoBehaviour
         SoundFXManager.instance.PlaySoundByName("Throw", transform, 0.7f, 1f, false);
         // Activate hitbox for the active time
         if (hitbox != null)
+        {
+            hitbox.GetComponent<MeleeDefault>()?.SetAimDirection(aimDirection);
             hitbox.SetActive(true);
+        }
 
         yield return new WaitForSeconds(activeTime);
 

@@ -135,7 +135,7 @@ public class GameController : MonoBehaviour
             worldPos += (Vector3)Random.insideUnitCircle * 0.5f;
 
             // Check if area is free (no overlap with walls)
-            if (Physics2D.OverlapCircle(worldPos, 0.1f, collisionMask) == null)
+            if (Physics2D.OverlapCircle(worldPos, 1.0f, collisionMask) == null)
             {
                 GameObject prefab = Mutators[Random.Range(0, Mutators.Length)];
 
@@ -323,8 +323,6 @@ public class GameController : MonoBehaviour
                 {
                     SoundFXManager.instance.PlayMusic("BattleLoop", transform, 0.3f, 1f, true);
                 }
-                GameManager.instance.playersCanMove = true;
-                GameManager.instance.playersCanPowerUp = true;
 
                 // Avisar a la tormenta que la partida ha comenzado
                 if (poisonStormController != null)
@@ -332,6 +330,9 @@ public class GameController : MonoBehaviour
                     poisonStormController.OnMatchStarted();
                 }
 
+                // Enable movement immediately when FIGHT appears
+                GameManager.instance.playersCanMove = true;
+                GameManager.instance.playersCanPowerUp = true;
             }
             if (i == UIIntroObjects.Length - 2)
             {
@@ -352,7 +353,6 @@ public class GameController : MonoBehaviour
             yield return new WaitForSeconds(waitTime);
             UIIntroObjects[i].SetActive(false);
         }
-        GameManager.instance.playersCanMove = true;
         int randomMutatorID = Random.Range(1, mutator1InChance+1); // 1 en 10
         if(randomMutatorID == 1)
         {

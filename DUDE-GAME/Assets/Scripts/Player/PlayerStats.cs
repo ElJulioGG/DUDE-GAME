@@ -212,6 +212,15 @@ public class PlayerStats : MonoBehaviour
             rb.AddForce(knockDirection * force, ForceMode2D.Impulse);
         }
     }
+
+    public void ApplyKnockbackDirection(Vector2 direction, float force)
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
+        }
+    }
     private void ResetShake()
     {
         if (spriteTransform != null)
@@ -263,7 +272,10 @@ public class PlayerStats : MonoBehaviour
                 }
                 break;
         }
-        
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
     }
 
     private void OnEnable()

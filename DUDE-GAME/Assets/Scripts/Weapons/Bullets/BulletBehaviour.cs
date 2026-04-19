@@ -6,6 +6,7 @@ public class BulletBehavior : MonoBehaviour
     [Header("Settings")]
     public float speed = 10f;
     public bool enableBounce = true;
+    public bool pierceWalls = false;
     public bool destroyOnPlayerHit = true;
     public bool rotateToDirection = true;
     public float destroyTime = 5f;
@@ -75,10 +76,19 @@ public class BulletBehavior : MonoBehaviour
                 if (destroyOnPlayerHit) return; // Esto se queda igual
             }
 
-            if (enableBounce && ((1 << hit.collider.gameObject.layer) & bounceableMask) != 0)
+            if (((1 << hit.collider.gameObject.layer) & bounceableMask) != 0)
             {
-                HandleBounce(hit);
-                return;
+                if (enableBounce)
+                {
+                    HandleBounce(hit);
+                    return;
+                }
+                if (!pierceWalls)
+                {
+                    StopAllCoroutines();
+                    StartCoroutine(MoveToCollisionAndDestroy(hit.point, Vector2.zero));
+                    return;
+                }
             }
         }
 
@@ -95,7 +105,7 @@ public class BulletBehavior : MonoBehaviour
 
     void HandleDamage(RaycastHit2D hit)
     {
-        // 1) Intentar dañar cualquier NPC/objeto que implemente IDamageable
+        // 1) Intentar daï¿½ar cualquier NPC/objeto que implemente IDamageable
         var dmgTarget = hit.collider.GetComponentInParent<IDamageable>();
         if (dmgTarget != null)
         {
@@ -159,11 +169,11 @@ public class BulletBehavior : MonoBehaviour
     }
     IEnumerator MoveToCollisionAndDestroy(Vector2 targetPoint, Vector2 normal)
     {
-        // Mueve la posición de la bala justo al punto de colisión
+        // Mueve la posiciï¿½n de la bala justo al punto de colisiï¿½n
         rb.position = targetPoint;
         transform.position = targetPoint;
 
-        // Si necesitas ajustar la dirección antes de desaparecer (como en rebotes agotados)
+        // Si necesitas ajustar la direcciï¿½n antes de desaparecer (como en rebotes agotados)
         if (normal != Vector2.zero)
         {
             direction = Vector2.Reflect(direction, normal).normalized;
@@ -171,7 +181,7 @@ public class BulletBehavior : MonoBehaviour
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
 
-        yield return null; // Espera un frame para que la partícula se actualice
+        yield return null; // Espera un frame para que la partï¿½cula se actualice
 
         DestroyBullet();
     }

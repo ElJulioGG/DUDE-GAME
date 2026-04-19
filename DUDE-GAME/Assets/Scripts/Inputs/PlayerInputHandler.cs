@@ -75,14 +75,9 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if ((playerMovement != null) && GameManager.instance.playersCanMove)
+        if (playerMovement != null)
         {
             playerMovement.SetInputVector(context.ReadValue<Vector2>());
-        }
-        else
-        {
-            if((playerMovement != null))
-            playerMovement.SetInputVector(Vector2.zero);
         }
     }
     

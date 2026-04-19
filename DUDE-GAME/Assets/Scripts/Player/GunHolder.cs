@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GunHolder : MonoBehaviour
@@ -16,7 +17,7 @@ public class GunHolder : MonoBehaviour
     [SerializeField] private WeaponBase currentGunScript;
     [SerializeField] private MeleeWeaponBase currentMeleeScript;
 
-    [SerializeField] private WeaponPickup nearbyPickup;
+    private List<WeaponPickup> nearbyPickups = new List<WeaponPickup>();
     [SerializeField] private bool hasWeapon = false;
     [SerializeField] private int playerIndex;
     private Vector2 lastMovementDirection = Vector2.zero; // fallback if no input
@@ -92,15 +93,34 @@ public class GunHolder : MonoBehaviour
 
     public void SetNearbyPickup(WeaponPickup pickup)
     {
-        nearbyPickup = pickup;
+        if (pickup != null && !nearbyPickups.Contains(pickup))
+            nearbyPickups.Add(pickup);
     }
 
     public void ClearNearbyPickup(WeaponPickup pickup)
     {
-        if (nearbyPickup == pickup)
+        nearbyPickups.Remove(pickup);
+    }
+
+    private WeaponPickup GetClosestPickup()
+    {
+        nearbyPickups.RemoveAll(p => p == null);
+        if (nearbyPickups.Count == 0) return null;
+
+        WeaponPickup closest = null;
+        float bestDist = float.MaxValue;
+        Vector2 selfPos = transform.position;
+
+        foreach (var p in nearbyPickups)
         {
-            nearbyPickup = null;
+            float dist = Vector2.SqrMagnitude((Vector2)p.transform.position - selfPos);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                closest = p;
+            }
         }
+        return closest;
     }
 
 
@@ -339,10 +359,11 @@ public class GunHolder : MonoBehaviour
             }
         }
 
-        if (nearbyPickup != null && !hasWeapon)
+        var closestPickup = GetClosestPickup();
+        if (closestPickup != null && !hasWeapon)
         {
-            var pickup = nearbyPickup;
-            nearbyPickup = null;
+            var pickup = closestPickup;
+            nearbyPickups.Remove(pickup);
 #if GRENADE_DEBUG
             // DEBUG:
             Debug.Log($"[PICKUP] {name} taking WeaponPickup {pickup.name} weapon={pickup.weaponName} clip={pickup.savedClipAmmo} reserve={pickup.savedReserveAmmo}");

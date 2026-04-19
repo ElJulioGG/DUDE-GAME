@@ -236,6 +236,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 70
   enableBounce: 0
+  pierceWalls: 1
   destroyOnPlayerHit: 0
   rotateToDirection: 0
   destroyTime: 5

@@ -387,6 +387,8 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     }
 
     // ============== reorientación por colisiones ==============
+    private bool _pushingPlayerIntoWall = false;
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsInMask(other.gameObject.layer, CombinedAvoidMask))
@@ -397,5 +399,32 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         if (IsInMask(other.gameObject.layer, CombinedAvoidMask))
             PickBestDirection();
     }
+
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        if (!other.gameObject.CompareTag("Player")) return;
+
+        Vector2 playerPos = other.transform.position;
+        float checkDist = 0.8f;
+        RaycastHit2D hit = Physics2D.Raycast(playerPos, _dir, checkDist, obstacleMask);
+
+        if (hit.collider != null && !_pushingPlayerIntoWall)
+        {
+            _pushingPlayerIntoWall = true;
+            PickBestDirection();
+            _avoidUntil = Time.time + avoidCooldown;
+        }
+        else if (hit.collider == null)
+        {
+            _pushingPlayerIntoWall = false;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+            _pushingPlayerIntoWall = false;
+    }
+
     private static bool IsInMask(int layer, LayerMask mask) => (mask.value & (1 << layer)) != 0;
 }
