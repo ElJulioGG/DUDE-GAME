@@ -121,6 +121,25 @@ MonoBehaviour:
   dropSpawnRadius: 0.25
   dropOnDeath: 1
   extraDeathDrops: 0
+  bountyTable: 3200000064000000c80000005e010000f4010000
+  pointsCanvasPrefab: {fileID: 3251278951181896554, guid: 4c1c631341625bb48bc5527642296f1d, type: 3}
+  headlessDuration: 1.5
+  headlessSpeedMult: 2.5
+  headlessDirInterval: 0.3
+  headlessDropInterval: 0.5
+  headlessFlashInterval: 0.08
+  headlessFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  revengeChickenPrefab: {fileID: 6995254734883307935, guid: eb8bd8d5ecb5d2142b91e3359f551214, type: 3}
+  revengeCount: 4
+  goldenChance: 0.15
+  goldenTint: {r: 1, g: 0.85, b: 0.2, a: 1}
+  goldenMaxHP: 8
+  goldenSpeedMult: 1.3
+  goldenExtraDrops: 2
+  goldenAuraParticlePrefab: {fileID: 0}
+  revengeEggPrefab: {fileID: 2518164744226579775, guid: b86626bf6b6f9ab439861bce4c1dcfd2, type: 3}
+  speedBoostPrefab: {fileID: 639648117810484899, guid: 6ecad9d2d4dda9d48885d6aae3e062bf, type: 3}
+  speedTrailInterval: 0.3
   spawnSfxName: 
   hitSfxName: ChickenHit
   randomDeathSfxNames:
@@ -160,6 +179,16 @@ MonoBehaviour:
   hazardMask:
     serializedVersion: 2
     m_Bits: 0
+  playerDetectRadius: 6
+  playerFleeRadius: 3.5
+  playerScorePenalty: 2
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  panicDuration: 2
+  panicSpeedMultiplier: 1.8
+  knockbackDistance: 0.4
+  knockbackDuration: 0.12
   stuckCheckPeriod: 0.5
   minAdvanceDistance: 0.06
   turnSmoothTime: 0.08

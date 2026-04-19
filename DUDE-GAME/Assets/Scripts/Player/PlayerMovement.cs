@@ -11,6 +11,9 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private int playerIndex;
 
+    private float _speedMultiplier = 1f;
+    private float _boostEndTime;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -36,7 +39,10 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        Vector2 desiredVelocity = moveInput * maxSpeed;
+        if (_speedMultiplier > 1f && Time.time >= _boostEndTime)
+            _speedMultiplier = 1f;
+
+        Vector2 desiredVelocity = moveInput * maxSpeed * _speedMultiplier;
         Vector2 velocityDiff = desiredVelocity - rb.linearVelocity;
 
         // Apply force to achieve the target velocity over time (responsive but allows physics)
@@ -46,5 +52,11 @@ public class PlayerMovement : MonoBehaviour
     public void SetInputVector(Vector2 direction)
     {
         moveInput = direction;
+    }
+
+    public void ApplySpeedBoost(float multiplier, float duration)
+    {
+        _speedMultiplier = multiplier;
+        _boostEndTime = Time.time + duration;
     }
 }

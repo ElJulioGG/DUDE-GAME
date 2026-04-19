@@ -430,6 +430,7 @@ public class GameController : MonoBehaviour
             if (GameManager.instance.assignController)
             {
                 // Just entered assignment phase
+                GameManager.instance.ResetAllPlayerPlayable();
                 PauseGame();
                 AssignController();
             }

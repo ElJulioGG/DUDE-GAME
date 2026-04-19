@@ -21,10 +21,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] public bool unlimitedBullets = false;
 
     [Header("Player Stats")]
-    [SerializeField] public bool player1Playable = true;
-    [SerializeField] public bool player2Playable = true;
-    [SerializeField] public bool player3Playable = true;
-    [SerializeField] public bool player4Playable = true;
+    [SerializeField] public bool player1Playable = false;
+    [SerializeField] public bool player2Playable = false;
+    [SerializeField] public bool player3Playable = false;
+    [SerializeField] public bool player4Playable = false;
     [SerializeField] public int player1Score = 0;
     [SerializeField] public int player2Score = 0;
     [SerializeField] public int player3Score = 0;
@@ -54,6 +54,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] public bool destroyProyectiles = false;
 
 
+
+    public void ResetAllPlayerPlayable()
+    {
+        player1Playable = false;
+        player2Playable = false;
+        player3Playable = false;
+        player4Playable = false;
+    }
 
     void Update()
     {

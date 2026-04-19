@@ -46954,8 +46954,8 @@ MonoBehaviour:
   player3Score: 0
   player4Score: 0
   player1Icon: {fileID: -5394088977168762643, guid: c0478905bbf8d06448192135dcf2356f, type: 3}
-  player2Icon: {fileID: -1934585958777460196, guid: 51d39e4715efbdd46888f5172da021ef, type: 3}
-  player3Icon: {fileID: -1726076255020224095, guid: fcd9e6e6f05041343a3862f89f7d9d85, type: 3}
+  player2Icon: {fileID: -1726076255020224095, guid: fcd9e6e6f05041343a3862f89f7d9d85, type: 3}
+  player3Icon: {fileID: -1934585958777460196, guid: 51d39e4715efbdd46888f5172da021ef, type: 3}
   player4Icon: {fileID: -5489414275044213144, guid: 1608e0f3bdddd9c44970852764e908c3, type: 3}
   player1ControllerType: 0
   player2ControllerType: 0
@@ -79447,7 +79447,6 @@ MonoBehaviour:
   currentWeapon: {fileID: 0}
   currentGunScript: {fileID: 0}
   currentMeleeScript: {fileID: 0}
-  nearbyPickup: {fileID: 0}
   hasWeapon: 0
   playerIndex: 0
 --- !u!58 &721735404
@@ -127138,7 +127137,6 @@ MonoBehaviour:
   currentWeapon: {fileID: 0}
   currentGunScript: {fileID: 0}
   currentMeleeScript: {fileID: 0}
-  nearbyPickup: {fileID: 0}
   hasWeapon: 0
   playerIndex: 1
 --- !u!61 &1126270527
@@ -149990,7 +149988,6 @@ MonoBehaviour:
   currentWeapon: {fileID: 0}
   currentGunScript: {fileID: 0}
   currentMeleeScript: {fileID: 0}
-  nearbyPickup: {fileID: 0}
   hasWeapon: 0
   playerIndex: 3
 --- !u!61 &1374179801
@@ -179079,7 +179076,6 @@ MonoBehaviour:
   currentWeapon: {fileID: 0}
   currentGunScript: {fileID: 0}
   currentMeleeScript: {fileID: 0}
-  nearbyPickup: {fileID: 0}
   hasWeapon: 0
   playerIndex: 0
 --- !u!4 &1614793032
@@ -199911,7 +199907,6 @@ MonoBehaviour:
   currentWeapon: {fileID: 0}
   currentGunScript: {fileID: 0}
   currentMeleeScript: {fileID: 0}
-  nearbyPickup: {fileID: 0}
   hasWeapon: 0
   playerIndex: 2
 --- !u!61 &1750184131

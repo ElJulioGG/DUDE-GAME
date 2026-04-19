@@ -13,9 +13,15 @@ public class GE_DamageExplosion : GrenadeEffect
         foreach (var h in hits)
         {
             var stats = h.GetComponent<PlayerStats>();
-            if (stats == null) continue;
+            if (stats != null)
+            {
+                stats.TakeDamage(damage);
+                continue;
+            }
 
-            stats.TakeDamage(damage);
+            var damageable = h.GetComponentInParent<IDamageable>();
+            if (damageable != null)
+                damageable.TakeDamage(damage);
         }
     }
 }

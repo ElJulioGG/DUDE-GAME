@@ -60,6 +60,12 @@ public class PlayerCursor : MonoBehaviour
     public bool IsAssigned => isAssigned;
     public int AssignedPlayerIndex => assignedPlayerIndex;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        assignedCursorCount = 0;
+    }
+
     private void Awake()
     {
         controllerMapper = FindFirstObjectByType<ControllerMapper>();
@@ -212,28 +218,19 @@ public class PlayerCursor : MonoBehaviour
         btn.colors = colors;
     }
 
-    public void Initialize(InputDevice device, PlayerInputHandler inputHandler)
+    public void Initialize(InputDevice device, PlayerInputHandler inputHandler, int stableCursorIndex)
     {
         inputDevice = device;
         playerInputHandler = inputHandler;
-        deviceIndex = GetDeviceIndex(device);
-        if (playerLabel != null)
+        deviceIndex = stableCursorIndex;
+        // Only update the label if the cursor hasn't been assigned to a slot yet;
+        // otherwise Initialize (called every frame) overwrites the assigned label.
+        if (playerLabel != null && !isAssigned)
         {
             playerLabel.text = $"P {deviceIndex + 1}";
             playerLabel2.text = $"P {deviceIndex + 1}";
         }
         isInitialized = true;
-    }
-
-    private int GetDeviceIndex(InputDevice device)
-    {
-        if (device is Keyboard) return Mathf.Min(Gamepad.all.Count, 4);
-        var allGamepads = Gamepad.all;
-        for (int i = 0; i < allGamepads.Count; i++)
-        {
-            if (allGamepads[i] == device) return i;
-        }
-        return -1;
     }
 
     private void HandleMovement()
@@ -347,14 +344,12 @@ public class PlayerCursor : MonoBehaviour
             case 3: GameManager.instance.player4Playable = true; break;
         }
 
-        controllerMapper?.AssignControllerToPlayer(deviceIndex, playerIndex);
+        // Call reasignController directly on the matched handler (not by array index)
+        if (playerInputHandler != null)
+            playerInputHandler.reasignController(playerIndex);
 
         if (cursorImage != null) cursorImage.color = playerColors[playerIndex];
-        if (playerLabel != null)
-        {
-            playerLabel.text = $"P {playerIndex + 1}";
-            playerLabel2.text = $"P {playerIndex + 1}";
-        }
+        // Label stays as device number (P {deviceIndex + 1}), NOT slot number
 
         if (assignmentIndicator != null) assignmentIndicator.SetActive(true);
         if (hoveredButton != null) SetButtonColor(hoveredButton, playerColors[playerIndex]);

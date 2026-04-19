@@ -30,8 +30,12 @@ public class PlayerInputHandler : MonoBehaviour
     }
     
     public void reasignController(int newIndex){
+        // Clear stale input on the OLD PlayerMovement before relinking
+        if (playerMovement != null)
+            playerMovement.SetInputVector(Vector2.zero);
+
         playerInput = GetComponent<PlayerInput>();
-        index = playerInput.playerIndex;
+        index = newIndex;
 
         // Link Stats
         var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
@@ -62,7 +66,7 @@ public class PlayerInputHandler : MonoBehaviour
         else if (deviceName.Contains("dualshock") || deviceName.Contains("dualsense") || deviceName.Contains("ps"))
             controllerType = 2;
 
-        switch (playerInput.playerIndex)
+        switch (index)
         {
             case 0: GameManager.instance.player1ControllerType = controllerType; break;
             case 1: GameManager.instance.player2ControllerType = controllerType; break;
