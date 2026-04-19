@@ -48,6 +48,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int player3PowerUp = 0;
     [SerializeField] public int player4PowerUp = 0;
 
+    [Header("Display Order")]
+    [SerializeField] public int player1DisplayOrder = -1;
+    [SerializeField] public int player2DisplayOrder = -1;
+    [SerializeField] public int player3DisplayOrder = -1;
+    [SerializeField] public int player4DisplayOrder = -1;
+
     [Header("Camera")]
     [SerializeField] public int activeCamera = 0;
     [Header("LevelStatus")]

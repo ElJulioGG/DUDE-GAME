@@ -344,6 +344,14 @@ public class PlayerCursor : MonoBehaviour
             case 3: GameManager.instance.player4Playable = true; break;
         }
 
+        switch (assignedPlayerIndex)
+        {
+            case 0: GameManager.instance.player1DisplayOrder = deviceIndex; break;
+            case 1: GameManager.instance.player2DisplayOrder = deviceIndex; break;
+            case 2: GameManager.instance.player3DisplayOrder = deviceIndex; break;
+            case 3: GameManager.instance.player4DisplayOrder = deviceIndex; break;
+        }
+
         // Call reasignController directly on the matched handler (not by array index)
         if (playerInputHandler != null)
             playerInputHandler.reasignController(playerIndex);
@@ -370,6 +378,14 @@ public class PlayerCursor : MonoBehaviour
             case 1: GameManager.instance.player2Playable = false; break;
             case 2: GameManager.instance.player3Playable = false; break;
             case 3: GameManager.instance.player4Playable = false; break;
+        }
+
+        switch (assignedPlayerIndex)
+        {
+            case 0: GameManager.instance.player1DisplayOrder = -1; break;
+            case 1: GameManager.instance.player2DisplayOrder = -1; break;
+            case 2: GameManager.instance.player3DisplayOrder = -1; break;
+            case 3: GameManager.instance.player4DisplayOrder = -1; break;
         }
 
         assignedPlayerIndex = -1;
