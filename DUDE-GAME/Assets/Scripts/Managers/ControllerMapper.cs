@@ -15,7 +15,7 @@ public class ControllerMapper : MonoBehaviour
     [SerializeField] private GameObject mapperCanvas;
     [SerializeField] private GameObject[] playerButtons;
     private Dictionary<InputDevice, int> deviceToCursorMap = new();
-    private HashSet<InputDevice> activatedDevices = new();
+    private List<InputDevice> activatedDevices = new();
 
     private void Start()
     {
@@ -31,18 +31,12 @@ public class ControllerMapper : MonoBehaviour
 {
     var handlers = FindObjectsByType<PlayerInputHandler>(FindObjectsSortMode.None);
 
-    // Construir la lista de dispositivos conectados en orden deseado
+    // Build ordered devices from activation order (first input = P1)
     List<InputDevice> orderedDevices = new List<InputDevice>();
-
-    // Teclado primero (siempre activado)
-    if (Keyboard.current != null)
-        orderedDevices.Add(Keyboard.current);
-
-    // Luego gamepads activados
-    foreach (var pad in Gamepad.all)
+    foreach (var device in activatedDevices)
     {
-        if (orderedDevices.Count < 4 && activatedDevices.Contains(pad))
-            orderedDevices.Add(pad);
+        if (orderedDevices.Count >= 4) break;
+        orderedDevices.Add(device);
     }
 
     // Ordenar los handlers según el índice del dispositivo conectado
@@ -79,20 +73,19 @@ private void InitializeCursors()
         }
     }
 
-    // Keyboard always activated
-    if (Keyboard.current != null)
-        activatedDevices.Add(Keyboard.current);
-
-    // Build connected devices: keyboard first, then activated gamepads
-    List<InputDevice> connectedDevices = new();
-
-    if (Keyboard.current != null)
-        connectedDevices.Add(Keyboard.current);
-
-    foreach (var pad in Gamepad.all)
+    // Keyboard activates on real input (same as gamepads)
+    if (Keyboard.current != null && !activatedDevices.Contains(Keyboard.current))
     {
-        if (connectedDevices.Count < 4 && activatedDevices.Contains(pad))
-            connectedDevices.Add(pad);
+        if (Keyboard.current.anyKey.isPressed)
+            activatedDevices.Add(Keyboard.current);
+    }
+
+    // Build connected devices in activation order (first input = P1)
+    List<InputDevice> connectedDevices = new();
+    foreach (var device in activatedDevices)
+    {
+        if (connectedDevices.Count >= 4) break;
+        connectedDevices.Add(device);
     }
 
     // Remove disconnected devices from map and activatedDevices
@@ -103,7 +96,7 @@ private void InitializeCursors()
         deviceToCursorMap.Remove(d);
 
     // Cleanup activatedDevices for gamepads no longer physically connected
-    activatedDevices.RemoveWhere(d => d is Gamepad && !Gamepad.all.Contains((Gamepad)d));
+    activatedDevices.RemoveAll(d => d is Gamepad && !Gamepad.all.Contains((Gamepad)d));
 
     // Asignar dispositivos a cursores disponibles
     for (int i = 0; i < connectedDevices.Count && i < playerCursors.Length; i++)
