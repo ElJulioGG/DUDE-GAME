@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using TMPro;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
@@ -21,11 +20,6 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [SerializeField] private float dropSpawnRadius = 0.25f;
     [SerializeField] private bool dropOnDeath = true;
     [SerializeField, Min(0)] private int extraDeathDrops = 0;
-
-    // ================== BOUNTY SYSTEM (Feature 1) ==================
-    [Header("Bounty System")]
-    [SerializeField] private int[] bountyTable = { 50, 100, 200, 350, 500 };
-    [SerializeField] private GameObject pointsCanvasPrefab;
 
     // ================== HEADLESS RUN (Feature 2) ==================
     [Header("Headless Run")]
@@ -180,10 +174,6 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     private int _nearbyPlayerCount;
     private Vector2 _threatCenter;
 
-    // --- Bounty state (Feature 1) ---
-    private int _hitCount;
-    private int _currentBounty;
-
     // --- Headless state (Feature 2) ---
     private bool _isHeadless;
     private float _headlessEndTime;
@@ -233,8 +223,6 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     {
         _hp = Mathf.Max(1, maxHP);
         _nextHitAllowedTime = -999f;
-        _hitCount = 0;
-        _currentBounty = 0;
 
         _dir = _desiredDir = Random.insideUnitCircle.normalized;
         _nextDirTime = Time.time + RandomizeInterval(directionChangeInterval);
@@ -605,12 +593,6 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
         _hp -= 1;
 
-        // --- Bounty escalation (Feature 1) ---
-        _hitCount++;
-        int idx = Mathf.Min(_hitCount - 1, bountyTable.Length - 1);
-        _currentBounty = bountyTable[idx];
-        if (_isGolden) _currentBounty *= 2;
-
         // --- Infer damage source (nearest player) ---
         Vector2 damageSourcePos = InferDamageSource();
         _lastDamageSourcePos = damageSourcePos;
@@ -747,28 +729,8 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         Instantiate(spawnFeatherParticles, transform.position, Quaternion.identity);
         Instantiate(spawnFeatherParticles2, transform.position, Quaternion.identity);
 
-        // --- Find killer for bounty + revenge ---
+        // --- Find killer for revenge ---
         PlayerStats killer = FindClosestPlayerStats();
-
-        // --- Award bounty points (Feature 1) ---
-        if (killer != null)
-        {
-            killer.StartCoroutine(killer.AddPointsAfterDelay(_currentBounty));
-            Debug.Log($"[RainbowChicken] Bounty {_currentBounty} awarded to Player {killer.GetPlayerIndex()}");
-        }
-
-        // --- Floating points text (Feature 1) ---
-        if (pointsCanvasPrefab != null)
-        {
-            var go = Instantiate(pointsCanvasPrefab, transform.position + Vector3.up, Quaternion.identity);
-            var t = go.GetComponentInChildren<TMP_Text>();
-            if (t != null)
-            {
-                t.text = $"+{_currentBounty}";
-                t.color = _isGolden ? goldenTint : Color.yellow;
-            }
-            Destroy(go, 1.5f);
-        }
 
         // --- Death drops ---
         if (dropOnDeath)
