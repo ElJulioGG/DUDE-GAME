@@ -11,7 +11,10 @@
       "Bash(python -c \"import os; print\\(os.path.expanduser\\('~'\\)\\); print\\(os.path.join\\(os.path.expanduser\\('~'\\), 'Desktop'\\)\\)\")",
       "Read(//c/Users/User/**)",
       "Read(//c/Users/User/OneDrive/Desktop/**)",
-      "Bash(del \"c:\\\\Users\\\\User\\\\OneDrive\\\\Documents\\\\GitHub\\\\DUDE-GAME\\\\DUDE-GAME\\\\DUDE-GAME\\\\generate_report.py\")"
+      "Bash(del \"c:\\\\Users\\\\User\\\\OneDrive\\\\Documents\\\\GitHub\\\\DUDE-GAME\\\\DUDE-GAME\\\\DUDE-GAME\\\\generate_report.py\")",
+      "Bash(xargs grep *)",
+      "Bash(grep -E '\\\\.cs$')",
+      "Bash(grep -E '\\\\.\\(cs|unity\\)$')"
     ]
   }
 }

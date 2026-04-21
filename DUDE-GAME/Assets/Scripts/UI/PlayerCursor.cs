@@ -66,6 +66,12 @@ public class PlayerCursor : MonoBehaviour
     public bool IsInitializedFor(InputDevice device) => isInitialized && inputDevice == device;
     public static PlayerCursor[] All => _allCursors;
 
+    public void TrySetHandler(PlayerInputHandler handler)
+    {
+        if (playerInputHandler == null && handler != null)
+            playerInputHandler = handler;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
     {
@@ -329,6 +335,9 @@ public class PlayerCursor : MonoBehaviour
             case 2: GameManager.instance.player3DisplayOrder = deviceIndex; break;
             case 3: GameManager.instance.player4DisplayOrder = deviceIndex; break;
         }
+
+        if (playerInputHandler == null && controllerMapper != null)
+            playerInputHandler = controllerMapper.GetOrPairHandlerForDevice(inputDevice);
 
         if (playerInputHandler != null)
             playerInputHandler.reasignController(playerIndex);

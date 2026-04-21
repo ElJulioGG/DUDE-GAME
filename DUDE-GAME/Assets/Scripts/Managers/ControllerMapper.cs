@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Users;
 
 public class ControllerMapper : MonoBehaviour
 {
@@ -50,6 +51,57 @@ public class ControllerMapper : MonoBehaviour
             UpdateCursorAssignments();
             _dirty = false;
         }
+        else
+        {
+            TrySetMissingHandlers();
+        }
+    }
+
+    // Runs every frame to attach handlers that paired after the initial cursor creation.
+    private void TrySetMissingHandlers()
+    {
+        foreach (var kvp in deviceToCursorMap)
+        {
+            int cursorIndex = kvp.Value;
+            if (cursorIndex < 0 || cursorIndex >= playerCursors.Length) continue;
+            var cursor = playerCursors[cursorIndex];
+            if (!cursor.gameObject.activeSelf) continue;
+            foreach (var handler in playerInputHandlers)
+            {
+                if (handler != null && handler.playerInput != null &&
+                    handler.playerInput.devices.Contains(kvp.Key))
+                {
+                    cursor.TrySetHandler(handler);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Called by PlayerCursor at slot-selection time when its handler is still null.
+    // Finds the handler paired to the device, or pairs an available one if none is found.
+    public PlayerInputHandler GetOrPairHandlerForDevice(InputDevice device)
+    {
+        var handlers = FindObjectsByType<PlayerInputHandler>(FindObjectsSortMode.None);
+
+        foreach (var h in handlers)
+            if (h.playerInput != null && h.playerInput.devices.Contains(device))
+                return h;
+
+        // No handler has this device yet — grab the first handler not claimed by another active device.
+        foreach (var h in handlers)
+        {
+            if (h.playerInput == null) continue;
+            bool taken = activatedDevices.Any(d => d != device && h.playerInput.devices.Contains(d));
+            if (!taken)
+            {
+                try { InputUser.PerformPairingWithDevice(device, user: h.playerInput.user); }
+                catch (System.Exception e) { Debug.LogWarning($"[ControllerMapper] Pairing failed: {e.Message}"); }
+                return h;
+            }
+        }
+
+        return null;
     }
 
     private void DetectNewActivations()
@@ -135,13 +187,16 @@ public class ControllerMapper : MonoBehaviour
                     break;
                 }
             }
-            if (matchingHandler == null) continue;
 
             var cursor = playerCursors[cursorIndex];
             if (!cursor.IsInitializedFor(device))
             {
                 cursor.Initialize(device, matchingHandler, cursorIndex);
                 cursor.gameObject.SetActive(true);
+            }
+            else if (matchingHandler != null)
+            {
+                cursor.TrySetHandler(matchingHandler);
             }
         }
 
