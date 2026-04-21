@@ -1,4 +1,4 @@
-﻿using UnityEngine.InputSystem;
+using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,6 +8,8 @@ public class CursorDetection : MonoBehaviour
 {
     private GraphicRaycaster gr;
     private PointerEventData pointerEventData;
+    private readonly List<RaycastResult> _raycastResults = new List<RaycastResult>();
+
     public Transform currentCharacter;
     public Transform token;
     public bool hasToken;
@@ -16,18 +18,28 @@ public class CursorDetection : MonoBehaviour
     public int playerIndex;
     private PlayerInput playerInput;
 
+    // Cached to avoid per-frame lookups
+    private InputAction _acceptAction;
+    private InputAction _cancelAction;
+    private Camera _mainCamera;
+    private Image _currentBorderImage;
+
     void Start()
     {
         gr = GetComponentInParent<GraphicRaycaster>();
         pointerEventData = new PointerEventData(EventSystem.current);
-        SmashCSS.instance.ShowCharacterInSlot(playerIndex, null);
         playerInput = GetComponent<PlayerInput>();
 
+        _acceptAction = playerInput.actions["Accept"];
+        _cancelAction = playerInput.actions["Cancel"];
+        _mainCamera = Camera.main;
+
+        SmashCSS.instance.ShowCharacterInSlot(playerIndex, null);
     }
 
     void Update()
     {
-        if (playerInput.actions["Accept"].triggered)
+        if (_acceptAction.triggered)
         {
             if (currentCharacter != null)
             {
@@ -37,30 +49,24 @@ public class CursorDetection : MonoBehaviour
             }
         }
 
-        if (playerInput.actions["Cancel"].triggered)
+        if (_cancelAction.triggered)
         {
             SmashCSS.instance.ClearConfirmedCharacter(playerIndex);
             TokenFollow(true);
         }
 
-
-        // Mover token con el cursor
         if (hasToken)
-        {
             token.position = transform.position;
-        }
 
-        // Raycasting UI
-        pointerEventData.position = Camera.main.WorldToScreenPoint(transform.position);
-        List<RaycastResult> results = new List<RaycastResult>();
-        gr.Raycast(pointerEventData, results);
+        pointerEventData.position = _mainCamera.WorldToScreenPoint(transform.position);
+        _raycastResults.Clear();
+        gr.Raycast(pointerEventData, _raycastResults);
 
         if (hasToken)
         {
-            if (results.Count > 0)
+            if (_raycastResults.Count > 0)
             {
-                Transform raycastChar = results[0].gameObject.transform;
-
+                Transform raycastChar = _raycastResults[0].gameObject.transform;
                 if (raycastChar != currentCharacter)
                 {
                     ClearCurrentHighlight();
@@ -81,23 +87,24 @@ public class CursorDetection : MonoBehaviour
 
         if (t != null)
         {
-            t.Find("selectedBorder").GetComponent<Image>().color = Color.white;
+            _currentBorderImage = t.Find("selectedBorder").GetComponent<Image>();
+            _currentBorderImage.color = Color.white;
+
             int index = t.GetSiblingIndex();
             Character character = SmashCSS.instance.characters[index];
             SmashCSS.instance.ShowCharacterInSlot(playerIndex, character);
         }
         else
         {
+            _currentBorderImage = null;
             SmashCSS.instance.ShowCharacterInSlot(playerIndex, null);
         }
     }
 
     void ClearCurrentHighlight()
     {
-        if (currentCharacter != null)
-        {
-            currentCharacter.Find("selectedBorder").GetComponent<Image>().color = Color.clear;
-        }
+        if (_currentBorderImage != null)
+            _currentBorderImage.color = Color.clear;
     }
 
     void TokenFollow(bool trigger)

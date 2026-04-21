@@ -25,13 +25,20 @@ public class PlayerAssignmentUI : MonoBehaviour
     [SerializeField] private Color player1Color = Color.red;
     [SerializeField] private Color player2Color = Color.blue;
     [SerializeField] private Color player3Color = Color.green;
-    [SerializeField] private Color player4Color = new Color(0.5f, 0f, 0.5f); // Purple
+    [SerializeField] private Color player4Color = new Color(0.5f, 0f, 0.5f);
     [SerializeField] private Color unassignedColor = Color.gray;
 
     [SerializeField] private ControllerMapper controllerMapper;
 
+    // Cached to avoid per-frame searches and GetComponent calls
+    private TextMeshProUGUI _startButtonText;
+
     private void Start()
     {
+        _startButtonText = startGameButton != null
+            ? startGameButton.GetComponentInChildren<TextMeshProUGUI>()
+            : null;
+
         controllerMapper.EnablePlayerButtons();
         controllerMapper.EnableCursors();
         InitializeUI();
@@ -39,22 +46,21 @@ public class PlayerAssignmentUI : MonoBehaviour
 
     private void OnEnable()
     {
-        // Buttons and cursors are always visible now
         controllerMapper.EnablePlayerButtons();
         controllerMapper.EnableCursors();
     }
 
     private void InitializeUI()
     {
-        // Set up button listeners
         if (startGameButton != null)
             startGameButton.onClick.AddListener(OnStartGameButtonClicked);
 
         if (resetButton != null)
             resetButton.onClick.AddListener(OnResetButtonClicked);
 
-        // Initialize player slots
-        for (int i = 0; i < playerSlotPanels.Length && i < playerSlotBackgrounds.Length && i < playerSlotTexts.Length && i < playerSlotAssignedIndicators.Length; i++)
+        int limit = Mathf.Min(playerSlotPanels.Length, playerSlotBackgrounds.Length,
+                              playerSlotTexts.Length, playerSlotAssignedIndicators.Length);
+        for (int i = 0; i < limit; i++)
         {
             if (playerSlotPanels[i] != null)
                 playerSlotPanels[i].SetActive(true);
@@ -72,106 +78,82 @@ public class PlayerAssignmentUI : MonoBehaviour
                 playerSlotAssignedIndicators[i].SetActive(false);
         }
 
-        UpdateInstructionText();
-        UpdateStartButtonState();
+        UpdateUI(GetAssignedPlayerCount());
     }
 
     private void Update()
     {
-        
-            UpdateInstructionText();
-        
-        
-        UpdateStartButtonState();
+        UpdateUI(GetAssignedPlayerCount());
     }
 
-    private void UpdateInstructionText()
+    private void UpdateUI(int assignedCount)
     {
-        if (instructionText == null) return;
-        if (!debug) return;
-        int connectedCount = Mathf.Min(Gamepad.all.Count, 4);
-        if (connectedCount < 4) connectedCount += 1; // Include keyboard if space
+        UpdateInstructionText(assignedCount);
+        UpdateStartButtonState(assignedCount);
+    }
 
-        int assignedCount = GetAssignedPlayerCount();
+    private void UpdateInstructionText(int assignedCount)
+    {
+        if (instructionText == null || !debug) return;
+
+        int connectedCount = Mathf.Min(Gamepad.all.Count + 1, 4);
 
         if (connectedCount == 0)
-        {
             instructionText.text = "Connect controllers to begin...";
-        }
         else if (assignedCount == 0)
-        {
             instructionText.text = $"Use your controller to select a player slot.\nConnected controllers: {connectedCount}";
-        }
         else if (assignedCount < connectedCount)
-        {
             instructionText.text = $"Assign remaining controllers to player slots.\nAssigned: {assignedCount}/{connectedCount}";
-        }
         else
-        {
             instructionText.text = "All controllers assigned! Press Start Game to begin.";
-        }
     }
 
     private int GetAssignedPlayerCount()
     {
-        if (controllerMapper == null) return 0;
+        var cursors = PlayerCursor.All;
+        if (cursors == null) return 0;
 
-        int assignedCount = 0;
-        var cursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
+        int count = 0;
         foreach (var cursor in cursors)
-        {
-            if (cursor.IsAssigned)
-                assignedCount++;
-        }
-
-        return assignedCount;
+            if (cursor.IsAssigned) count++;
+        return count;
     }
 
-    private void UpdateStartButtonState()
+    private void UpdateStartButtonState(int assignedCount)
     {
         if (startGameButton == null) return;
 
-        int connectedCount = Gamepad.all.Count;
-        int assignedCount = GetAssignedPlayerCount();
-
-        bool canStart = assignedCount >= 2 && assignedCount <=4;
-
+        bool canStart = assignedCount >= 2 && assignedCount <= 4;
         startGameButton.interactable = canStart;
 
-        var buttonText = startGameButton.GetComponentInChildren<TextMeshProUGUI>();
-        if (buttonText != null)
-            buttonText.text = canStart ? "Prsss \"Start\" to begin!" : "At least 2 Players To Start...";
+        if (_startButtonText != null)
+            _startButtonText.text = canStart ? "Press \"Start\" to begin!" : "At least 2 Players To Start...";
     }
 
     private void OnPlayerAssigned(int playerIndex, Gamepad gamepad)
     {
-        if (playerIndex >= 0 && playerIndex < playerSlotPanels.Length && playerIndex < playerSlotBackgrounds.Length && playerIndex < playerSlotTexts.Length && playerSlotAssignedIndicators.Length > playerIndex)
-        {
-            playerSlotBackgrounds[playerIndex].color = GetPlayerColor(playerIndex);
-            playerSlotTexts[playerIndex].text = $"Player {playerIndex + 1}\n{gamepad.displayName}";
-            playerSlotTexts[playerIndex].color = Color.white;
-            playerSlotAssignedIndicators[playerIndex].SetActive(true);
-            PlayAssignmentEffect(playerIndex);
-        }
+        if (playerIndex < 0 || playerIndex >= playerSlotPanels.Length) return;
+
+        playerSlotBackgrounds[playerIndex].color = GetPlayerColor(playerIndex);
+        playerSlotTexts[playerIndex].text = $"Player {playerIndex + 1}\n{gamepad.displayName}";
+        playerSlotTexts[playerIndex].color = Color.white;
+        playerSlotAssignedIndicators[playerIndex].SetActive(true);
     }
 
     private void OnPlayerUnassigned(int playerIndex)
     {
-        if (playerIndex >= 0 && playerIndex < playerSlotPanels.Length && playerIndex < playerSlotBackgrounds.Length && playerIndex < playerSlotTexts.Length && playerSlotAssignedIndicators.Length > playerIndex)
-        {
-            playerSlotBackgrounds[playerIndex].color = unassignedColor;
-            playerSlotTexts[playerIndex].text = $"Player {playerIndex + 1}";
-            playerSlotTexts[playerIndex].color = Color.white;
-            playerSlotAssignedIndicators[playerIndex].SetActive(false);
-        }
+        if (playerIndex < 0 || playerIndex >= playerSlotPanels.Length) return;
+
+        playerSlotBackgrounds[playerIndex].color = unassignedColor;
+        playerSlotTexts[playerIndex].text = $"Player {playerIndex + 1}";
+        playerSlotTexts[playerIndex].color = Color.white;
+        playerSlotAssignedIndicators[playerIndex].SetActive(false);
     }
 
     private void OnGameStarted()
     {
         if (mainPanel != null)
             mainPanel.SetActive(false);
-
-        Debug.Log("Player assignment UI hidden - game started");
     }
 
     private Color GetPlayerColor(int playerIndex)
@@ -186,25 +168,20 @@ public class PlayerAssignmentUI : MonoBehaviour
         };
     }
 
-    private void PlayAssignmentEffect(int playerIndex)
-    {
-        Debug.Log($"Player {playerIndex + 1} assigned with effect!");
-    }
-
     private void OnStartGameButtonClicked()
     {
         OnGameStarted();
-        Debug.Log("Game started!");
     }
 
     private void OnResetButtonClicked()
     {
-        var cursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
-        foreach (var cursor in cursors)
+        var cursors = PlayerCursor.All;
+        if (cursors != null)
         {
-            if (cursor.IsAssigned)
+            foreach (var cursor in cursors)
             {
-                // cursor.UnassignPlayer(); // Uncomment if needed
+                if (cursor.IsAssigned)
+                    cursor.UnassignPlayer();
             }
         }
 

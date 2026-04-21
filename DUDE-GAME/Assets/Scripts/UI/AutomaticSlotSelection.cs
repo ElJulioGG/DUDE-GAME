@@ -1,22 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AutomaticSlotSelection : MonoBehaviour {
+public class AutomaticSlotSelection : MonoBehaviour
+{
+    void Start()
+    {
+        RectTransform artworkRect = transform.Find("artwork").GetComponent<RectTransform>();
+        Vector2 originalSize = artworkRect.sizeDelta;
 
-	void Start () {
-
-        Vector2 artworkOriginalSize = transform.Find("artwork").GetComponent<RectTransform>().sizeDelta;
-
-        int random = Random.Range(0, SmashCSS.instance.characters.Count - 1);
-
+        // Random.Range upper bound is exclusive — no -1 needed
+        int random = Random.Range(0, SmashCSS.instance.characters.Count);
         Character randomChar = SmashCSS.instance.characters[random];
 
         SmashCSS.instance.ShowCharacterInSlot(transform.GetSiblingIndex(), randomChar);
 
-        transform.Find("artwork").GetComponent<RectTransform>().sizeDelta = artworkOriginalSize;
-        transform.Find("artwork").GetComponent<RectTransform>().sizeDelta *= randomChar.zoom;
+        artworkRect.sizeDelta = originalSize;
+        artworkRect.sizeDelta *= randomChar.zoom;
     }
-	
 }

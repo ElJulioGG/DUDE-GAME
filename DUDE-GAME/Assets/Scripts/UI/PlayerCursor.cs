@@ -64,6 +64,7 @@ public class PlayerCursor : MonoBehaviour
     public bool IsAssigned => isAssigned;
     public int AssignedPlayerIndex => assignedPlayerIndex;
     public bool IsInitializedFor(InputDevice device) => isInitialized && inputDevice == device;
+    public static PlayerCursor[] All => _allCursors;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
