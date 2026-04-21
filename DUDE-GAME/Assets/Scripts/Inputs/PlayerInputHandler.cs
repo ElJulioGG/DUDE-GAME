@@ -14,49 +14,38 @@ public class PlayerInputHandler : MonoBehaviour
     {
         playerInput = GetComponent<PlayerInput>();
         index = playerInput.playerIndex;
-
-        // Link Stats
-        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
-        playerStats = allStats.FirstOrDefault(s => s.GetPlayerIndex() == index);
-        // Link movement
-        var allMovers = FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None);
-        playerMovement = allMovers.FirstOrDefault(m => m.GetPlayerIndex() == index);
-
-        // Link gun system
-        var allHolders = FindObjectsByType<GunHolder>(FindObjectsSortMode.None);
-        gunHolder = allHolders.FirstOrDefault(h => h.GetPlayerIndex() == index);
-
+        LinkComponents(index);
         DetectAndSetControllerType();
     }
-    
-    public void reasignController(int newIndex){
-        // Clear stale input on the OLD PlayerMovement before relinking
+
+    public void reasignController(int newIndex)
+    {
         if (playerMovement != null)
             playerMovement.SetInputVector(Vector2.zero);
 
-        playerInput = GetComponent<PlayerInput>();
         index = newIndex;
-
-        // Link Stats
-        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
-        playerStats = allStats.FirstOrDefault(s => s.GetPlayerIndex() == newIndex);
-        // Link movement
-        var allMovers = FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None);
-        playerMovement = allMovers.FirstOrDefault(m => m.GetPlayerIndex() == newIndex);
-
-        // Link gun system
-        var allHolders = FindObjectsByType<GunHolder>(FindObjectsSortMode.None);
-        gunHolder = allHolders.FirstOrDefault(h => h.GetPlayerIndex() == newIndex);
-
+        LinkComponents(newIndex);
         DetectAndSetControllerType();
     }
+
+    private void LinkComponents(int targetIndex)
+    {
+        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
+        playerStats = allStats.FirstOrDefault(s => s.GetPlayerIndex() == targetIndex);
+
+        var allMovers = FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None);
+        playerMovement = allMovers.FirstOrDefault(m => m.GetPlayerIndex() == targetIndex);
+
+        var allHolders = FindObjectsByType<GunHolder>(FindObjectsSortMode.None);
+        gunHolder = allHolders.FirstOrDefault(h => h.GetPlayerIndex() == targetIndex);
+    }
+
     private void DetectAndSetControllerType()
     {
         var device = playerInput.devices.FirstOrDefault();
         if (device == null) return;
 
-        int controllerType = 0; // Default to Xbox
-
+        int controllerType = 0;
         string deviceName = device.name.ToLower();
 
         if (deviceName.Contains("xbox"))
@@ -80,63 +69,45 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         if (playerMovement != null)
-        {
             playerMovement.SetInputVector(context.ReadValue<Vector2>());
-        }
     }
-    
+
     public void OnAim(InputAction.CallbackContext context)
     {
-        if(!GameManager.instance.playersCanAim) return;
+        if (!GameManager.instance.playersCanAim) return;
         if (gunHolder != null)
-        {
-            Vector2 aimDirection = context.ReadValue<Vector2>();
-            gunHolder.SetAimDirection(aimDirection);
-        }
+            gunHolder.SetAimDirection(context.ReadValue<Vector2>());
     }
-    
+
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if(!GameManager.instance.playersCanPickDrop) return;
+        if (!GameManager.instance.playersCanPickDrop) return;
         if (context.performed && gunHolder != null)
-        {
-            print("Player " + playerInput.playerIndex + " pick up weapon");
             gunHolder.HandlePickDrop();
-        }
     }
 
     public void OnShoot(InputAction.CallbackContext context)
     {
-        if(!GameManager.instance.playersCanShoot) return;
+        if (!GameManager.instance.playersCanShoot) return;
         if (gunHolder == null) return;
 
         if (context.performed)
-        {
-            gunHolder.HandleShoot(); // Called on press
-        }
+            gunHolder.HandleShoot();
         else if (context.canceled)
-        {
-            gunHolder.HandleStopShoot(); // Called on release
-        }
+            gunHolder.HandleStopShoot();
     }
-    
+
     public void OnReload(InputAction.CallbackContext context)
     {
-        if(!GameManager.instance.playersCanReload) return;
-        print("Reload 1");
+        if (!GameManager.instance.playersCanReload) return;
         if (context.performed && gunHolder != null)
-        {
-            print("Reload 2");
             gunHolder.HandleReload();
-        }
     }
-    
+
     public void OnPowerUp(InputAction.CallbackContext context)
     {
-        if(!GameManager.instance.playersCanPowerUp) return;
+        if (!GameManager.instance.playersCanPowerUp) return;
         if (context.performed && playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
-        {
             playerStats.usingPowerUp = true;
-        }
     }
 }

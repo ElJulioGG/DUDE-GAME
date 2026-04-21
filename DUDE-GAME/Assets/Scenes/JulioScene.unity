@@ -46975,6 +46975,10 @@ MonoBehaviour:
   player2PowerUp: 0
   player3PowerUp: 0
   player4PowerUp: 0
+  player1DisplayOrder: -1
+  player2DisplayOrder: -1
+  player3DisplayOrder: -1
+  player4DisplayOrder: -1
   activeCamera: 0
   destroyProyectiles: 0
 --- !u!1 &435870327

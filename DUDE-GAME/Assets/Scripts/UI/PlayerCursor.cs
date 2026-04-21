@@ -52,18 +52,24 @@ public class PlayerCursor : MonoBehaviour
     private ControllerMapper controllerMapper;
     private PlayerInputHandler playerInputHandler;
 
-    // UI raycasting
+    // UI raycasting — cached to avoid per-frame allocations
     private GraphicRaycaster raycaster;
     private PointerEventData pointerEventData;
     private EventSystem eventSystem;
+    private readonly List<RaycastResult> _raycastResults = new List<RaycastResult>();
+
+    // Cached cursor list to avoid FindObjectsByType every frame
+    private static PlayerCursor[] _allCursors;
 
     public bool IsAssigned => isAssigned;
     public int AssignedPlayerIndex => assignedPlayerIndex;
+    public bool IsInitializedFor(InputDevice device) => isInitialized && inputDevice == device;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
     {
         assignedCursorCount = 0;
+        _allCursors = null;
     }
 
     private void Awake()
@@ -73,6 +79,9 @@ public class PlayerCursor : MonoBehaviour
         parentCanvas = GetComponentInParent<Canvas>();
         raycaster = parentCanvas.GetComponent<GraphicRaycaster>();
         eventSystem = EventSystem.current;
+        pointerEventData = new PointerEventData(eventSystem);
+
+        _allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
 
         if (rectTransform == null)
         {
@@ -81,9 +90,7 @@ public class PlayerCursor : MonoBehaviour
             return;
         }
 
-        // Disable raycast on cursor so it doesn't block buttons underneath
         if (cursorImage != null) cursorImage.raycastTarget = false;
-
         if (assignmentIndicator != null) assignmentIndicator.SetActive(false);
     }
 
@@ -107,27 +114,19 @@ public class PlayerCursor : MonoBehaviour
 
     private void HandleButtonHover()
     {
-        // 1. Find UI element under cursor
         GameObject hitObject = GetUIObjectUnderCursor();
         Button foundButton = null;
 
         if (hitObject != null)
-        {
             foundButton = hitObject.GetComponentInParent<Button>();
-        }
 
         if (foundButton != null && !foundButton.interactable)
-        {
             foundButton = null;
-        }
 
-        // 2. State Change Logic
         if (hoveredButton != foundButton)
         {
-            // A. Leaving the OLD button
             if (hoveredButton != null && IsAssignmentButton(hoveredButton))
             {
-                // Only reset colors if it was an assignment button
                 if (!isAssigned && !IsButtonHoveredByAnotherCursor(hoveredButton))
                 {
                     SetButtonColor(hoveredButton, Color.white);
@@ -137,10 +136,8 @@ public class PlayerCursor : MonoBehaviour
 
             hoveredButton = foundButton;
 
-            // B. Entering the NEW button
             if (hoveredButton != null && IsAssignmentButton(hoveredButton))
             {
-                // Only change colors if it IS an assignment button
                 if (!isAssigned)
                 {
                     Color targetColor = Color.white;
@@ -155,7 +152,6 @@ public class PlayerCursor : MonoBehaviour
             }
             else if (!isAssigned)
             {
-                // If it's a random button or empty space, keep cursor black
                 cursorImage.color = unassignedColor;
             }
         }
@@ -165,7 +161,6 @@ public class PlayerCursor : MonoBehaviour
     {
         if (hoveredButton == null) return;
 
-        // 1. If it is an ASSIGNMENT BUTTON -> Do the special assignment logic
         if (IsAssignmentButton(hoveredButton))
         {
             if (hoveredButton == player1Button) AssignPlayer(0);
@@ -173,19 +168,12 @@ public class PlayerCursor : MonoBehaviour
             else if (hoveredButton == player3Button) AssignPlayer(2);
             else if (hoveredButton == player4Button) AssignPlayer(3);
         }
-        // 2. If it is ANY OTHER BUTTON -> Just run the click function
         else
         {
-            // By invoking onClick directly, we skip Unity's "Selection" system.
-            // This prevents the button from getting highlighted/stuck visually.
             hoveredButton.onClick.Invoke();
-
-            // Optional: Play a sound if you want, since the button won't do its default click sound logic automatically
-            // SoundFXManager.instance.PlaySoundByName("Click", transform, 1f, 1f); 
         }
     }
 
-    // Helper to distinguish your specific grid buttons from random UI
     private bool IsAssignmentButton(Button btn)
     {
         return btn == player1Button || btn == player2Button || btn == player3Button || btn == player4Button;
@@ -193,8 +181,7 @@ public class PlayerCursor : MonoBehaviour
 
     private bool IsButtonHoveredByAnotherCursor(Button button)
     {
-        var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
-        foreach (var cursor in allCursors)
+        foreach (var cursor in _allCursors)
         {
             if (cursor == this) continue;
             if (cursor.hoveredButton == button) return true;
@@ -223,8 +210,6 @@ public class PlayerCursor : MonoBehaviour
         inputDevice = device;
         playerInputHandler = inputHandler;
         deviceIndex = stableCursorIndex;
-        // Only update the label if the cursor hasn't been assigned to a slot yet;
-        // otherwise Initialize (called every frame) overwrites the assigned label.
         if (playerLabel != null && !isAssigned)
         {
             playerLabel.text = $"P {deviceIndex + 1}";
@@ -293,23 +278,16 @@ public class PlayerCursor : MonoBehaviour
 
     private GameObject GetUIObjectUnderCursor()
     {
-        pointerEventData = new PointerEventData(eventSystem);
         pointerEventData.position = GetCursorScreenPosition();
-
-        List<RaycastResult> results = new List<RaycastResult>();
-        raycaster.Raycast(pointerEventData, results);
-
-        if (results.Count > 0)
-            return results[0].gameObject;
-
-        return null;
+        _raycastResults.Clear();
+        raycaster.Raycast(pointerEventData, _raycastResults);
+        return _raycastResults.Count > 0 ? _raycastResults[0].gameObject : null;
     }
 
     private bool CanStartGame()
     {
-        var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
         int assignedCount = 0;
-        foreach (var cursor in allCursors)
+        foreach (var cursor in _allCursors)
             if (cursor.IsAssigned) assignedCount++;
         return assignedCount >= 2;
     }
@@ -319,8 +297,7 @@ public class PlayerCursor : MonoBehaviour
         if (playerIndex < 0 || playerIndex >= playerColors.Length) return;
         if (isAssigned) return;
 
-        var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
-        foreach (var cursor in allCursors)
+        foreach (var cursor in _allCursors)
         {
             if (cursor != this && cursor.IsAssigned && cursor.AssignedPlayerIndex == playerIndex)
             {
@@ -352,12 +329,10 @@ public class PlayerCursor : MonoBehaviour
             case 3: GameManager.instance.player4DisplayOrder = deviceIndex; break;
         }
 
-        // Call reasignController directly on the matched handler (not by array index)
         if (playerInputHandler != null)
             playerInputHandler.reasignController(playerIndex);
 
         if (cursorImage != null) cursorImage.color = playerColors[playerIndex];
-        // Label stays as device number (P {deviceIndex + 1}), NOT slot number
 
         if (assignmentIndicator != null) assignmentIndicator.SetActive(true);
         if (hoveredButton != null) SetButtonColor(hoveredButton, playerColors[playerIndex]);
@@ -400,11 +375,8 @@ public class PlayerCursor : MonoBehaviour
 
         if (assignmentIndicator != null) assignmentIndicator.SetActive(false);
 
-        // Reset the button color if it was an assignment button
         if (hoveredButton != null && IsAssignmentButton(hoveredButton))
-        {
             SetButtonColor(hoveredButton, Color.white);
-        }
         else if (assignedButton != null)
         {
             SetButtonColor(assignedButton, Color.white);
@@ -417,25 +389,14 @@ public class PlayerCursor : MonoBehaviour
 
     private void CheckIfAllReady()
     {
-        var allCursors = FindObjectsByType<PlayerCursor>(FindObjectsSortMode.None);
-        int assignedCount = 0;
-        foreach (var cursor in allCursors)
+        int active = 0, assigned = 0;
+        foreach (var cursor in _allCursors)
         {
             if (!cursor.isActiveAndEnabled) continue;
-            if (cursor.IsAssigned) assignedCount++;
+            active++;
+            if (cursor.IsAssigned) assigned++;
         }
-
-        bool allAssigned = true;
-        foreach (var cursor in allCursors)
-        {
-            if (cursor.isActiveAndEnabled && !cursor.IsAssigned)
-            {
-                allAssigned = false;
-                break;
-            }
-        }
-
-        bool canStart = assignedCount >= 2 && allAssigned;
+        bool canStart = assigned >= 2 && assigned == active;
         if (readyImage != null) readyImage.SetActive(canStart);
     }
 

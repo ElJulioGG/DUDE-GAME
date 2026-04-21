@@ -463,7 +463,6 @@ public class GameController : MonoBehaviour
                     lastAlivePlayer = player;
                 }
             }
-            print("aliveCount: " + aliveCount);
             if (aliveCount == 1 && lastAlivePlayer != null)
             {   
                 

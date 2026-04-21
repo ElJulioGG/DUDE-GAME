@@ -1,12 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using TMPro;
-using UnityEngine.Rendering;
-using System.Data;
-using System.Linq;
 
 public class ControllerMapper : MonoBehaviour
 {
@@ -14,173 +9,190 @@ public class ControllerMapper : MonoBehaviour
     [SerializeField] private PlayerCursor[] playerCursors;
     [SerializeField] private GameObject mapperCanvas;
     [SerializeField] private GameObject[] playerButtons;
+
     private Dictionary<InputDevice, int> deviceToCursorMap = new();
     private List<InputDevice> activatedDevices = new();
+    private bool _dirty = false;
 
     private void Start()
     {
-        //find all player input handlers
         initializeInputHandlers();
-        //assign controllers to players
-    }
-    private void Update(){
-        initializeInputHandlers();
-        InitializeCursors();
-    }
-    private void initializeInputHandlers()
-{
-    var handlers = FindObjectsByType<PlayerInputHandler>(FindObjectsSortMode.None);
-
-    // Build ordered devices from activation order (first input = P1)
-    List<InputDevice> orderedDevices = new List<InputDevice>();
-    foreach (var device in activatedDevices)
-    {
-        if (orderedDevices.Count >= 4) break;
-        orderedDevices.Add(device);
     }
 
-    // Ordenar los handlers según el índice del dispositivo conectado
-    playerInputHandlers = handlers.OrderBy(handler =>
+    private void OnEnable()
     {
-        var device = handler.playerInput.devices.FirstOrDefault();
-        int index = orderedDevices.IndexOf(device);
-        return index >= 0 ? index : int.MaxValue; // Dejar al final los desconocidos
-    }).ToArray();
-}
+        InputSystem.onDeviceChange += OnDeviceChange;
+    }
 
-private void InitializeCursors()
-{
-    // Check for gamepad activation (real input from inactive gamepads)
-    foreach (var pad in Gamepad.all)
+    private void OnDisable()
     {
-        if (activatedDevices.Contains(pad)) continue;
+        InputSystem.onDeviceChange -= OnDeviceChange;
+    }
 
-        if (pad.leftStick.ReadValue().magnitude > 0.2f ||
-            pad.rightStick.ReadValue().magnitude > 0.2f ||
-            pad.buttonSouth.isPressed ||
-            pad.buttonNorth.isPressed ||
-            pad.buttonEast.isPressed ||
-            pad.buttonWest.isPressed ||
-            pad.startButton.isPressed ||
-            pad.selectButton.isPressed ||
-            pad.leftShoulder.isPressed ||
-            pad.rightShoulder.isPressed ||
-            pad.leftTrigger.isPressed ||
-            pad.rightTrigger.isPressed ||
-            pad.dpad.ReadValue() != Vector2.zero)
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (change == InputDeviceChange.Removed || change == InputDeviceChange.Disconnected)
         {
-            activatedDevices.Add(pad);
+            if (activatedDevices.Remove(device))
+            {
+                deviceToCursorMap.Remove(device);
+                _dirty = true;
+            }
         }
     }
 
-    // Keyboard activates on real input (same as gamepads)
-    if (Keyboard.current != null && !activatedDevices.Contains(Keyboard.current))
+    private void Update()
     {
-        if (Keyboard.current.anyKey.isPressed)
-            activatedDevices.Add(Keyboard.current);
-    }
-
-    // Build connected devices in activation order (first input = P1)
-    List<InputDevice> connectedDevices = new();
-    foreach (var device in activatedDevices)
-    {
-        if (connectedDevices.Count >= 4) break;
-        connectedDevices.Add(device);
-    }
-
-    // Remove disconnected devices from map and activatedDevices
-    var disconnected = deviceToCursorMap.Keys
-        .Where(d => !connectedDevices.Contains(d))
-        .ToList();
-    foreach (var d in disconnected)
-        deviceToCursorMap.Remove(d);
-
-    // Cleanup activatedDevices for gamepads no longer physically connected
-    activatedDevices.RemoveAll(d => d is Gamepad && !Gamepad.all.Contains((Gamepad)d));
-
-    // Asignar dispositivos a cursores disponibles
-    for (int i = 0; i < connectedDevices.Count && i < playerCursors.Length; i++)
-    {
-        var device = connectedDevices[i];
-
-        if (!deviceToCursorMap.ContainsKey(device))
+        DetectNewActivations();
+        if (_dirty)
         {
-            // Buscar primer índice libre
-            for (int j = 0; j < playerCursors.Length; j++)
+            initializeInputHandlers();
+            UpdateCursorAssignments();
+            _dirty = false;
+        }
+    }
+
+    private void DetectNewActivations()
+    {
+        foreach (var pad in Gamepad.all)
+        {
+            if (activatedDevices.Contains(pad)) continue;
+            if (HasSignificantInput(pad))
             {
-                if (!deviceToCursorMap.ContainsValue(j))
+                activatedDevices.Add(pad);
+                _dirty = true;
+            }
+        }
+
+        if (Keyboard.current != null && !activatedDevices.Contains(Keyboard.current))
+        {
+            if (Keyboard.current.anyKey.isPressed)
+            {
+                activatedDevices.Add(Keyboard.current);
+                _dirty = true;
+            }
+        }
+    }
+
+    private bool HasSignificantInput(Gamepad pad)
+    {
+        return pad.leftStick.ReadValue().magnitude > 0.2f ||
+               pad.rightStick.ReadValue().magnitude > 0.2f ||
+               pad.buttonSouth.isPressed || pad.buttonNorth.isPressed ||
+               pad.buttonEast.isPressed || pad.buttonWest.isPressed ||
+               pad.startButton.isPressed || pad.selectButton.isPressed ||
+               pad.leftShoulder.isPressed || pad.rightShoulder.isPressed ||
+               pad.leftTrigger.isPressed || pad.rightTrigger.isPressed ||
+               pad.dpad.ReadValue() != Vector2.zero;
+    }
+
+    private void initializeInputHandlers()
+    {
+        var handlers = FindObjectsByType<PlayerInputHandler>(FindObjectsSortMode.None);
+
+        List<InputDevice> orderedDevices = activatedDevices.Take(4).ToList();
+
+        playerInputHandlers = handlers.OrderBy(handler =>
+        {
+            var device = handler.playerInput.devices.FirstOrDefault();
+            int index = orderedDevices.IndexOf(device);
+            return index >= 0 ? index : int.MaxValue;
+        }).ToArray();
+    }
+
+    private void UpdateCursorAssignments()
+    {
+        List<InputDevice> connectedDevices = activatedDevices.Take(4).ToList();
+
+        var stale = deviceToCursorMap.Keys.Where(d => !connectedDevices.Contains(d)).ToList();
+        foreach (var d in stale) deviceToCursorMap.Remove(d);
+
+        for (int i = 0; i < connectedDevices.Count && i < playerCursors.Length; i++)
+        {
+            var device = connectedDevices[i];
+
+            if (!deviceToCursorMap.ContainsKey(device))
+            {
+                for (int j = 0; j < playerCursors.Length; j++)
                 {
-                    deviceToCursorMap[device] = j;
+                    if (!deviceToCursorMap.ContainsValue(j))
+                    {
+                        deviceToCursorMap[device] = j;
+                        break;
+                    }
+                }
+            }
+
+            if (!deviceToCursorMap.TryGetValue(device, out int cursorIndex)) continue;
+            if (cursorIndex < 0 || cursorIndex >= playerCursors.Length) continue;
+
+            PlayerInputHandler matchingHandler = null;
+            foreach (var handler in playerInputHandlers)
+            {
+                if (handler.playerInput != null && handler.playerInput.devices.Contains(device))
+                {
+                    matchingHandler = handler;
                     break;
                 }
             }
-        }
+            if (matchingHandler == null) continue;
 
-        if (!deviceToCursorMap.TryGetValue(device, out int cursorIndex)) continue;
-        if (cursorIndex < 0 || cursorIndex >= playerCursors.Length) continue;
-
-        // Find the handler that owns this device (not by array index)
-        PlayerInputHandler matchingHandler = null;
-        foreach (var handler in playerInputHandlers)
-        {
-            if (handler.playerInput != null && handler.playerInput.devices.Contains(device))
+            var cursor = playerCursors[cursorIndex];
+            if (!cursor.IsInitializedFor(device))
             {
-                matchingHandler = handler;
-                break;
+                cursor.Initialize(device, matchingHandler, cursorIndex);
+                cursor.gameObject.SetActive(true);
             }
         }
-        if (matchingHandler == null) continue;
 
-        playerCursors[cursorIndex].Initialize(device, matchingHandler, cursorIndex);
-        playerCursors[cursorIndex].gameObject.SetActive(true);
+        var activeIndices = new HashSet<int>(deviceToCursorMap.Values);
+        for (int i = 0; i < playerCursors.Length; i++)
+        {
+            if (!activeIndices.Contains(i))
+                playerCursors[i].gameObject.SetActive(false);
+        }
     }
-
-    // Desactivar cursores que no tienen dispositivo asignado
-    var activeIndices = new HashSet<int>(deviceToCursorMap.Values);
-    for (int i = 0; i < playerCursors.Length; i++)
-    {
-        if (!activeIndices.Contains(i))
-            playerCursors[i].gameObject.SetActive(false);
-    }
-}
 
     public void AssignControllerToPlayer(int controllerIndex, int playerIndex)
     {
         playerInputHandlers[controllerIndex].reasignController(playerIndex);
-        print("controller "+controllerIndex+"reassigned to player "+playerIndex);
+        Debug.Log($"Controller {controllerIndex} reassigned to player {playerIndex}");
     }
-    public void EnableCursors(){
-        
-        for(int i = 0; i < playerInputHandlers.Length; i++){
+
+    public void EnableCursors()
+    {
+        for (int i = 0; i < playerCursors.Length; i++)
             playerCursors[i].gameObject.SetActive(true);
-        }
     }
-    public void DisableCursors(){
-        for(int i = 0; i < playerInputHandlers.Length; i++){
+
+    public void DisableCursors()
+    {
+        for (int i = 0; i < playerCursors.Length; i++)
             playerCursors[i].gameObject.SetActive(false);
-        }
     }
-    public void EnablePlayerButtons(){
-        for(int i = 0; i < playerInputHandlers.Length; i++){
+
+    public void EnablePlayerButtons()
+    {
+        for (int i = 0; i < playerButtons.Length; i++)
             playerButtons[i].SetActive(true);
-        }
     }
-    public void DisablePlayerButtons(){
-        for(int i = 0; i < playerInputHandlers.Length; i++){
+
+    public void DisablePlayerButtons()
+    {
+        for (int i = 0; i < playerButtons.Length; i++)
             playerButtons[i].SetActive(false);
-        }
     }
-    public void InitializeControllerMapping(){
+
+    public void InitializeControllerMapping()
+    {
         mapperCanvas.SetActive(true);
-        InitializeCursors();
         initializeInputHandlers();
+        UpdateCursorAssignments();
     }
-    public void FinalizeControllerMapping(){
+
+    public void FinalizeControllerMapping()
+    {
         mapperCanvas.SetActive(false);
         DisableCursors();
     }
 }
-
-
-
-
