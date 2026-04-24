@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 42864455
+  m_SortingLayer: 3
   m_SortingOrder: 11
   m_Sprite: {fileID: 21300000, guid: bf0b9aed3bdce7845af9b9866c5b4760, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -103,4 +103,28 @@ MonoBehaviour:
   bulletPrefab: {fileID: 0}
   firePoint: {fileID: 0}
   shootCooldown: 0.25
+  fullAutoMode: 0
+  autoFireRate: 0.1
   recoilForce: 5
+  clipSize: 10
+  maxAmmo: 30
+  reloadTime: 2
+  startingClipAmmo: 10
+  startingReserveAmmo: 20
+  currentClipAmmo: 0
+  reserveAmmo: 0
+  aimSight: {fileID: 0}
+  sniperSights: 0
+  reloadFillImage: {fileID: 0}
+  noAmmoImage: {fileID: 0}
+  ammoText: {fileID: 0}
+  spreadFireEnabled: 0
+  bulletsPerShot: 5
+  spreadAngle: 15
+  randomSpread: 1
+  noAmmoShakeDuration: 0.3
+  shakeStrength: 0.2
+  shakeVibrato: 40
+  shakeRandomness: 90
+  shakeFadeOut: 1
+  shakeSnapping: 0

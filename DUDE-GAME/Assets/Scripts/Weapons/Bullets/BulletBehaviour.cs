@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 [RequireComponent(typeof(Rigidbody2D))]
 public class BulletBehavior : MonoBehaviour
 {
@@ -11,6 +12,10 @@ public class BulletBehavior : MonoBehaviour
     public bool rotateToDirection = true;
     public float destroyTime = 5f;
     public bool destroyOnInvisible = true;
+
+    [Header("On Destroy")]
+    [SerializeField] private bool onDestroyMethod = false;
+    [SerializeField] private UnityEvent onDestroyCallback;
 
     [Header("Combat")]
     [SerializeField] private int damage = 100;
@@ -200,6 +205,9 @@ public class BulletBehavior : MonoBehaviour
                 ps.Stop();
             }
         }
+
+        if (onDestroyMethod)
+            onDestroyCallback?.Invoke();
 
         Destroy(gameObject);
     }
