@@ -728,10 +728,10 @@ MonoBehaviour:
   fullAutoMode: 1
   autoFireRate: 0.2
   recoilForce: 10
-  clipSize: 1
-  maxAmmo: 1
+  clipSize: 2
+  maxAmmo: 2
   reloadTime: 2
-  startingClipAmmo: 1
+  startingClipAmmo: 2
   startingReserveAmmo: 0
   currentClipAmmo: 0
   reserveAmmo: 0

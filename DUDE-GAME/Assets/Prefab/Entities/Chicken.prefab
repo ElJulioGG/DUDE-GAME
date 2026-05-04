@@ -121,8 +121,6 @@ MonoBehaviour:
   dropSpawnRadius: 0.25
   dropOnDeath: 1
   extraDeathDrops: 0
-  bountyTable: 3200000064000000c80000005e010000f4010000
-  pointsCanvasPrefab: {fileID: 3251278951181896554, guid: 4c1c631341625bb48bc5527642296f1d, type: 3}
   headlessDuration: 1.5
   headlessSpeedMult: 2.5
   headlessDirInterval: 0.3
@@ -278,8 +276,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 42864455
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -3622665934233889558, guid: 0348ae011d651f9418c56c0f5cb44570, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

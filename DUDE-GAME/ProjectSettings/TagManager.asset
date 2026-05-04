@@ -55,6 +55,9 @@ TagManager:
   - name: Entities
     uniqueID: 42864455
     locked: 0
+  - name: Foreground
+    uniqueID: 1056285419
+    locked: 0
   - name: UI
     uniqueID: 3733455475
     locked: 0
