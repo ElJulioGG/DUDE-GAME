@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{d90498e9-5643-49e7-80c9-1f6897773e38}">
+		<property name="assetPath">
+			<value>SFX/RailGunShot.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>2.6289583333333333</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{529d3c55-efc0-414c-81aa-b43e7c032cb4}</destination>
+		</relationship>
+	</object>
+</objects>

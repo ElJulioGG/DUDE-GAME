@@ -1,0 +1,4 @@
+# FMOD Studio project ignores
+.cache/
+.unsaved/
+.user/

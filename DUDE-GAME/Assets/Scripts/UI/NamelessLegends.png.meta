@@ -1,0 +1,949 @@
+fileFormatVersion: 2
+guid: b974cca74a1427e498a889f4ec3d831a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4073265958573962142
+    second: NamelessLegends_0
+  - first:
+      213: -7165614507406174915
+    second: NamelessLegends_1
+  - first:
+      213: -8664717068420580482
+    second: NamelessLegends_2
+  - first:
+      213: 1322172056589927449
+    second: NamelessLegends_3
+  - first:
+      213: 2290019838605033502
+    second: NamelessLegends_4
+  - first:
+      213: -8889692794124396630
+    second: NamelessLegends_5
+  - first:
+      213: 8590994231643917247
+    second: NamelessLegends_6
+  - first:
+      213: -1833941074396569692
+    second: NamelessLegends_7
+  - first:
+      213: 420763502675892141
+    second: NamelessLegends_8
+  - first:
+      213: 1228547885033041141
+    second: NamelessLegends_9
+  - first:
+      213: 9069375228290731286
+    second: NamelessLegends_10
+  - first:
+      213: 399957194494551879
+    second: NamelessLegends_11
+  - first:
+      213: 6130954773837349359
+    second: NamelessLegends_12
+  - first:
+      213: -7558422105101397833
+    second: NamelessLegends_13
+  - first:
+      213: 1079646259042585229
+    second: NamelessLegends_14
+  - first:
+      213: -7090874567998155437
+    second: NamelessLegends_15
+  - first:
+      213: 8972149620353413011
+    second: NamelessLegends_16
+  - first:
+      213: -8501144970091725174
+    second: NamelessLegends_17
+  - first:
+      213: 3785047547338475161
+    second: NamelessLegends_18
+  - first:
+      213: -18421429958205983
+    second: NamelessLegends_19
+  - first:
+      213: -2137851092231052031
+    second: NamelessLegends_20
+  - first:
+      213: -6857497811974450751
+    second: NamelessLegends_21
+  - first:
+      213: -2127419712905390937
+    second: NamelessLegends_22
+  - first:
+      213: 5642014534521671966
+    second: NamelessLegends_23
+  - first:
+      213: 3296136966711729016
+    second: NamelessLegends_24
+  - first:
+      213: -6708284169716855796
+    second: NamelessLegends_25
+  - first:
+      213: -1249035886636540171
+    second: NamelessLegends_26
+  - first:
+      213: -182012328818110415
+    second: NamelessLegends_27
+  - first:
+      213: 332367931759334555
+    second: NamelessLegends_28
+  - first:
+      213: 8249704110346276211
+    second: NamelessLegends_29
+  - first:
+      213: -6348277835343078634
+    second: NamelessLegends_30
+  - first:
+      213: -9167200650677024862
+    second: NamelessLegends_31
+  - first:
+      213: 5121049916126284158
+    second: NamelessLegends_32
+  - first:
+      213: 4804892120147188812
+    second: NamelessLegends_33
+  - first:
+      213: -5081800567339218914
+    second: NamelessLegends_34
+  - first:
+      213: 1773405373439517879
+    second: NamelessLegends_35
+  - first:
+      213: 276683823887042735
+    second: NamelessLegends_36
+  - first:
+      213: 2761979313057720829
+    second: NamelessLegends_37
+  - first:
+      213: 6204632042838428327
+    second: NamelessLegends_38
+  - first:
+      213: -491843990051691817
+    second: NamelessLegends_39
+  - first:
+      213: 1593768757156730052
+    second: NamelessLegends_40
+  - first:
+      213: 6753547470192785710
+    second: NamelessLegends_41
+  - first:
+      213: -3091398535903100571
+    second: NamelessLegends_42
+  - first:
+      213: 4485125497180301771
+    second: NamelessLegends_43
+  - first:
+      213: 6504259141373833022
+    second: NamelessLegends_44
+  - first:
+      213: 7642740800684703068
+    second: NamelessLegends_45
+  - first:
+      213: 7779908790571630895
+    second: NamelessLegends_46
+  - first:
+      213: -2056005284411632337
+    second: NamelessLegends_47
+  - first:
+      213: -2222573664153668292
+    second: NamelessLegends_48
+  - first:
+      213: 596971055258313415
+    second: NamelessLegends_49
+  - first:
+      213: -1761566927145152020
+    second: NamelessLegends_50
+  - first:
+      213: -3355314774671562476
+    second: NamelessLegends_51
+  - first:
+      213: -5608182559442130982
+    second: NamelessLegends_52
+  - first:
+      213: 1861288518791248635
+    second: NamelessLegends_53
+  - first:
+      213: -4545900147349915770
+    second: NamelessLegends_54
+  - first:
+      213: 6409880023339953311
+    second: NamelessLegends_55
+  - first:
+      213: 1815807031154938081
+    second: NamelessLegends_56
+  - first:
+      213: -5484037676289767079
+    second: NamelessLegends_57
+  - first:
+      213: 4250165320733518616
+    second: NamelessLegends_58
+  - first:
+      213: -4968040467875375070
+    second: NamelessLegends_59
+  - first:
+      213: 1527135107820942007
+    second: NamelessLegends_60
+  - first:
+      213: 7859827796784612000
+    second: NamelessLegends_61
+  - first:
+      213: 5448171628665956118
+    second: NamelessLegends_62
+  - first:
+      213: -121719633847876273
+    second: NamelessLegends_63
+  - first:
+      213: 7940967486374803255
+    second: NamelessLegends_64
+  - first:
+      213: 8426157283095529452
+    second: NamelessLegends_65
+  - first:
+      213: -2815807479931435091
+    second: NamelessLegends_66
+  - first:
+      213: -1179740313583882974
+    second: NamelessLegends_67
+  - first:
+      213: -9004106569328714954
+    second: NamelessLegends_68
+  - first:
+      213: 8759248624490641773
+    second: NamelessLegends_69
+  - first:
+      213: -782491232063141869
+    second: NamelessLegends_70
+  - first:
+      213: 1889338262059517825
+    second: NamelessLegends_71
+  - first:
+      213: 9135759843948840815
+    second: NamelessLegends_72
+  - first:
+      213: -5418066840286851237
+    second: NamelessLegends_73
+  - first:
+      213: 6900276544774724502
+    second: NamelessLegends_74
+  - first:
+      213: -7718499835084881525
+    second: NamelessLegends_75
+  - first:
+      213: -2840666861435732126
+    second: NamelessLegends_76
+  - first:
+      213: 2101013583088343305
+    second: NamelessLegends_77
+  - first:
+      213: -1364397445775989398
+    second: NamelessLegends_78
+  - first:
+      213: 8608958716428082861
+    second: NamelessLegends_79
+  - first:
+      213: 5196693037465276453
+    second: NamelessLegends_80
+  - first:
+      213: 4572618344020252482
+    second: NamelessLegends_81
+  - first:
+      213: -3779098689175855749
+    second: NamelessLegends_82
+  - first:
+      213: 2175998739853508359
+    second: NamelessLegends_83
+  - first:
+      213: -6098152233018088527
+    second: NamelessLegends_84
+  - first:
+      213: -133457964277063474
+    second: NamelessLegends_85
+  - first:
+      213: 3871035461306333738
+    second: NamelessLegends_86
+  - first:
+      213: 4171258847430674340
+    second: NamelessLegends_87
+  - first:
+      213: -2933920152702337191
+    second: NamelessLegends_88
+  - first:
+      213: 4134503127800521080
+    second: NamelessLegends_89
+  - first:
+      213: -1936158031597564625
+    second: NamelessLegends_90
+  - first:
+      213: -932050121402912853
+    second: NamelessLegends_91
+  - first:
+      213: 455830432342869592
+    second: NamelessLegends_92
+  - first:
+      213: -3265043796597031478
+    second: NamelessLegends_93
+  - first:
+      213: -3423203589125984619
+    second: NamelessLegends_94
+  - first:
+      213: -3947016013657691917
+    second: NamelessLegends_95
+  - first:
+      213: 4142415370198385585
+    second: NamelessLegends_96
+  - first:
+      213: 7794539034648803224
+    second: NamelessLegends_97
+  - first:
+      213: -3018824600128222486
+    second: NamelessLegends_98
+  - first:
+      213: -4017026988914118040
+    second: NamelessLegends_99
+  - first:
+      213: 7330731302284472691
+    second: NamelessLegends_100
+  - first:
+      213: -6342827015945859270
+    second: NamelessLegends_101
+  - first:
+      213: 4998835697853282420
+    second: NamelessLegends_102
+  - first:
+      213: 6833730401037171884
+    second: NamelessLegends_103
+  - first:
+      213: 2798865411295116374
+    second: NamelessLegends_104
+  - first:
+      213: 676866452387645207
+    second: NamelessLegends_105
+  - first:
+      213: -6501864132922257168
+    second: NamelessLegends_106
+  - first:
+      213: 5666938681887769502
+    second: NamelessLegends_107
+  - first:
+      213: 6415777272545849713
+    second: NamelessLegends_108
+  - first:
+      213: 7745437198262358118
+    second: NamelessLegends_109
+  - first:
+      213: 305441992896119502
+    second: NamelessLegends_110
+  - first:
+      213: -8303777135446283800
+    second: NamelessLegends_111
+  - first:
+      213: -7547684591168966530
+    second: NamelessLegends_112
+  - first:
+      213: -540833437722268110
+    second: NamelessLegends_113
+  - first:
+      213: 7108117523284580678
+    second: NamelessLegends_114
+  - first:
+      213: 3866292836635917948
+    second: NamelessLegends_115
+  - first:
+      213: 8931141916822755079
+    second: NamelessLegends_116
+  - first:
+      213: -5995743619023857457
+    second: NamelessLegends_117
+  - first:
+      213: -404853658578128380
+    second: NamelessLegends_118
+  - first:
+      213: -249937076254062951
+    second: NamelessLegends_119
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: NamelessLegends_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e93fd78eec5278830800000000000000
+      internalID: 4073265958573962142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_1
+      rect:
+        serializedVersion: 2
+        x: 4800
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d355ba0129f9e8c90800000000000000
+      internalID: -7165614507406174915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_2
+      rect:
+        serializedVersion: 2
+        x: 1200
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7bf681ebbdb0c780800000000000000
+      internalID: -8664717068420580482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_3
+      rect:
+        serializedVersion: 2
+        x: 2400
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9148df4fa7c495210800000000000000
+      internalID: 1322172056589927449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_4
+      rect:
+        serializedVersion: 2
+        x: 3600
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1086a009e8c7cf10800000000000000
+      internalID: 2290019838605033502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_5
+      rect:
+        serializedVersion: 2
+        x: 6000
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa79ddbd08771a480800000000000000
+      internalID: -8889692794124396630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_6
+      rect:
+        serializedVersion: 2
+        x: 7200
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbbc0949cb7593770800000000000000
+      internalID: 8590994231643917247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_7
+      rect:
+        serializedVersion: 2
+        x: 8400
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4af18993f488c86e0800000000000000
+      internalID: -1833941074396569692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_8
+      rect:
+        serializedVersion: 2
+        x: 9600
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da712772d2ad6d500800000000000000
+      internalID: 420763502675892141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_9
+      rect:
+        serializedVersion: 2
+        x: 10800
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fca3f4dacdac0110800000000000000
+      internalID: 1228547885033041141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_10
+      rect:
+        serializedVersion: 2
+        x: 12000
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61d0ff0f7b4ecdd70800000000000000
+      internalID: 9069375228290731286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_11
+      rect:
+        serializedVersion: 2
+        x: 13200
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 747a53703feec8500800000000000000
+      internalID: 399957194494551879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_12
+      rect:
+        serializedVersion: 2
+        x: 14400
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe18f8432e6851550800000000000000
+      internalID: 6130954773837349359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_13
+      rect:
+        serializedVersion: 2
+        x: 15600
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b098f244271b1790800000000000000
+      internalID: -7558422105101397833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_14
+      rect:
+        serializedVersion: 2
+        x: 16800
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8a00596d8cabfe00800000000000000
+      internalID: 1079646259042585229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NamelessLegends_15
+      rect:
+        serializedVersion: 2
+        x: 18000
+        y: 0
+        width: 1200
+        height: 600
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3555e934627289d90800000000000000
+      internalID: -7090874567998155437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 4f31d9f9ecba0c84b951f707833f7e8b
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      NamelessLegends_0: 4073265958573962142
+      NamelessLegends_1: -7165614507406174915
+      NamelessLegends_10: 9069375228290731286
+      NamelessLegends_100: 7330731302284472691
+      NamelessLegends_101: -6342827015945859270
+      NamelessLegends_102: 4998835697853282420
+      NamelessLegends_103: 6833730401037171884
+      NamelessLegends_104: 2798865411295116374
+      NamelessLegends_105: 676866452387645207
+      NamelessLegends_106: -6501864132922257168
+      NamelessLegends_107: 5666938681887769502
+      NamelessLegends_108: 6415777272545849713
+      NamelessLegends_109: 7745437198262358118
+      NamelessLegends_11: 399957194494551879
+      NamelessLegends_110: 305441992896119502
+      NamelessLegends_111: -8303777135446283800
+      NamelessLegends_112: -7547684591168966530
+      NamelessLegends_113: -540833437722268110
+      NamelessLegends_114: 7108117523284580678
+      NamelessLegends_115: 3866292836635917948
+      NamelessLegends_116: 8931141916822755079
+      NamelessLegends_117: -5995743619023857457
+      NamelessLegends_118: -404853658578128380
+      NamelessLegends_119: -249937076254062951
+      NamelessLegends_12: 6130954773837349359
+      NamelessLegends_13: -7558422105101397833
+      NamelessLegends_14: 1079646259042585229
+      NamelessLegends_15: -7090874567998155437
+      NamelessLegends_16: 8972149620353413011
+      NamelessLegends_17: -8501144970091725174
+      NamelessLegends_18: 3785047547338475161
+      NamelessLegends_19: -18421429958205983
+      NamelessLegends_2: -8664717068420580482
+      NamelessLegends_20: -2137851092231052031
+      NamelessLegends_21: -6857497811974450751
+      NamelessLegends_22: -2127419712905390937
+      NamelessLegends_23: 5642014534521671966
+      NamelessLegends_24: 3296136966711729016
+      NamelessLegends_25: -6708284169716855796
+      NamelessLegends_26: -1249035886636540171
+      NamelessLegends_27: -182012328818110415
+      NamelessLegends_28: 332367931759334555
+      NamelessLegends_29: 8249704110346276211
+      NamelessLegends_3: 1322172056589927449
+      NamelessLegends_30: -6348277835343078634
+      NamelessLegends_31: -9167200650677024862
+      NamelessLegends_32: 5121049916126284158
+      NamelessLegends_33: 4804892120147188812
+      NamelessLegends_34: -5081800567339218914
+      NamelessLegends_35: 1773405373439517879
+      NamelessLegends_36: 276683823887042735
+      NamelessLegends_37: 2761979313057720829
+      NamelessLegends_38: 6204632042838428327
+      NamelessLegends_39: -491843990051691817
+      NamelessLegends_4: 2290019838605033502
+      NamelessLegends_40: 1593768757156730052
+      NamelessLegends_41: 6753547470192785710
+      NamelessLegends_42: -3091398535903100571
+      NamelessLegends_43: 4485125497180301771
+      NamelessLegends_44: 6504259141373833022
+      NamelessLegends_45: 7642740800684703068
+      NamelessLegends_46: 7779908790571630895
+      NamelessLegends_47: -2056005284411632337
+      NamelessLegends_48: -2222573664153668292
+      NamelessLegends_49: 596971055258313415
+      NamelessLegends_5: -8889692794124396630
+      NamelessLegends_50: -1761566927145152020
+      NamelessLegends_51: -3355314774671562476
+      NamelessLegends_52: -5608182559442130982
+      NamelessLegends_53: 1861288518791248635
+      NamelessLegends_54: -4545900147349915770
+      NamelessLegends_55: 6409880023339953311
+      NamelessLegends_56: 1815807031154938081
+      NamelessLegends_57: -5484037676289767079
+      NamelessLegends_58: 4250165320733518616
+      NamelessLegends_59: -4968040467875375070
+      NamelessLegends_6: 8590994231643917247
+      NamelessLegends_60: 1527135107820942007
+      NamelessLegends_61: 7859827796784612000
+      NamelessLegends_62: 5448171628665956118
+      NamelessLegends_63: -121719633847876273
+      NamelessLegends_64: 7940967486374803255
+      NamelessLegends_65: 8426157283095529452
+      NamelessLegends_66: -2815807479931435091
+      NamelessLegends_67: -1179740313583882974
+      NamelessLegends_68: -9004106569328714954
+      NamelessLegends_69: 8759248624490641773
+      NamelessLegends_7: -1833941074396569692
+      NamelessLegends_70: -782491232063141869
+      NamelessLegends_71: 1889338262059517825
+      NamelessLegends_72: 9135759843948840815
+      NamelessLegends_73: -5418066840286851237
+      NamelessLegends_74: 6900276544774724502
+      NamelessLegends_75: -7718499835084881525
+      NamelessLegends_76: -2840666861435732126
+      NamelessLegends_77: 2101013583088343305
+      NamelessLegends_78: -1364397445775989398
+      NamelessLegends_79: 8608958716428082861
+      NamelessLegends_8: 420763502675892141
+      NamelessLegends_80: 5196693037465276453
+      NamelessLegends_81: 4572618344020252482
+      NamelessLegends_82: -3779098689175855749
+      NamelessLegends_83: 2175998739853508359
+      NamelessLegends_84: -6098152233018088527
+      NamelessLegends_85: -133457964277063474
+      NamelessLegends_86: 3871035461306333738
+      NamelessLegends_87: 4171258847430674340
+      NamelessLegends_88: -2933920152702337191
+      NamelessLegends_89: 4134503127800521080
+      NamelessLegends_9: 1228547885033041141
+      NamelessLegends_90: -1936158031597564625
+      NamelessLegends_91: -932050121402912853
+      NamelessLegends_92: 455830432342869592
+      NamelessLegends_93: -3265043796597031478
+      NamelessLegends_94: -3423203589125984619
+      NamelessLegends_95: -3947016013657691917
+      NamelessLegends_96: 4142415370198385585
+      NamelessLegends_97: 7794539034648803224
+      NamelessLegends_98: -3018824600128222486
+      NamelessLegends_99: -4017026988914118040
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
