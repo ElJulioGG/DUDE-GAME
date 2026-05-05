@@ -240,6 +240,7 @@ public class ControllerMapper : MonoBehaviour
 
     public void InitializeControllerMapping()
     {
+        AudioManager.Instance.SetMusicArea(MusicTracks.CHARSELECT);
         mapperCanvas.SetActive(true);
         initializeInputHandlers();
         UpdateCursorAssignments();

@@ -4,12 +4,19 @@ public class FMODEvents : MonoBehaviour
 {
     [field: Header("VoicesSFX")]
     [field: SerializeField] public EventReference VoiceSay3 { get; private set; }
+    [field: SerializeField] public EventReference VoiceSay2 { get; private set; }
+    [field: SerializeField] public EventReference VoiceSay1 { get; private set; }
+    [field: SerializeField] public EventReference VoiceSayFight { get; private set; }
 
     [field: Header("WeaponSFX")]
     [field: SerializeField] public EventReference Reload { get; private set; }
 
     [field: Header("PlayerSFX")]
     [field: SerializeField] public EventReference PlayerGetHit { get; private set; }
+
+    [field: Header("Music")]
+    [field: SerializeField] public EventReference MusicTracks { get; private set; }
+
 
     public static FMODEvents Instance { get; private set; }
 

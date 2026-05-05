@@ -2,10 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{d2920a2a-90ca-426e-9266-c265d3699735}">
 		<property name="assetPath">
-			<value>Music/BattleTheme.mp3</value>
-		</property>
-		<property name="isStreaming">
-			<value>true</value>
+			<value>Music/CharSelectTheme.mp3</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>48</value>

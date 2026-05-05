@@ -317,12 +317,13 @@ public class GameController : MonoBehaviour
             if (i == UIIntroObjects.Length - 1)
             {
                 levelTimer.StartTimer();
-                SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
+                //SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSayFight, transform.position);
                 TimerText.SetActive(true);
-                if (!SoundFXManager.instance.IsMusicPlaying("BattleLoop"))
+                /* if (!SoundFXManager.instance.IsMusicPlaying("BattleLoop"))
                 {
                     SoundFXManager.instance.PlayMusic("BattleLoop", transform, 0.3f, 1f, true);
-                }
+                } */
 
                 // Avisar a la tormenta que la partida ha comenzado
                 if (poisonStormController != null)
@@ -336,17 +337,20 @@ public class GameController : MonoBehaviour
             }
             if (i == UIIntroObjects.Length - 2)
             {
-                SoundFXManager.instance.PlaySoundByName("1", transform, 0.6f, 0.9f);
+                //SoundFXManager.instance.PlaySoundByName("1", transform, 0.6f, 0.9f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay1, transform.position);
             }
             if (i == UIIntroObjects.Length - 3)
             {
                 
-                SoundFXManager.instance.PlaySoundByName("2", transform, 0.6f, 0.9f);
+                //SoundFXManager.instance.PlaySoundByName("2", transform, 0.6f, 0.9f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay2, transform.position);
             }
             if (i == UIIntroObjects.Length - 4)
             {
                 StartCoroutine(PlayerCirclesSpawn());
-                SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
+                //SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay3, transform.position);
             }
 
             float waitTime = (i == UIIntroObjects.Length - 1) ? 0.9f : 1f;
@@ -358,23 +362,22 @@ public class GameController : MonoBehaviour
         {
             SpawnMutators();
         }
-        
-
     }
 
     void Start()
     {
-        
-        SoundFXManager.instance.StopMusicByName("BattleTheme");
-        SoundFXManager.instance.StopMusicByName("FadeInIntro");
-        SoundFXManager.instance.StopMusicByName("BattleLoop");
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
 
+        /* SoundFXManager.instance.StopMusicByName("BattleTheme");
+        SoundFXManager.instance.StopMusicByName("FadeInIntro");
+        SoundFXManager.instance.StopMusicByName("BattleLoop");
         if (!SoundFXManager.instance.IsMusicPlaying("BattleTheme"))
         {
             SoundFXManager.instance.PlayMusic("BattleTheme", transform, 0.5f, 1f,true);
-        }
+        } */
+        
+        
         GameManager.instance.assignController = true;
         GameManager.instance.playersCanMove = false;
         
@@ -386,11 +389,12 @@ public class GameController : MonoBehaviour
     }
     void firstStart()
     {
-        SoundFXManager.instance.StopMusicByName("BattleTheme");
+        /* SoundFXManager.instance.StopMusicByName("BattleTheme");
         if (!SoundFXManager.instance.IsMusicPlaying("FadeInIntro"))
         {
             SoundFXManager.instance.PlayMusic("FadeInIntro", transform, 0.3f, 1f,false);
-        }
+        } */
+        AudioManager.Instance.SetMusicArea(MusicTracks.FIGHT);
     }
     private void AssignController()
     {
@@ -477,7 +481,7 @@ public class GameController : MonoBehaviour
             }
         }
     }
-
+    
     public IEnumerator HandleDraw()
     {
         Debug.Log("Draw! No players alive.");

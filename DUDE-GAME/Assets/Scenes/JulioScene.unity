@@ -188226,6 +188226,27 @@ MonoBehaviour:
       Data3: 142579601
       Data4: 200948468
     Path: event:/SFX/Voice/VoiceSay3
+  <VoiceSay2>k__BackingField:
+    Guid:
+      Data1: -1394307421
+      Data2: 1281558391
+      Data3: -1649145702
+      Data4: -306659240
+    Path: event:/SFX/Voice/VoiceSay2
+  <VoiceSay1>k__BackingField:
+    Guid:
+      Data1: 2060997555
+      Data2: 1285632664
+      Data3: -1211097683
+      Data4: -864255955
+    Path: event:/SFX/Voice/VoiceSay1
+  <VoiceSayFight>k__BackingField:
+    Guid:
+      Data1: -92617723
+      Data2: 1248101813
+      Data3: -501835343
+      Data4: -548836442
+    Path: event:/SFX/Voice/VoiceSayFight
   <Reload>k__BackingField:
     Guid:
       Data1: 358690860
@@ -188240,6 +188261,13 @@ MonoBehaviour:
       Data3: 2027356560
       Data4: 1388454591
     Path: event:/SFX/Player/PlayerGetHit
+  <MusicTracks>k__BackingField:
+    Guid:
+      Data1: 2120898435
+      Data2: 1277643051
+      Data3: -1385136000
+      Data4: 246990474
+    Path: event:/Music/MusicTracks
 --- !u!1 &1658450642
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,6 +6,9 @@ public class AudioManager : MonoBehaviour
 {
     private List<EventInstance> eventInstances;
     private List<StudioEventEmitter> eventEmitters;
+
+    private EventInstance ambienceEventInstance;
+    private EventInstance musicEventInstance;
     public static AudioManager Instance { get; private set; }
 
     private void Awake()
@@ -22,9 +25,34 @@ public class AudioManager : MonoBehaviour
         eventInstances = new List<EventInstance>();
         eventEmitters = new List<StudioEventEmitter>();
     }
+    private void Start()
+    {
+        //InitializeAmbience(FMODEvents.Instance.VoiceSay3);
+        InitializeMusic(FMODEvents.Instance.MusicTracks);
+    }
+    private void InitializeAmbience(EventReference ambienceEventReference)
+    {
+        ambienceEventInstance = RuntimeManager.CreateInstance(ambienceEventReference);
+        ambienceEventInstance.start();
+    }
+    public void InitializeMusic(EventReference musicEventReference)
+    {
+        musicEventInstance = RuntimeManager.CreateInstance(musicEventReference);
+        musicEventInstance.start();
+    }
     public void PlaySound(EventReference sound, Vector3 worldPos)
     {
         RuntimeManager.PlayOneShot(sound, worldPos);
+    }
+    public void SetMusicArea(MusicTracks trackIndex)
+    {
+        
+        if (musicEventInstance.isValid())
+        {
+            musicEventInstance.setParameterByName("MusicTrack", (float)trackIndex);
+            print( musicEventInstance.setParameterByName("MusicTrack", (float)trackIndex));
+                                                        //Igual que en fmod, el nombre del parámetro es "MusicTrack" y el valor es el índice del enum MusicTracks
+        }
     }
    public EventInstance CreateSoundInstance(EventReference eventReference)
     {
