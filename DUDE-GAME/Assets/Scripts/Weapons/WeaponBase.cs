@@ -143,7 +143,8 @@ public class WeaponBase : MonoBehaviour
             // Play empty clip sound
             if (SoundFXManager.instance != null)
             {
-                SoundFXManager.instance.PlaySoundByName("EmptyMag", transform, 0.5f, 1f, false);
+                //SoundFXManager.instance.PlaySoundByName("EmptyMag", transform, 0.5f, 1f, false);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.EmptyMag, transform.position);
                 noAmmoImage.gameObject.SetActive(currentClipAmmo <= 0 && reserveAmmo <= 0);
 
                 emptySoundPlayed = true;

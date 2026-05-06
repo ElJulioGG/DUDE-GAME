@@ -12,7 +12,8 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
-        SoundFXManager.instance.PlayMusic("MainMenu", transform, 0.9f, 1f, true);
+        //SoundFXManager.instance.PlayMusic("MainMenu", transform, 0.9f, 1f, true);
+        AudioManager.Instance.SetMusicArea(MusicTracks.MENU);
     }
 
     public void Play()
@@ -20,27 +21,32 @@ public class MenuManager : MonoBehaviour
         if (hasStarted) return;     // << stop spamming
         hasStarted = true;
 
-        SoundFXManager.instance.StopMusic();
-        SoundFXManager.instance.PlaySoundByName("ButtonPress", transform, 1f, 1f, false);
+        //SoundFXManager.instance.StopMusic();
+        //SoundFXManager.instance.PlaySoundByName("ButtonPress", transform, 1f, 1f, false);
+        AudioManager.Instance.CleanUpMusic();
+        PlayClickSound();
+        
 
         StartCoroutine(PlayAnimationAndLoad());
     }
 
     public void ExitGame()
     {
-        SoundFXManager.instance.PlaySoundByName("ButtonPress", transform, 1f, 1f, false);
+        //SoundFXManager.instance.PlaySoundByName("ButtonPress", transform, 1f, 1f, false);
+        PlayClickSound();
         Application.Quit();
     }
 
     public void PlayClickSound()
     {
-        SoundFXManager.instance.PlaySoundByName("ButtonPress", transform, 1f, 1f, false);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectStart, transform.position);
     }
 
     private IEnumerator PlayAnimationAndLoad()
     {
         anim.Play(animationName);
-        SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 1f, 1f, false);
+        //SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 1f, 1f, false);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
 
         yield return new WaitForEndOfFrame();
 

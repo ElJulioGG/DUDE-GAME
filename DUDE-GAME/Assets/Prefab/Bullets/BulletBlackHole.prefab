@@ -348,7 +348,13 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   playBounceSound: 1
-  bounceSoundName: BHBounce
+  BounceSoundName:
+    Guid:
+      Data1: -2047901254
+      Data2: 1098702738
+      Data3: 23003527
+      Data4: -2099322734
+    Path: event:/SFX/Weapons/BHBounce
   randomPitch: 1
   pitchMin: 0.7
   pitchMax: 1.3

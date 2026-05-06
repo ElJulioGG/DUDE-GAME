@@ -79,7 +79,8 @@ public class PlayerStats : MonoBehaviour
         }
 
         points += pointsToAdd;
-        SoundFXManager.instance.PlaySoundByName("Bell", transform, 0.7f, 1.3f);
+        //SoundFXManager.instance.PlaySoundByName("Bell", transform, 0.7f, 1.3f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.PointGain, transform.position);
         Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
     }
 
@@ -88,36 +89,7 @@ public class PlayerStats : MonoBehaviour
         if (!playerAlive) return;
 
         health -= damageAmount;
-        /*int randomIndex = Random.Range(0, 9);
-         switch(randomIndex){
-            case 0:
-                SoundFXManager.instance.PlaySoundByName("Damage1", transform, 1f, 0.8f);
-                break;
-            case 1:
-                SoundFXManager.instance.PlaySoundByName("Damage2", transform, 1f, 0.8f);
-                break;
-            case 2:
-                SoundFXManager.instance.PlaySoundByName("Damage3", transform, 1f, 0.8f);
-                break;
-            case 3:
-                SoundFXManager.instance.PlaySoundByName("Damage4", transform, 1f, 0.8f);
-                break;
-            case 4:
-                SoundFXManager.instance.PlaySoundByName("Damage5", transform, 1f, 0.8f);
-                break;
-            case 5:
-                SoundFXManager.instance.PlaySoundByName("Damage6", transform, 1f, 0.8f);
-                break;
-            case 6:
-                SoundFXManager.instance.PlaySoundByName("Damage7", transform, 1f, 0.8f);
-                break;
-            case 7:
-                SoundFXManager.instance.PlaySoundByName("Damage8", transform, 1f, 0.8f);
-                break;
-            case 8:
-                SoundFXManager.instance.PlaySoundByName("Damage9", transform, 1f, 0.8f);
-                break;
-        }    */
+        
 
         AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
         if (spriteTransform != null)
@@ -188,7 +160,8 @@ public class PlayerStats : MonoBehaviour
         gameObject.SetActive(false);
 
         // Play death sound
-        SoundFXManager.instance.PlaySoundByName("Death", transform, 0.6f, 1.5f);
+        //SoundFXManager.instance.PlaySoundByName("Death", transform, 0.6f, 1.5f);
+        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
 
         // Instantiate blood splatter specific to the player index
         if (playerIndex >= 0 && playerIndex < bloodSplatterPrefabs.Length)

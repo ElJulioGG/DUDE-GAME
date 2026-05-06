@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using FMODUnity;
 [RequireComponent(typeof(Rigidbody2D))]
 public class BulletBehavior : MonoBehaviour
 {
@@ -19,7 +20,8 @@ public class BulletBehavior : MonoBehaviour
 
     [Header("On Bounce")]
     [SerializeField] private bool playBounceSound = false;
-    [SerializeField] private string bounceSoundName = "";
+    //[SerializeField] private string bounceSoundName = "";
+    [SerializeField] private EventReference BounceSoundName;
     [SerializeField] private bool randomPitch = false;
     [SerializeField] private float pitchMin = 0.7f;
     [SerializeField] private float pitchMax = 1.3f;
@@ -170,10 +172,11 @@ public class BulletBehavior : MonoBehaviour
         rb.position = hit.point + normal * 0.15f;
         previousPosition = rb.position;
 
-        if (playBounceSound && SoundFXManager.instance != null)
+        if (playBounceSound)
         {
-            float pitch = randomPitch ? Random.Range(pitchMin, pitchMax) : 1f;
-            SoundFXManager.instance.PlaySoundByName(bounceSoundName, transform, 1f, pitch);
+            /* float pitch = randomPitch ? Random.Range(pitchMin, pitchMax) : 1f;
+            SoundFXManager.instance.PlaySoundByName(bounceSoundName, transform, 1f, pitch); */
+            AudioManager.Instance.PlaySound(BounceSoundName, transform.position);
         }
     }
 

@@ -299,7 +299,8 @@ public class Grenade : MonoBehaviour
         if (definition != null && definition.explosionPrefab != null)
         {
             var fx = Instantiate(definition.explosionPrefab, transform.position, Quaternion.identity);
-            SoundFXManager.instance.PlaySoundByName("Explosion", transform, 1f, 1f, false);
+            //SoundFXManager.instance.PlaySoundByName("Explosion", transform, 1f, 1f, false);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.Explosion, transform.position);
             if (spriteRenderer && definition.matchSortingForExplosion)
             {
                 var srFx = fx.GetComponentInChildren<SpriteRenderer>();
@@ -350,12 +351,13 @@ public class Grenade : MonoBehaviour
             float t = Mathf.Clamp01(1f - (fuseLeft / Mathf.Max(0.0001f, definition.fuseSeconds)));
             float interval = Mathf.Lerp(maxBeepInterval, minBeepInterval, t);
             float pitch = Mathf.Lerp(minBeepPitch, maxBeepPitch, t);
-
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.GranadeBeep, transform.position);
             if (beepSource && beepClip)
             {
                 beepSource.pitch = pitch;
                 beepSource.PlayOneShot(beepClip);
-                SoundFXManager.instance.PlaySoundByName("metalPing", transform, 0.7f, 1f, false);
+                //SoundFXManager.instance.PlaySoundByName("metalPing", transform, 0.7f, 1f, false);
+                
             }
             yield return new WaitForSeconds(interval);
         }

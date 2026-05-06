@@ -40,7 +40,8 @@ public class WeaponBox : MonoBehaviour
 
     private void DestroyBox()
     {
-        SoundFXManager.instance?.PlaySoundByName("BoxBreak", transform, 0.5f, 1, false);
+        //SoundFXManager.instance?.PlaySoundByName("BoxBreak", transform, 0.5f, 1, false);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.BoxBreak, transform.position);
         Destroy(gameObject);
     }
 }

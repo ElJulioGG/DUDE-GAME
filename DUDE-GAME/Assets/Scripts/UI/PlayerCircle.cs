@@ -24,7 +24,8 @@ public class PlayerCircle : MonoBehaviour
 
     void OnEnable()
     {
-        SoundFXManager.instance.PlaySoundByName("playerCircle",transform,0.6f,1f);
+        //SoundFXManager.instance.PlaySoundByName("playerCircle",transform,0.6f,1f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.PlayerCircle, transform.position);
         originalScale = transform.localScale;
 
         if (playOnStart)

@@ -750,3 +750,10 @@ MonoBehaviour:
   shakeRandomness: 90
   shakeFadeOut: 1
   shakeSnapping: 0
+  shootSoundName:
+    Guid:
+      Data1: -2092660961
+      Data2: 1105648260
+      Data3: -762386528
+      Data4: 1733300089
+    Path: event:/SFX/Weapons/ShootRailGun

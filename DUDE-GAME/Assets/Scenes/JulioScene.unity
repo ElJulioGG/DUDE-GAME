@@ -188247,6 +188247,27 @@ MonoBehaviour:
       Data3: -501835343
       Data4: -548836442
     Path: event:/SFX/Voice/VoiceSayFight
+  <VoiceInstakill>k__BackingField:
+    Guid:
+      Data1: 1431561980
+      Data2: 1077129760
+      Data3: 399790753
+      Data4: -725803835
+    Path: event:/SFX/Voice/VoiceInstakill
+  <VoiceDoublePoints>k__BackingField:
+    Guid:
+      Data1: 1809955102
+      Data2: 1292678301
+      Data3: -1578895699
+      Data4: 875526777
+    Path: event:/SFX/Voice/VoiceDoublePoints
+  <VoicePablo>k__BackingField:
+    Guid:
+      Data1: -685690529
+      Data2: 1270939613
+      Data3: -649461322
+      Data4: 1132682544
+    Path: event:/SFX/Voice/VoicePablo
   <Reload>k__BackingField:
     Guid:
       Data1: 358690860
@@ -188254,6 +188275,55 @@ MonoBehaviour:
       Data3: 890870679
       Data4: 868002616
     Path: event:/SFX/Weapons/Reload
+  <EmptyMag>k__BackingField:
+    Guid:
+      Data1: 1783194789
+      Data2: 1339898103
+      Data3: 501541041
+      Data4: -420124958
+    Path: event:/SFX/Weapons/EmptyMag
+  <BHBounce>k__BackingField:
+    Guid:
+      Data1: -2047901254
+      Data2: 1098702738
+      Data3: 23003527
+      Data4: -2099322734
+    Path: event:/SFX/Weapons/BHBounce
+  <Throw>k__BackingField:
+    Guid:
+      Data1: 1020030739
+      Data2: 1331927115
+      Data3: 1919304351
+      Data4: 1364004768
+    Path: event:/SFX/Weapons/Throw
+  <SwingPunch>k__BackingField:
+    Guid:
+      Data1: 1802928048
+      Data2: 1153481126
+      Data3: 134822799
+      Data4: -1370107844
+    Path: event:/SFX/Weapons/SwingPunch
+  <GranadePin>k__BackingField:
+    Guid:
+      Data1: -1586628851
+      Data2: 1078303564
+      Data3: 817665161
+      Data4: 339875344
+    Path: event:/SFX/Weapons/GranadePin
+  <GranadeBeep>k__BackingField:
+    Guid:
+      Data1: 916935578
+      Data2: 1321472111
+      Data3: -929455205
+      Data4: 1900315612
+    Path: event:/SFX/Weapons/GranadeBeep
+  <Explosion>k__BackingField:
+    Guid:
+      Data1: -1034993735
+      Data2: 1203882956
+      Data3: -141322095
+      Data4: 951830527
+    Path: event:/SFX/Weapons/Explosion
   <PlayerGetHit>k__BackingField:
     Guid:
       Data1: -950045651
@@ -188261,6 +188331,97 @@ MonoBehaviour:
       Data3: 2027356560
       Data4: 1388454591
     Path: event:/SFX/Player/PlayerGetHit
+  <PlayerCircle>k__BackingField:
+    Guid:
+      Data1: 1789604988
+      Data2: 1258972737
+      Data3: 223331502
+      Data4: 457727641
+    Path: event:/SFX/Player/PlayerCircle
+  <PointGain>k__BackingField:
+    Guid:
+      Data1: -2090004311
+      Data2: 1227236903
+      Data3: -1209202256
+      Data4: -1138549441
+    Path: event:/SFX/Player/PointGain
+  <PlayerDeath>k__BackingField:
+    Guid:
+      Data1: -489033558
+      Data2: 1168657447
+      Data3: 96904587
+      Data4: -2086084154
+    Path: event:/SFX/Player/PlayerDeath
+  <ChickenHit>k__BackingField:
+    Guid:
+      Data1: 244846696
+      Data2: 1145769041
+      Data3: 1138468745
+      Data4: 985800669
+    Path: event:/SFX/Chicken/ChickenHit
+  <ChickenDeath>k__BackingField:
+    Guid:
+      Data1: 575676808
+      Data2: 1101753871
+      Data3: -453069415
+      Data4: -2084230637
+    Path: event:/SFX/Chicken/ChickenDeath
+  <ChickenSpawn>k__BackingField:
+    Guid:
+      Data1: 179034137
+      Data2: 1296351568
+      Data3: 330137216
+      Data4: 1460947110
+    Path: event:/SFX/Chicken/ChickenSpawn
+  <NoPowerUp>k__BackingField:
+    Guid:
+      Data1: -211486126
+      Data2: 1138977285
+      Data3: -1318648647
+      Data4: -2097836706
+    Path: event:/SFX/PowerUps/DenyPowerUp
+  <PowerUp1>k__BackingField:
+    Guid:
+      Data1: 841687630
+      Data2: 1279388366
+      Data3: -1326023496
+      Data4: 935254870
+    Path: event:/SFX/PowerUps/PowerUp1
+  <PowerUp2>k__BackingField:
+    Guid:
+      Data1: -838618595
+      Data2: 1084604738
+      Data3: 1854655104
+      Data4: -298317557
+    Path: event:/SFX/PowerUps/PowerUp2
+  <BoxBreak>k__BackingField:
+    Guid:
+      Data1: 465677710
+      Data2: 1211763951
+      Data3: -1785816690
+      Data4: 1200280885
+    Path: event:/SFX/Entities/BoxBreak
+  <DoorOpen>k__BackingField:
+    Guid:
+      Data1: -924236268
+      Data2: 1257490059
+      Data3: 845199785
+      Data4: -1141961914
+    Path: event:/SFX/Door/DoorSlideOpen
+  <DoorClose>k__BackingField:
+    Guid:
+      Data1: 1076970886
+      Data2: 1280846378
+      Data3: -883152470
+      Data4: -1592768195
+    Path: event:/SFX/Door/DoorSlideClose
+  <DoorSlide>k__BackingField:
+    Guid:
+      Data1: 73674958
+      Data2: 1297965975
+      Data3: -722516
+      Data4: 1634866637
+    Path: event:/SFX/Door/DoorSlide
   <MusicTracks>k__BackingField:
     Guid:
       Data1: 2120898435
@@ -188268,6 +188429,27 @@ MonoBehaviour:
       Data3: -1385136000
       Data4: 246990474
     Path: event:/Music/MusicTracks
+  <CharSelectSelect>k__BackingField:
+    Guid:
+      Data1: -1016033719
+      Data2: 1312105219
+      Data3: 740329128
+      Data4: -1271548028
+    Path: event:/UI/CharSelect/CharSelectButton
+  <CharSelectDeselect>k__BackingField:
+    Guid:
+      Data1: 251576916
+      Data2: 1138690422
+      Data3: 318316718
+      Data4: -1979460785
+    Path: event:/UI/CharSelect/CharDeselectButton
+  <CharSelectStart>k__BackingField:
+    Guid:
+      Data1: 96843816
+      Data2: 1298265535
+      Data3: 150316692
+      Data4: 280987941
+    Path: event:/UI/CharSelect/CharSelectStart
 --- !u!1 &1658450642
 GameObject:
   m_ObjectHideFlags: 0

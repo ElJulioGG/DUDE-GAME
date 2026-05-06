@@ -206,6 +206,13 @@ MonoBehaviour:
   shakeRandomness: 90
   shakeFadeOut: 1
   shakeSnapping: 0
+  shootSoundName:
+    Guid:
+      Data1: -1586628851
+      Data2: 1078303564
+      Data3: 817665161
+      Data4: 339875344
+    Path: event:/SFX/Weapons/GranadePin
   grenadePrefab: {fileID: 4030386285267257971, guid: 5445d31d5f80bd44cad15915f3e3b95a, type: 3}
   definition: {fileID: 11400000, guid: 406198b60a38fbd49b286be236555026, type: 2}
   handPoint: {fileID: 3435248558647363512}

@@ -55,7 +55,7 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
     // ================== SFX ==================
     [Header("SFX")]
-    [SerializeField] private string spawnSfxName = "ChickenSpawn";
+    /* [SerializeField] private string spawnSfxName = "ChickenSpawn";
     [SerializeField] private string hitSfxName = "ChickenHit";
 
     [Header("Death Random Noises")]
@@ -70,7 +70,7 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [SerializeField] private bool randomizePitch = true;
     [SerializeField, Range(0.5f, 2f)] private float spawnPitchMin = 0.95f, spawnPitchMax = 1.05f;
     [SerializeField, Range(0.5f, 2f)] private float hitPitchMin = 0.95f, hitPitchMax = 1.05f;
-    [SerializeField, Range(0.5f, 2f)] private float deathPitchMin = 0.95f, deathPitchMax = 1.05f;
+    [SerializeField, Range(0.5f, 2f)] private float deathPitchMin = 0.95f, deathPitchMax = 1.05f; */
     [SerializeField] private bool shakeOnHit = true;
 
     [Header("Eventos")]
@@ -255,8 +255,8 @@ public class RainbowChicken : MonoBehaviour, IDamageable
             if (sprite != null) sprite.color = _originalSpriteColor;
         }
 
-        PlaySfx(spawnSfxName, spawnVolume, RandomPitch(spawnPitchMin, spawnPitchMax));
-
+        //PlaySfx(spawnSfxName, spawnVolume, RandomPitch(spawnPitchMin, spawnPitchMax));
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.ChickenSpawn, transform.position);
         // Cache arena bounds from camera
         CacheArenaBounds();
     }
@@ -622,7 +622,8 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         PickBestDirection();
         _nextDirTime = Time.time + RandomizeInterval(directionChangeInterval * 0.6f);
 
-        PlaySfx(hitSfxName, hitVolume, RandomPitch(hitPitchMin, hitPitchMax));
+        //PlaySfx(hitSfxName, hitVolume, RandomPitch(hitPitchMin, hitPitchMax));
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.ChickenHit, transform.position);
 
         // BUGFIX: Random.Range(0, 1) always returns 0 (int overload, exclusive upper bound)
         int randomIndexSound = Random.Range(0, 2);
@@ -763,14 +764,15 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
     private void PlayRandomDeathNoises()
     {
-        if (randomDeathSfxNames == null || randomDeathSfxNames.Count == 0 || SoundFXManager.instance == null)
+        /* if (randomDeathSfxNames == null || randomDeathSfxNames.Count == 0 || SoundFXManager.instance == null)
             return;
 
         string clip = randomDeathSfxNames[Random.Range(0, randomDeathSfxNames.Count)];
         float pitch = RandomPitch(deathNoisePitchMin, deathNoisePitchMax);
-        float vol = deathNoiseVolume * Random.Range(0.8f, 1.2f);
+        float vol = deathNoiseVolume * Random.Range(0.8f, 1.2f); */
 
-        SoundFXManager.instance.PlaySoundByName(clip, transform, vol, pitch, false);
+        //SoundFXManager.instance.PlaySoundByName(clip, transform, vol, pitch, false);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.ChickenDeath, transform.position);
     }
 
 
@@ -794,12 +796,12 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         SoundFXManager.instance.PlaySoundByName(clipName, transform, volume, pitch, loop);
     }
 
-    private float RandomPitch(float min, float max)
+    /* private float RandomPitch(float min, float max)
     {
         if (!randomizePitch) return 1f;
         if (min > max) (min, max) = (max, min);
         return Random.Range(min, max);
-    }
+    } */
 
     // ============== reorientación por colisiones ==============
     private bool _pushingPlayerIntoWall = false;

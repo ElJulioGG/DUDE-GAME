@@ -72,6 +72,7 @@ public class GrenadeWeapon : WeaponBase
             }
         }
 
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.GranadePin, transform.position);
 //#if GRENADE_DEBUG
 //        // DEBUG:
 //        Debug.Log($"[GRENADE][WEAPON {name}] Shoot spawned id={cooking.Id} state={cooking.CurrentState} fuseLeft={cooking.FuseLeft:F2} def={definition?.name ?? "null"} owner={GetOwnerIndexSafe()}");

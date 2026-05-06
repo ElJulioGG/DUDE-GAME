@@ -152,6 +152,7 @@ public class PlayerAssignmentUI : MonoBehaviour
 
     private void OnGameStarted()
     {
+         AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectStart, transform.position);
         if (mainPanel != null)
             mainPanel.SetActive(false);
     }

@@ -530,15 +530,18 @@ public class GameController : MonoBehaviour
         switch (currentPowerUp)
         {
             case 0:
-                SoundFXManager.instance.PlaySoundByName("DenyPowerUp", transform, 1f, 1f);
+                //SoundFXManager.instance.PlaySoundByName("DenyPowerUp", transform, 1f, 1f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
                 break;
             case 1:
-                SoundFXManager.instance.PlaySoundByName("PowerUp2", transform, 1f, 1f);
+                //SoundFXManager.instance.PlaySoundByName("PowerUp2", transform, 1f, 1f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.PowerUp2, transform.position);
                 playerStats[playerIndex].ActivateParticlesPowerUP();
                 Instakill();
                 break;
             case 2:
-                SoundFXManager.instance.PlaySoundByName("PowerUp1", transform, 1f, 1f);
+                //SoundFXManager.instance.PlaySoundByName("PowerUp1", transform, 1f, 1f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.PowerUp1, transform.position);
                 playerStats[playerIndex].ActivateParticlesPowerUP();
                 DoublePoints();
                 break;
@@ -556,7 +559,8 @@ public class GameController : MonoBehaviour
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
         yield return new WaitForSeconds(2f);
         transitionAnim.SetTrigger("FadeIn");
-        SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 0.9f, 1f);
+        //SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 0.9f, 1f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
         yield return new WaitForSeconds(0.5f);
         NextMatch();
         }
@@ -593,7 +597,8 @@ public class GameController : MonoBehaviour
 
     public void Instakill()
     {
-        SoundFXManager.instance.PlaySoundByName("Instakill", transform, 0.9f, 0.9f);
+        //SoundFXManager.instance.PlaySoundByName("Instakill", transform, 0.9f, 0.9f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceInstakill, transform.position);
         UIPowerUps[0].SetActive(true);
         foreach (PlayerStats player in playerStats)
         {
@@ -610,7 +615,8 @@ public class GameController : MonoBehaviour
     }
     public void DoublePoints()
     {
-        SoundFXManager.instance.PlaySoundByName("DoublePoints", transform, 0.9f, 0.9f);
+        //SoundFXManager.instance.PlaySoundByName("DoublePoints", transform, 0.9f, 0.9f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceDoublePoints, transform.position);
         UIPowerUps[1].SetActive(true);
         pointsToGive *= 2;
     }

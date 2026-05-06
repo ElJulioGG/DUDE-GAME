@@ -309,13 +309,15 @@ public class PlayerCursor : MonoBehaviour
             if (cursor != this && cursor.IsAssigned && cursor.AssignedPlayerIndex == playerIndex)
             {
                 Debug.LogWarning($"Player {playerIndex + 1} ya está asignado.");
-                SoundFXManager.instance.PlaySoundByName("Deselect", transform, 0.6f, 1f);
+                //SoundFXManager.instance.PlaySoundByName("Deselect", transform, 0.6f, 1f);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectDeselect, transform.position);
                 GetComponent<Shaker>()?.Shake();
                 return;
             }
         }
 
-        SoundFXManager.instance.PlaySoundByName("Select", transform, 0.6f, 1f);
+        //SoundFXManager.instance.PlaySoundByName("Select", transform, 0.6f, 1f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectSelect, transform.position);
         isAssigned = true;
         assignedPlayerIndex = playerIndex;
         assignedCursorCount++;
@@ -354,7 +356,8 @@ public class PlayerCursor : MonoBehaviour
     public void UnassignPlayer()
     {
         if (!isAssigned) return;
-        SoundFXManager.instance.PlaySoundByName("Deselect", transform, 1f, 1f);
+        //SoundFXManager.instance.PlaySoundByName("Deselect", transform, 1f, 1f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectDeselect, transform.position);
         isAssigned = false;
 
         switch (assignedPlayerIndex)

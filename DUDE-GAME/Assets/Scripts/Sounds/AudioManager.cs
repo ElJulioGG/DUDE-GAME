@@ -80,6 +80,14 @@ public class AudioManager : MonoBehaviour
             emitter.Stop();
         }
     }
+    public void CleanUpMusic()
+    {
+        if (musicEventInstance.isValid())
+        {
+            musicEventInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            musicEventInstance.release();
+        }
+    }
     private void OnDestroy()
     {
         Cleanup();

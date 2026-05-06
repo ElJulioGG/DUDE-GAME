@@ -101,14 +101,16 @@ public class WeaponPickup : MonoBehaviour
     {
         if (direction.sqrMagnitude > 0.01f)
         {
-            SoundFXManager.instance.PlaySoundByName("Throw", transform, 0.5f, 1f, false);
+            //SoundFXManager.instance.PlaySoundByName("Throw", transform, 0.5f, 1f, false);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.Throw, transform.position);
             rb.linearVelocity = direction.normalized * throwSpeed;
             rb.AddTorque(Random.Range(-100f, 100f)); // adds some spin
             hasBeenThrown = true;
         }
         else
         {
-            SoundFXManager.instance.PlaySoundByName("Reload", transform, 0.5f, 1f, false);
+            //SoundFXManager.instance.PlaySoundByName("Reload", transform, 0.5f, 1f, false);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.Reload, transform.position);
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
             rb.Sleep(); // freeze physics to avoid jitter
