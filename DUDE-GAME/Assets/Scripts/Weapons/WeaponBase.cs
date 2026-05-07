@@ -55,6 +55,10 @@ public class WeaponBase : MonoBehaviour
     [SerializeField] private float shakeRandomness = 90f;
     [SerializeField] private bool shakeFadeOut = true;
     [SerializeField] private bool shakeSnapping = false;
+    [Header("Shoot Camera Shake")]
+    [SerializeField] private float shootShakeStrength = 0.1f;
+    [SerializeField] private float shootShakeDuration = 0.12f;
+
     [Header("SFX")]
     [SerializeField] private EventReference shootSoundName;
 
@@ -238,7 +242,8 @@ public class WeaponBase : MonoBehaviour
             SoundFXManager.instance.PlaySoundByName("RailGunShot", transform, 0.7f, 1f, false);
         } */
         AudioManager.Instance?.PlaySound(shootSoundName, transform.position);
-        
+        if (CameraShakeManager.Instance != null) CameraShakeManager.Instance.Shake(shootShakeStrength, shootShakeDuration);
+
         if (playerRb != null)
         {
             playerRb.AddForce(-aimDirection * recoilForce, ForceMode2D.Impulse);

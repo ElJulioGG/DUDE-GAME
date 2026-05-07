@@ -746,14 +746,7 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
     private void PlayRandomDeathNoises()
     {
-        /* if (randomDeathSfxNames == null || randomDeathSfxNames.Count == 0 || SoundFXManager.instance == null)
-            return;
-
-        string clip = randomDeathSfxNames[Random.Range(0, randomDeathSfxNames.Count)];
-        float pitch = RandomPitch(deathNoisePitchMin, deathNoisePitchMax);
-        float vol = deathNoiseVolume * Random.Range(0.8f, 1.2f); */
-
-        //SoundFXManager.instance.PlaySoundByName(clip, transform, vol, pitch, false);
+       
         AudioManager.Instance.PlaySound(FMODEvents.Instance.ChickenDeath, transform.position);
     }
 

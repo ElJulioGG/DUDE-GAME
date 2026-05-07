@@ -95,10 +95,9 @@ public class PoisonStormController : MonoBehaviour
         damageTimer = 0f;
     }
 
-    /// <summary>
+    
     /// Llamado por GameController cuando el match comienza (MatchBegin).
-    /// </summary>
-    public void OnMatchStarted()
+        public void OnMatchStarted()
     {
         if (!autoStartOnMatchBegin)
             return;

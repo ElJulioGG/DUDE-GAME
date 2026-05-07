@@ -750,6 +750,8 @@ MonoBehaviour:
   shakeRandomness: 90
   shakeFadeOut: 1
   shakeSnapping: 0
+  shootShakeStrength: 0.01
+  shootShakeDuration: 0.1
   shootSoundName:
     Guid:
       Data1: -2047901254

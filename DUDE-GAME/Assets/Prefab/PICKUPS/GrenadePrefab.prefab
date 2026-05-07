@@ -174,6 +174,8 @@ MonoBehaviour:
   openSprite: {fileID: 8797946271071058492, guid: 25eee43580690a2498b329233848c78b, type: 3}
   armedVfx: {fileID: 0}
   explodeVfx: {fileID: 0}
+  explosionShakeStrength: 0.8
+  explosionShakeDuration: 0.2
   useBlink: 1
   blinkColor: {r: 1, g: 0.5, b: 0.5, a: 1}
   minBlinkInterval: 0.08

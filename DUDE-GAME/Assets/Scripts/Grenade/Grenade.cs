@@ -22,6 +22,10 @@ public class Grenade : MonoBehaviour
     [SerializeField] private ParticleSystem armedVfx;   // opcional
     [SerializeField] private ParticleSystem explodeVfx; // opcional
 
+    [Header("Camera Shake")]
+    [SerializeField] private float explosionShakeStrength = 0.4f;
+    [SerializeField] private float explosionShakeDuration = 0.3f;
+
     [Header("Armed Feedback")]
     [SerializeField] private bool useBlink = true;
     [SerializeField] private Color blinkColor = new Color(1f, 0.5f, 0.5f);
@@ -301,6 +305,7 @@ public class Grenade : MonoBehaviour
             var fx = Instantiate(definition.explosionPrefab, transform.position, Quaternion.identity);
             //SoundFXManager.instance.PlaySoundByName("Explosion", transform, 1f, 1f, false);
             AudioManager.Instance.PlaySound(FMODEvents.Instance.Explosion, transform.position);
+            if (CameraShakeManager.Instance != null) CameraShakeManager.Instance.Shake(explosionShakeStrength, explosionShakeDuration);
             if (spriteRenderer && definition.matchSortingForExplosion)
             {
                 var srFx = fx.GetComponentInChildren<SpriteRenderer>();

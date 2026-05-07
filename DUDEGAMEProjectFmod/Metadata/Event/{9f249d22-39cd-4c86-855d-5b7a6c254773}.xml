@@ -111,5 +111,9 @@
 	</object>
 	<object class="MixerBusFader" id="{a8962629-6dee-4ea0-97fc-cc62c5f27295}" />
 	<object class="MixerBusFader" id="{913f7419-1887-407d-9e23-fbefd03a1b89}" />
-	<object class="LimiterEffect" id="{fff7b445-3b23-4e40-ae76-34c37afb6d21}" />
+	<object class="LimiterEffect" id="{fff7b445-3b23-4e40-ae76-34c37afb6d21}">
+		<property name="ceiling">
+			<value>-2</value>
+		</property>
+	</object>
 </objects>
