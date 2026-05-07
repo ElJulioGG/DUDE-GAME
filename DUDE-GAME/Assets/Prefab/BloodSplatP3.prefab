@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1670478191433347296}
   - component: {fileID: 7349884893211000104}
   m_Layer: 0
-  m_Name: BloodSplatP1
+  m_Name: BloodSplatP3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 1808498383
   m_SortingLayer: 2
   m_SortingOrder: 10
-  m_Sprite: {fileID: 9018476068969951271, guid: 8ab5046913eca8c4b86260c6afc9b822, type: 3}
+  m_Sprite: {fileID: -7276469616884980370, guid: 8ab5046913eca8c4b86260c6afc9b822, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

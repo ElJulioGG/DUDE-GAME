@@ -79225,6 +79225,7 @@ MonoBehaviour:
   useCurveInsteadOfEase: 0
   RippleParticle: {fileID: 1003112300}
   AuraParticle: {fileID: 772579871}
+  damageParticlePrefab: {fileID: 8862262623894990382, guid: da3c6d06c16a79745aefeee52dfe506b, type: 3}
 --- !u!1001 &722549809
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -126454,6 +126455,7 @@ MonoBehaviour:
   useCurveInsteadOfEase: 0
   RippleParticle: {fileID: 1962009574}
   AuraParticle: {fileID: 879968107}
+  damageParticlePrefab: {fileID: 8862262623894990382, guid: 565b77107e5adc740b2d29747f836c42, type: 3}
 --- !u!1 &1128665999
 GameObject:
   m_ObjectHideFlags: 0
@@ -149536,6 +149538,7 @@ MonoBehaviour:
   useCurveInsteadOfEase: 0
   RippleParticle: {fileID: 1541628494}
   AuraParticle: {fileID: 604653094}
+  damageParticlePrefab: {fileID: 8862262623894990382, guid: 670b8ddbe3be67b42b8e4758471e79d5, type: 3}
 --- !u!1 &1382047891
 GameObject:
   m_ObjectHideFlags: 0
@@ -199379,6 +199382,7 @@ MonoBehaviour:
   useCurveInsteadOfEase: 0
   RippleParticle: {fileID: 2032979781}
   AuraParticle: {fileID: 855347021}
+  damageParticlePrefab: {fileID: 8862262623894990382, guid: a073de1ad0dc13b4eb192b9cd27c613f, type: 3}
 --- !u!1001 &1750232244
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -213923,8 +213927,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9da967074d03c34b8abdf4df8dfac57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_VcamOwner: {fileID: 1945009169}
-  _shakeOffset: {x: 0, y: 0}
 --- !u!1 &1950027636
 GameObject:
   m_ObjectHideFlags: 0

@@ -64,7 +64,11 @@ public class PlayerStats : MonoBehaviour
         health -= damageAmount;
 
         AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
-        if (playerVisuals != null) playerVisuals.PlayDamageShake();
+        if (playerVisuals != null)
+        {
+            playerVisuals.PlayDamageShake();
+            playerVisuals.SpawnDamageParticles(damageAmount, baseHealth);
+        }
 
         if (health <= 0 && playerAlive)
         {

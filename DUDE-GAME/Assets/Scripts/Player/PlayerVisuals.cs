@@ -23,6 +23,7 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Particles")]
     [SerializeField] private ParticleSystem RippleParticle;
     [SerializeField] private ParticleSystem AuraParticle;
+    [SerializeField] private GameObject damageParticlePrefab;
 
     private Rigidbody2D rb;
 
@@ -96,6 +97,18 @@ public class PlayerVisuals : MonoBehaviour
 
         spriteTransform.DOComplete();
         spriteTransform.localPosition = Vector3.zero;
+    }
+
+    public void SpawnDamageParticles(int damageAmount, int maxHealth)
+    {
+        if (damageParticlePrefab == null) return;
+
+        int count = damageAmount >= maxHealth * 0.5f ? 3 : 1;
+        for (int i = 0; i < count; i++)
+        {
+            Quaternion rot = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+            Instantiate(damageParticlePrefab, transform.position, rot, transform);
+        }
     }
 
     public void ActivateParticlesPowerUP()
