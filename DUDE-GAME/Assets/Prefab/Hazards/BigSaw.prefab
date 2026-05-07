@@ -147,16 +147,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 3992746848472676548}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
+  m_Script: {fileID: 11500000, guid: 02dad1a6675dc304f8ca10e27aa01da5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 400
+  damage: 200
   bloodySprites:
-  - {fileID: -4191681664101013408, guid: 196678aa4f3c0184ea3c0421ffdc6130, type: 3}
-  - {fileID: 3452873377954990567, guid: 196678aa4f3c0184ea3c0421ffdc6130, type: 3}
-  - {fileID: 6752875559477136351, guid: 196678aa4f3c0184ea3c0421ffdc6130, type: 3}
-  - {fileID: -8661826348588917280, guid: 196678aa4f3c0184ea3c0421ffdc6130, type: 3}
+  - {fileID: 8523888984241245576, guid: 6e3ca6266134fa6489a1208818e00b55, type: 3}
+  - {fileID: -5094221266668569823, guid: 6e3ca6266134fa6489a1208818e00b55, type: 3}
+  - {fileID: 32115363867088121, guid: 6e3ca6266134fa6489a1208818e00b55, type: 3}
+  - {fileID: -1062279110454465622, guid: 6e3ca6266134fa6489a1208818e00b55, type: 3}
   spriteChildName: Sprite
+  playerColors:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0.023584902, g: 0.4108132, b: 1, a: 1}
+  - {r: 0, g: 0.8867924, b: 0, a: 1}
+  - {r: 0.9150943, g: 0, b: 0.9150943, a: 1}
 --- !u!58 &8636517167511448116
 CircleCollider2D:
   m_ObjectHideFlags: 0

@@ -706,6 +706,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &37893688
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -13084,6 +13086,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &307230411
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -59416,6 +59420,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &528444290
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -65368,6 +65374,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &601923381
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -79189,9 +79197,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefabs:
   - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
+  - {fileID: 8936251559470956678, guid: 79e1cbb3feb63454a9cdd8e15959d868, type: 3}
+  - {fileID: 8936251559470956678, guid: 59b8bb2d7b946124a8b20ca3bb401bc8, type: 3}
+  - {fileID: 8936251559470956678, guid: d8e58aa663344084485c21e0098dd93d, type: 3}
   spriteTransform: {fileID: 1590853429}
   maxShakeDuration: 0.1
   maxShakeStrength: 0.2
@@ -90468,6 +90476,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &902477184
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -90930,6 +90940,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &915856893
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -126419,9 +126431,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefabs:
   - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
+  - {fileID: 8936251559470956678, guid: 79e1cbb3feb63454a9cdd8e15959d868, type: 3}
+  - {fileID: 8936251559470956678, guid: 59b8bb2d7b946124a8b20ca3bb401bc8, type: 3}
+  - {fileID: 8936251559470956678, guid: d8e58aa663344084485c21e0098dd93d, type: 3}
   spriteTransform: {fileID: 1811003008}
   maxShakeDuration: 0.1
   maxShakeStrength: 0.2
@@ -137584,6 +137596,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &1226726201
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -149502,9 +149516,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefabs:
   - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
+  - {fileID: 8936251559470956678, guid: 79e1cbb3feb63454a9cdd8e15959d868, type: 3}
+  - {fileID: 8936251559470956678, guid: 59b8bb2d7b946124a8b20ca3bb401bc8, type: 3}
+  - {fileID: 8936251559470956678, guid: d8e58aa663344084485c21e0098dd93d, type: 3}
   spriteTransform: {fileID: 1996214385}
   maxShakeDuration: 0.1
   maxShakeStrength: 0.2
@@ -178634,6 +178648,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &1617551287
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -188316,6 +188332,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &1680475157
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -199346,9 +199364,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefabs:
   - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
-  - {fileID: 8936251559470956678, guid: f58d03727f896e64e96988a7ae227785, type: 3}
+  - {fileID: 8936251559470956678, guid: 79e1cbb3feb63454a9cdd8e15959d868, type: 3}
+  - {fileID: 8936251559470956678, guid: 59b8bb2d7b946124a8b20ca3bb401bc8, type: 3}
+  - {fileID: 8936251559470956678, guid: d8e58aa663344084485c21e0098dd93d, type: 3}
   spriteTransform: {fileID: 1347683102}
   maxShakeDuration: 0.1
   maxShakeStrength: 0.2
@@ -215839,6 +215857,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &2042957668
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -218104,6 +218124,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &2064858174
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -226852,6 +226874,8 @@ MonoBehaviour:
   damage: 100
   bloodySprites: []
   spriteChildName: Sprite
+  childRenderer: {fileID: 0}
+  currentBloodLevel: 0
 --- !u!61 &2132943865
 BoxCollider2D:
   m_ObjectHideFlags: 0

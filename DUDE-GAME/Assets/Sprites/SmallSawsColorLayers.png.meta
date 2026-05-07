@@ -1,0 +1,293 @@
+fileFormatVersion: 2
+guid: be9b4a2b99b82014a92befb90e9ebd0d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5378758327027432166
+    second: SmallSawsColorLayers_0
+  - first:
+      213: -2067139812025790165
+    second: SmallSawsColorLayers_1
+  - first:
+      213: -2547760319032262312
+    second: SmallSawsColorLayers_2
+  - first:
+      213: -6726490721967133831
+    second: SmallSawsColorLayers_3
+  - first:
+      213: 860735553225159332
+    second: SmallSawsColorLayers_4
+  - first:
+      213: -8276372915536439694
+    second: SmallSawsColorLayers_5
+  - first:
+      213: 2681196402853038367
+    second: SmallSawsColorLayers_6
+  - first:
+      213: -2235321566334415860
+    second: SmallSawsColorLayers_7
+  - first:
+      213: 7754264946479364549
+    second: SmallSawsColorLayers_8
+  - first:
+      213: -2988460563997537595
+    second: SmallSawsColorLayers_9
+  - first:
+      213: -6576471421951331822
+    second: SmallSawsColorLayers_10
+  - first:
+      213: 9005333247487831729
+    second: SmallSawsColorLayers_11
+  - first:
+      213: -8367600688170268606
+    second: SmallSawsColorLayers_12
+  - first:
+      213: -7123397370894853244
+    second: SmallSawsColorLayers_13
+  - first:
+      213: -6480109962171072216
+    second: SmallSawsColorLayers_14
+  - first:
+      213: 3195830111563268414
+    second: SmallSawsColorLayers_15
+  - first:
+      213: 3857752291833121311
+    second: SmallSawsColorLayers_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SmallSawsColorLayers_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 82
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6eaf427533035aa40800000000000000
+      internalID: 5378758327027432166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmallSawsColorLayers_1
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 82
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b21922b0b4b0053e0800000000000000
+      internalID: -2067139812025790165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmallSawsColorLayers_2
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 82
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8510f3b0d7984acd0800000000000000
+      internalID: -2547760319032262312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmallSawsColorLayers_3
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 82
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97b203ca354b6a2a0800000000000000
+      internalID: -6726490721967133831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmallSawsColorLayers_4
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 82
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a2f88fdc62f1fb00800000000000000
+      internalID: 860735553225159332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 6222e9f76edd09249993039f19f2f5a1
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      SmallSawsColorLayers_0: 5378758327027432166
+      SmallSawsColorLayers_1: -2067139812025790165
+      SmallSawsColorLayers_10: -6576471421951331822
+      SmallSawsColorLayers_11: 9005333247487831729
+      SmallSawsColorLayers_12: -8367600688170268606
+      SmallSawsColorLayers_13: -7123397370894853244
+      SmallSawsColorLayers_14: -6480109962171072216
+      SmallSawsColorLayers_2: -2547760319032262312
+      SmallSawsColorLayers_3: -6726490721967133831
+      SmallSawsColorLayers_4: 860735553225159332
+      SmallSawsColorLayers_5: -8276372915536439694
+      SmallSawsColorLayers_6: 2681196402853038367
+      SmallSawsColorLayers_7: -2235321566334415860
+      SmallSawsColorLayers_8: 7754264946479364549
+      SmallSawsColorLayers_9: -2988460563997537595
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
