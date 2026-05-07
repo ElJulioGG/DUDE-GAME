@@ -9,6 +9,7 @@ public class GrenadeWeapon : WeaponBase
     [SerializeField] private GrenadeDefinition definition;
     [SerializeField] private Transform handPoint;
     [SerializeField, Range(0f, 1f)] private float throwCharge01 = 0f;
+    [SerializeField] private GameObject grenadePinPrefab;
 
     [Header("Visual (arma)")]
     [SerializeField] private SpriteRenderer weaponBodyRenderer;
@@ -72,6 +73,7 @@ public class GrenadeWeapon : WeaponBase
             }
         }
 
+        if (grenadePinPrefab != null) Instantiate(grenadePinPrefab, transform.position, transform.rotation);
         AudioManager.Instance.PlaySound(FMODEvents.Instance.GranadePin, transform.position);
 //#if GRENADE_DEBUG
 //        // DEBUG:

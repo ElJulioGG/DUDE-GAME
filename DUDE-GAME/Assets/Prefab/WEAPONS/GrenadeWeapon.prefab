@@ -219,6 +219,7 @@ MonoBehaviour:
   definition: {fileID: 11400000, guid: 406198b60a38fbd49b286be236555026, type: 2}
   handPoint: {fileID: 3435248558647363512}
   throwCharge01: 0
+  grenadePinPrefab: {fileID: 1908820106403241121, guid: 05be09e6defb65644a8fb2bafc1d3364, type: 3}
   weaponBodyRenderer: {fileID: 0}
   forceGrenadeOnTop: 1
 --- !u!1 &3360465163143473882

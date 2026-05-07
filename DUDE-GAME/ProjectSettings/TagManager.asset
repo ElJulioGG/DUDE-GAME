@@ -21,7 +21,7 @@ TagManager:
   - NPC
   - Hazard
   - Destructible
-  - 
+  - Pickup
   - 
   - 
   - 
@@ -52,11 +52,11 @@ TagManager:
   - name: Fondo
     uniqueID: 1808498383
     locked: 0
-  - name: Entities
-    uniqueID: 42864455
-    locked: 0
   - name: Foreground
     uniqueID: 1056285419
+    locked: 0
+  - name: Entities
+    uniqueID: 42864455
     locked: 0
   - name: UI
     uniqueID: 3733455475

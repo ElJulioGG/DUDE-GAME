@@ -325,10 +325,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 40
   enableBounce: 1
+  pierceWalls: 0
   destroyOnPlayerHit: 0
   rotateToDirection: 1
   destroyTime: 10
   destroyOnInvisible: 1
+  onDestroyMethod: 0
+  onDestroyCallback:
+    m_PersistentCalls:
+      m_Calls: []
+  playBounceSound: 1
+  BounceSoundName:
+    Guid:
+      Data1: -744753038
+      Data2: 1214675412
+      Data3: -1640411973
+      Data4: -1092850962
+    Path: event:/SFX/Weapons/LaserBounce
+  randomPitch: 0
+  pitchMin: 0.7
+  pitchMax: 1.3
   damage: 70
   bounceLife: 10
   bulletRadius: 0.1

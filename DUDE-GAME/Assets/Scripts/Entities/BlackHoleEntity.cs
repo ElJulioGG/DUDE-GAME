@@ -50,6 +50,10 @@ public class BlackHoleEntity : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GameManager.instance.destroyProyectiles)
+        {
+            Destroy(gameObject);
+        }
         for (int i = _playersInRange.Count - 1; i >= 0; i--)
         {
             var rb = _playersInRange[i];
