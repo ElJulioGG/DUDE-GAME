@@ -1,6 +1,4 @@
-using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -10,31 +8,13 @@ public class PlayerStats : MonoBehaviour
     public int baseHealth = 200;
     [SerializeField] private int points = 0;
     public bool playerAlive = true;
-    [SerializeField] private GameObject[] bloodSplatterPrefabs; // Size 4, one for each player
-    public static List<GameObject> allSplatters = new List<GameObject>();
     [SerializeField] public bool usingPowerUp;
     [SerializeField] private GunHolder gunHolder;
-
-    [Header("Visual Damage Shake")]
-    [SerializeField] private Transform spriteTransform; // Reference to your sprite's transform
-    [SerializeField] private float maxShakeDuration = 0.1f;
-    [SerializeField] private float maxShakeStrength = 0.2f;
-    [SerializeField] private float shakeRandomness = 90f;
-    [SerializeField] private float shakeIntensity = 2f; // This will be calculated based on damage
-
-    [Header("Shake Easing")]
-    [SerializeField] private Ease shakeEase = Ease.OutQuad;
-    [SerializeField] private AnimationCurve shakeEaseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    [SerializeField] private bool useCurveInsteadOfEase = false;
-
-    [Header("Particles")]
-    [SerializeField] private ParticleSystem RippleParticle;
-    [SerializeField] private ParticleSystem AuraParticle;
+    [SerializeField] private PlayerVisuals playerVisuals;
 
     void Start()
     {
         health = baseHealth;
-       // playerAlive = true;
         gameObject.SetActive(true);
     }
 
@@ -43,11 +23,6 @@ public class PlayerStats : MonoBehaviour
         playerIndex = index;
     }
 
-    public void ActivateParticlesPowerUP()
-    {
-        RippleParticle.Play();
-        AuraParticle.Play();
-    }
     public IEnumerator AddPointsAfterDelay(int pointsToAdd)
     {
         yield return new WaitForSeconds(1.5f);
@@ -60,7 +35,6 @@ public class PlayerStats : MonoBehaviour
 
         switch (playerIndex)
         {
-
             case 0:
                 GameManager.instance.player1Score += pointsToAdd;
                 break;
@@ -79,7 +53,6 @@ public class PlayerStats : MonoBehaviour
         }
 
         points += pointsToAdd;
-        //SoundFXManager.instance.PlaySoundByName("Bell", transform, 0.7f, 1.3f);
         AudioManager.Instance.PlaySound(FMODEvents.Instance.PointGain, transform.position);
         Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
     }
@@ -89,40 +62,16 @@ public class PlayerStats : MonoBehaviour
         if (!playerAlive) return;
 
         health -= damageAmount;
-        
 
         AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
-        if (spriteTransform != null)
-        {
-            //float shakeIntensity = Mathf.Clamp01((float)damageAmount / baseHealth);
-            spriteTransform.DOComplete();
-
-            // Create the shake tween
-            var shakeTween = spriteTransform.DOShakePosition(
-                duration: maxShakeDuration * shakeIntensity,
-                strength: maxShakeStrength * shakeIntensity,
-                vibrato: (int)(5 + 15 * shakeIntensity),
-                randomness: shakeRandomness,
-                snapping: false,
-                fadeOut: true
-            );
-
-            // Apply easing
-            if (useCurveInsteadOfEase)
-            {
-                shakeTween.SetEase(shakeEaseCurve);
-            }
-            else
-            {
-                shakeTween.SetEase(shakeEase);
-            }
-        }
+        if (playerVisuals != null) playerVisuals.PlayDamageShake();
 
         if (health <= 0 && playerAlive)
         {
             KillPlayer();
         }
     }
+
     public void SetPlayerHealth(int newHealth)
     {
         health = newHealth;
@@ -148,26 +97,14 @@ public class PlayerStats : MonoBehaviour
 
     public void KillPlayer()
     {
+        if (playerVisuals != null) playerVisuals.SpawnBloodSplatter(playerIndex, transform.position);
         playerAlive = false;
         gunHolder.DropCurrentWeapon();
-        gameObject.SetActive(false);
 
-        // Play death sound
         AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
+        
 
-        // Instantiate blood splatter specific to the player index
-        if (playerIndex >= 0 && playerIndex < bloodSplatterPrefabs.Length)
-        {
-            Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
-            GameObject splatter = Instantiate(bloodSplatterPrefabs[playerIndex], transform.position, randomRotation);
-            allSplatters.Add(splatter);
-        }
-        else
-        {
-            Debug.LogWarning($"No blood splatter prefab assigned for playerIndex {playerIndex}.");
-        }
-        // instantiate corpse
-        // instantiate particles
+        gameObject.SetActive(false);
     }
 
     public void ApplyKnockback(Vector2 origin, float force)
@@ -188,54 +125,49 @@ public class PlayerStats : MonoBehaviour
             rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
         }
     }
-    private void ResetShake()
-    {
-        if (spriteTransform != null)
-        {
-            spriteTransform.DOComplete();
-            spriteTransform.localPosition = Vector3.zero;
-        }
-    }
 
-    // Call this whenever you respawn the player
     public void Respawn()
     {
         switch (playerIndex)
         {
             case 0:
-                if(GameManager.instance.player1Playable){
-                    ResetShake();
-                            gunHolder.DestroyCurrentWeapon();
-                            health = baseHealth;
-                            playerAlive = true;
-                            gameObject.SetActive(true);
+                if (GameManager.instance.player1Playable)
+                {
+                    if (playerVisuals != null) playerVisuals.ResetShake();
+                    gunHolder.DestroyCurrentWeapon();
+                    health = baseHealth;
+                    playerAlive = true;
+                    gameObject.SetActive(true);
                 }
                 break;
             case 1:
-                if(GameManager.instance.player2Playable){
-                    ResetShake();
-                            gunHolder.DestroyCurrentWeapon();
-                            health = baseHealth;
-                            playerAlive = true;
-                            gameObject.SetActive(true);
+                if (GameManager.instance.player2Playable)
+                {
+                    if (playerVisuals != null) playerVisuals.ResetShake();
+                    gunHolder.DestroyCurrentWeapon();
+                    health = baseHealth;
+                    playerAlive = true;
+                    gameObject.SetActive(true);
                 }
                 break;
             case 2:
-                if(GameManager.instance.player3Playable){
-                    ResetShake();
-                            gunHolder.DestroyCurrentWeapon();
-                            health = baseHealth;
-                            playerAlive = true;
-                            gameObject.SetActive(true);
+                if (GameManager.instance.player3Playable)
+                {
+                    if (playerVisuals != null) playerVisuals.ResetShake();
+                    gunHolder.DestroyCurrentWeapon();
+                    health = baseHealth;
+                    playerAlive = true;
+                    gameObject.SetActive(true);
                 }
                 break;
             case 3:
-                if(GameManager.instance.player4Playable){
-                    ResetShake();
-                            gunHolder.DestroyCurrentWeapon();
-                            health = baseHealth;
-                            playerAlive = true;
-                            gameObject.SetActive(true);
+                if (GameManager.instance.player4Playable)
+                {
+                    if (playerVisuals != null) playerVisuals.ResetShake();
+                    gunHolder.DestroyCurrentWeapon();
+                    health = baseHealth;
+                    playerAlive = true;
+                    gameObject.SetActive(true);
                 }
                 break;
         }

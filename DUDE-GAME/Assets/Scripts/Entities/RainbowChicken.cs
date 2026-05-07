@@ -53,24 +53,6 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     [SerializeField] private GameObject speedBoostPrefab;
     [SerializeField] private float speedTrailInterval = 0.3f;
 
-    // ================== SFX ==================
-    [Header("SFX")]
-    /* [SerializeField] private string spawnSfxName = "ChickenSpawn";
-    [SerializeField] private string hitSfxName = "ChickenHit";
-
-    [Header("Death Random Noises")]
-    [SerializeField] private List<string> randomDeathSfxNames = new();
-    [SerializeField, Range(1, 5)] private int deathNoisesCount = 3;
-    [SerializeField, Range(0f, 1f)] private float deathNoiseVolume = 0.8f;
-    [SerializeField, Range(0.5f, 2f)] private float deathNoisePitchMin = 0.9f, deathNoisePitchMax = 1.1f;
-
-    [SerializeField, Range(0f, 1f)] private float spawnVolume = 0.7f;
-    [SerializeField, Range(0f, 1f)] private float hitVolume = 0.8f;
-    [SerializeField, Range(0f, 1f)] private float deathVolume = 0.9f;
-    [SerializeField] private bool randomizePitch = true;
-    [SerializeField, Range(0.5f, 2f)] private float spawnPitchMin = 0.95f, spawnPitchMax = 1.05f;
-    [SerializeField, Range(0.5f, 2f)] private float hitPitchMin = 0.95f, hitPitchMax = 1.05f;
-    [SerializeField, Range(0.5f, 2f)] private float deathPitchMin = 0.95f, deathPitchMax = 1.05f; */
     [SerializeField] private bool shakeOnHit = true;
 
     [Header("Eventos")]
@@ -212,9 +194,9 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
         Instantiate(spawnFeatherParticles, transform.position, Quaternion.identity);
         Instantiate(spawnFeatherParticles2, transform.position, Quaternion.identity);
-        SoundFXManager.instance.PlaySoundByName("chicken", transform, 1f, 1f, false);
+        /* SoundFXManager.instance.PlaySoundByName("chicken", transform, 1f, 1f, false);
         SoundFXManager.instance.PlaySoundByName("pillowHit", transform, 1f, 1f, false);
-        SoundFXManager.instance.PlaySoundByName("puffSmoke", transform, 1f, 1f, false);
+        SoundFXManager.instance.PlaySoundByName("puffSmoke", transform, 1f, 1f, false); */
     }
 
 

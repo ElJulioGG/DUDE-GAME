@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PowerUpTrigger : MonoBehaviour
@@ -22,7 +23,7 @@ public class PowerUpTrigger : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             PlayerStats player = collision.GetComponent<PlayerStats>();
-           SoundFXManager.instance.PlaySoundByName("PickupPowerUp", transform, 0.5f, 1f);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PickUpPowerUp, transform.position);
             switch (player.playerIndex)
             {
                 case 0:
@@ -38,7 +39,32 @@ public class PowerUpTrigger : MonoBehaviour
                     GameManager.instance.player4PowerUp = powerUpType;
                     break;
             }
+            DetachAndFadeParticles();
             Destroy(gameObject);
         }
+    }
+
+    private void DetachAndFadeParticles()
+    {
+        foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>())
+        {
+            ps.transform.SetParent(null);
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            ps.gameObject.AddComponent<ParticleSelfDestruct>();
+        }
+    }
+}
+
+[RequireComponent(typeof(ParticleSystem))]
+public class ParticleSelfDestruct : MonoBehaviour
+{
+    [SerializeField] private float lingerDuration = 0.5f;
+
+    private IEnumerator Start()
+    {
+        ParticleSystem ps = GetComponent<ParticleSystem>();
+        yield return new WaitForSeconds(lingerDuration);
+        yield return new WaitWhile(() => ps != null && ps.IsAlive(true));
+        Destroy(gameObject);
     }
 }

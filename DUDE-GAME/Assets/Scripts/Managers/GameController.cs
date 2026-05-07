@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
     // Enable the GRENADE_DEBUG scripting define to log round resets impacting grenades.
     [SerializeField] private LevelTimer levelTimer;
     [SerializeField] private PlayerStats[] playerStats;
+    [SerializeField] private PlayerVisuals[] playerVisuals;
     [SerializeField] private GameObject[] playerCircles;
     [SerializeField] private GameObject[] players;
     [SerializeField] private Animator transitionAnim;
@@ -81,12 +82,12 @@ public class GameController : MonoBehaviour
         RemovePointsCanvas();
 
         // Destroy all blood splatters
-        foreach (GameObject splatter in PlayerStats.allSplatters)
+        foreach (GameObject splatter in PlayerVisuals.allSplatters)
         {
             if (splatter != null)
                 Destroy(splatter);
         }
-        PlayerStats.allSplatters.Clear();
+        PlayerVisuals.allSplatters.Clear();
 
         // Respawn players
         foreach (PlayerStats player in playerStats)
@@ -244,8 +245,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-
-
     public void ActivateAssignedPlayers()
     {
         aliveCount = 0;
@@ -301,7 +300,7 @@ public class GameController : MonoBehaviour
 
         GameManager.instance.destroyProyectiles = false;
         transitionAnim.SetTrigger("FadeOut");
-        SoundFXManager.instance.PlaySoundByName("DoorOpen", transform, 0.9f, 0.9f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorOpen, transform.position);
         foreach (PlayerStats player in playerStats)
         {
             player.SetPlayerHealth(player.baseHealth);
@@ -317,14 +316,9 @@ public class GameController : MonoBehaviour
             if (i == UIIntroObjects.Length - 1)
             {
                 levelTimer.StartTimer();
-                //SoundFXManager.instance.PlaySoundByName("Fight", transform, 0.7f, 0.9f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSayFight, transform.position);
                 TimerText.SetActive(true);
-                /* if (!SoundFXManager.instance.IsMusicPlaying("BattleLoop"))
-                {
-                    SoundFXManager.instance.PlayMusic("BattleLoop", transform, 0.3f, 1f, true);
-                } */
-
+    
                 // Avisar a la tormenta que la partida ha comenzado
                 if (poisonStormController != null)
                 {
@@ -337,19 +331,15 @@ public class GameController : MonoBehaviour
             }
             if (i == UIIntroObjects.Length - 2)
             {
-                //SoundFXManager.instance.PlaySoundByName("1", transform, 0.6f, 0.9f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay1, transform.position);
             }
             if (i == UIIntroObjects.Length - 3)
             {
-                
-                //SoundFXManager.instance.PlaySoundByName("2", transform, 0.6f, 0.9f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay2, transform.position);
             }
             if (i == UIIntroObjects.Length - 4)
             {
                 StartCoroutine(PlayerCirclesSpawn());
-                //SoundFXManager.instance.PlaySoundByName("3", transform, 0.6f, 0.9f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay3, transform.position);
             }
 
@@ -473,7 +463,7 @@ public class GameController : MonoBehaviour
         Debug.Log("Draw! No players alive.");
         yield return new WaitForSeconds(2f); // Optional delay
         transitionAnim.SetTrigger("FadeIn");
-        SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 0.9f, 1f);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
         yield return new WaitForSeconds(0.5f);
         NextMatch(); // Restart match without awarding points
     }
@@ -511,26 +501,25 @@ public class GameController : MonoBehaviour
                 currentPowerUp = GameManager.instance.player4PowerUp;
                 GameManager.instance.player4PowerUp = 0;
                 break;
+            
         }
 
         switch (currentPowerUp)
         {
             case 0:
-                //SoundFXManager.instance.PlaySoundByName("DenyPowerUp", transform, 1f, 1f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
                 break;
             case 1:
-                //SoundFXManager.instance.PlaySoundByName("PowerUp2", transform, 1f, 1f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.PowerUp2, transform.position);
-                playerStats[playerIndex].ActivateParticlesPowerUP();
+                playerVisuals[playerIndex].ActivateParticlesPowerUP();
                 Instakill();
                 break;
             case 2:
-                //SoundFXManager.instance.PlaySoundByName("PowerUp1", transform, 1f, 1f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.PowerUp1, transform.position);
-                playerStats[playerIndex].ActivateParticlesPowerUP();
+                playerVisuals[playerIndex].ActivateParticlesPowerUP();
                 DoublePoints();
                 break;
+            
                 // Other powerup cases...
         }
     }

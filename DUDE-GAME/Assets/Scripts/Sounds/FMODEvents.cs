@@ -33,11 +33,14 @@ public class FMODEvents : MonoBehaviour
     [field: SerializeField] public EventReference ChickenHit { get; private set; }
     [field: SerializeField] public EventReference ChickenDeath { get; private set; }
     [field: SerializeField] public EventReference ChickenSpawn { get; private set; }
+    [field: Header("MutatorSFX")]
+    [field: SerializeField] public EventReference SpawnAreaMutatorAlert { get; private set; }
 
     [field: Header("PowerUpSFX")]
     [field: SerializeField] public EventReference NoPowerUp { get; private set; }
     [field: SerializeField] public EventReference PowerUp1 { get; private set; }
     [field: SerializeField] public EventReference PowerUp2 { get; private set; }
+    [field: SerializeField] public EventReference PickUpPowerUp { get; private set; }
 
     [field: Header("EntitiesSFX")]
     [field: SerializeField] public EventReference BoxBreak { get; private set; }

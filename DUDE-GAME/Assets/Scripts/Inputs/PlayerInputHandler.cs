@@ -106,7 +106,11 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnPowerUp(InputAction.CallbackContext context)
     {
-        if (!GameManager.instance.playersCanPowerUp) return;
+        if (!GameManager.instance.playersCanPowerUp)
+        {
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
+           return; 
+        } 
         if (context.performed && playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
             playerStats.usingPowerUp = true;
     }

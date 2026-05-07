@@ -750,3 +750,10 @@ MonoBehaviour:
   shakeRandomness: 90
   shakeFadeOut: 1
   shakeSnapping: 0
+  shootSoundName:
+    Guid:
+      Data1: -1624990430
+      Data2: 1283865037
+      Data3: 2052808069
+      Data4: 1934042476
+    Path: event:/SFX/Weapons/ShotgunShot

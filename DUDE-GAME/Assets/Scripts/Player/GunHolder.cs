@@ -199,8 +199,8 @@ public class GunHolder : MonoBehaviour
 
     public void DropCurrentWeapon()
     {
-        if (currentWeapon == null) return;
-
+        if (currentWeapon == null || !hasWeapon) return;
+        
         var grenadeWeapon = currentGunScript as GrenadeWeapon;
 
         if (grenadeWeapon != null && grenadeWeapon.HasCooking)

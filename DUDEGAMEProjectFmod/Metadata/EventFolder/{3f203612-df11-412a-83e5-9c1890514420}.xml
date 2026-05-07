@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="EventFolder" id="{3f203612-df11-412a-83e5-9c1890514420}">
+		<property name="name">
+			<value>Mutators</value>
+		</property>
+		<relationship name="folder">
+			<destination>{c887dd7d-ebb8-475e-b121-38fdbab8d6aa}</destination>
+		</relationship>
+	</object>
+</objects>

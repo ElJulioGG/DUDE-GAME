@@ -16,6 +16,13 @@ public class MeleeWeaponBase : MonoBehaviour
             hitbox.SetActive(false);
     }
 
+    void OnDisable()
+    {
+        isAttacking = false;
+        if (hitbox != null)
+            hitbox.SetActive(false);
+    }
+
     public void Attack()
     {
         if (!isAttacking)

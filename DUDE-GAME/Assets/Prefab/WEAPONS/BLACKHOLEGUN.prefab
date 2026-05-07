@@ -752,8 +752,8 @@ MonoBehaviour:
   shakeSnapping: 0
   shootSoundName:
     Guid:
-      Data1: -2092660961
-      Data2: 1105648260
-      Data3: -762386528
-      Data4: 1733300089
-    Path: event:/SFX/Weapons/ShootRailGun
+      Data1: -2047901254
+      Data2: 1098702738
+      Data3: 23003527
+      Data4: -2099322734
+    Path: event:/SFX/Weapons/BHBounce

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.03.00">
-	<object class="AudioFile" id="{94143ab8-fcbc-4c9a-8bd7-20804ece8fe8}">
+	<object class="AudioFile" id="{14dbb85e-4d63-406c-b4a7-95d32a1cef24}">
 		<property name="assetPath">
-			<value>WEAPONS/BHBounce.ogg</value>
+			<value>WEAPONS/GunShot.wav</value>
 		</property>
 		<property name="frequencyInKHz">
-			<value>48</value>
+			<value>96</value>
 		</property>
 		<property name="channelCount">
-			<value>2</value>
+			<value>1</value>
 		</property>
 		<property name="length">
-			<value>2.625</value>
+			<value>0.92581250000000004</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{529d3c55-efc0-414c-81aa-b43e7c032cb4}</destination>
