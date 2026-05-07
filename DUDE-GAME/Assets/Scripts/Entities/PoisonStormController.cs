@@ -5,39 +5,39 @@ using UnityEngine;
 public class PoisonStormController : MonoBehaviour
 {
     [Header("Referencia al centro de la zona segura")]
-    [Tooltip("Centro del círculo seguro. Puede ser un Empty en el centro del mapa (por ejemplo, CenterScreenForCVCam1). " +
-             "Si se deja vacío, usará la posición de este GameObject.")]
+    [Tooltip("Centro del cï¿½rculo seguro. Puede ser un Empty en el centro del mapa (por ejemplo, CenterScreenForCVCam1). " +
+             "Si se deja vacï¿½o, usarï¿½ la posiciï¿½n de este GameObject.")]
     [SerializeField] private Transform safeZoneCenter;
 
-    [Header("Jugadores a los que se aplicará el daño")]
-    [Tooltip("Lista de PlayerStats en la partida. Arrastra aquí los 4 jugadores de la escena en el orden que quieras.")]
+    [Header("Jugadores a los que se aplicarï¿½ el daï¿½o")]
+    [Tooltip("Lista de PlayerStats en la partida. Arrastra aquï¿½ los 4 jugadores de la escena en el orden que quieras.")]
     [SerializeField] private PlayerStats[] players;
 
     [Header("Radio de la zona segura")]
-    [Tooltip("Radio inicial del círculo seguro al comienzo de la partida (en unidades de mundo).")]
+    [Tooltip("Radio inicial del cï¿½rculo seguro al comienzo de la partida (en unidades de mundo).")]
     [SerializeField] private float initialRadius = 25f;
 
-    [Tooltip("Radio mínimo al que puede llegar la zona segura.")]
+    [Tooltip("Radio mï¿½nimo al que puede llegar la zona segura.")]
     [SerializeField] private float finalRadius = 3f;
 
-    [Header("Configuración de la tormenta")]
-    [Tooltip("¿La tormenta comienza automáticamente cuando el GameController inicia el match?")]
+    [Header("Configuraciï¿½n de la tormenta")]
+    [Tooltip("ï¿½La tormenta comienza automï¿½ticamente cuando el GameController inicia el match?")]
     [SerializeField] private bool autoStartOnMatchBegin = true;
 
-    [Tooltip("Tiempo de espera (en segundos) antes de que comience a cerrarse la tormenta después de iniciar el match.")]
+    [Tooltip("Tiempo de espera (en segundos) antes de que comience a cerrarse la tormenta despuï¿½s de iniciar el match.")]
     [SerializeField] private float initialDelay = 10f;
 
-    [Tooltip("Daño que se aplica por cada tick a los jugadores que estén FUERA de la zona segura.")]
+    [Tooltip("Daï¿½o que se aplica por cada tick a los jugadores que estï¿½n FUERA de la zona segura.")]
     [SerializeField] private int damagePerTick = 5;
 
-    [Tooltip("Tiempo entre aplicaciones de daño (en segundos). Por ejemplo, 0.5 = dos veces por segundo.")]
+    [Tooltip("Tiempo entre aplicaciones de daï¿½o (en segundos). Por ejemplo, 0.5 = dos veces por segundo.")]
     [SerializeField] private float tickInterval = 0.5f;
 
-    [Tooltip("Curva que define cómo se interpola entre radio actual y radio objetivo en cada fase.")]
+    [Tooltip("Curva que define cï¿½mo se interpola entre radio actual y radio objetivo en cada fase.")]
     [SerializeField] private AnimationCurve shrinkCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
     [Header("Fases de cierre de la tormenta")]
-    [Tooltip("Lista de fases. Cada fase define un radio objetivo, cuánto tarda en llegar a él y cuánto pausa antes de la siguiente fase.")]
+    [Tooltip("Lista de fases. Cada fase define un radio objetivo, cuï¿½nto tarda en llegar a ï¿½l y cuï¿½nto pausa antes de la siguiente fase.")]
     [SerializeField] private StormPhase[] phases;
 
     [System.Serializable]
@@ -49,19 +49,19 @@ public class PoisonStormController : MonoBehaviour
         [Tooltip("Tiempo que tarda en reducirse desde el radio actual hasta el targetRadius.")]
         public float shrinkDuration = 10f;
 
-        [Tooltip("Pausa después de llegar al targetRadius antes de empezar la siguiente fase.")]
+        [Tooltip("Pausa despuï¿½s de llegar al targetRadius antes de empezar la siguiente fase.")]
         public float pauseDuration = 3f;
     }
 
     // === Estado interno ===
     private float currentRadius;          // radio actual de la zona segura
     private int currentPhaseIndex = 0;    // fase actual
-    private bool isStormRunning = false;  // si la tormenta está activa
-    private float damageTimer = 0f;       // acumulador para ticks de daño
+    private bool isStormRunning = false;  // si la tormenta estï¿½ activa
+    private float damageTimer = 0f;       // acumulador para ticks de daï¿½o
 
     private Coroutine stormRoutine;       // referencia a la coroutine de la tormenta
 
-    // === PROPIEDADES PÚBLICAS ÚTILES (solo lectura) ===
+    // === PROPIEDADES Pï¿½BLICAS ï¿½TILES (solo lectura) ===
     public float CurrentRadius => currentRadius;
     public bool IsStormRunning => isStormRunning;
 
@@ -129,10 +129,10 @@ public class PoisonStormController : MonoBehaviour
 
             float t = 0f;
 
-            // Fase de reducción del radio
+            // Fase de reducciï¿½n del radio
             while (t < duration)
             {
-                // Si el juego está en pausa, no avanzamos el tiempo ni movemos la tormenta
+                // Si el juego estï¿½ en pausa, no avanzamos el tiempo ni movemos la tormenta
                 if (GameManager.instance != null && GameManager.instance.gamePaused)
                 {
                     yield return null;
@@ -171,7 +171,7 @@ public class PoisonStormController : MonoBehaviour
 
         // Cuando terminan todas las fases, dejamos la zona en el radio final
         currentRadius = Mathf.Max(finalRadius, currentRadius);
-        isStormRunning = true; // sigue aplicando daño aunque ya no se reduzca
+        isStormRunning = true; // sigue aplicando daï¿½o aunque ya no se reduzca
         stormRoutine = null;
     }
 
@@ -181,11 +181,11 @@ public class PoisonStormController : MonoBehaviour
         if (!isStormRunning)
             return;
 
-        // Si el juego está en pausa, no aplicar daño
+        // Si el juego estï¿½ en pausa, no aplicar daï¿½o
         if (GameManager.instance != null && GameManager.instance.gamePaused)
             return;
 
-        // Acumulador para ticks de daño
+        // Acumulador para ticks de daï¿½o
         damageTimer += Time.deltaTime;
         if (damageTimer >= tickInterval)
         {
@@ -195,7 +195,7 @@ public class PoisonStormController : MonoBehaviour
     }
 
     /// <summary>
-    /// Aplica daño a todos los PlayerStats que estén fuera del círculo seguro.
+    /// Aplica daï¿½o a todos los PlayerStats que estï¿½n fuera del cï¿½rculo seguro.
     /// </summary>
     private void ApplyStormDamage()
     {
@@ -218,7 +218,7 @@ public class PoisonStormController : MonoBehaviour
             Vector2 pos = ps.transform.position;
             float dist = Vector2.Distance(pos, center);
 
-            // Si está fuera del círculo seguro, aplicamos daño
+            // Si estï¿½ fuera del cï¿½rculo seguro, aplicamos daï¿½o
             if (dist > currentRadius)
             {
                 ps.TakeDamage(damagePerTick);
@@ -243,7 +243,7 @@ public class PoisonStormController : MonoBehaviour
             Gizmos.DrawWireSphere(center, currentRadius);
         }
 
-        // Color para el radio final mínimo
+        // Color para el radio final mï¿½nimo
         Gizmos.color = new Color(1f, 0.8f, 0f, 0.6f);
         Gizmos.DrawWireSphere(center, finalRadius);
     }

@@ -369,19 +369,9 @@ public class GameController : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
 
-        /* SoundFXManager.instance.StopMusicByName("BattleTheme");
-        SoundFXManager.instance.StopMusicByName("FadeInIntro");
-        SoundFXManager.instance.StopMusicByName("BattleLoop");
-        if (!SoundFXManager.instance.IsMusicPlaying("BattleTheme"))
-        {
-            SoundFXManager.instance.PlayMusic("BattleTheme", transform, 0.5f, 1f,true);
-        } */
-        
-        
         GameManager.instance.assignController = true;
         GameManager.instance.playersCanMove = false;
         
-      
         SelectRandomMap();
        
         AssignPlayerPositions();
@@ -389,11 +379,7 @@ public class GameController : MonoBehaviour
     }
     void firstStart()
     {
-        /* SoundFXManager.instance.StopMusicByName("BattleTheme");
-        if (!SoundFXManager.instance.IsMusicPlaying("FadeInIntro"))
-        {
-            SoundFXManager.instance.PlayMusic("FadeInIntro", transform, 0.3f, 1f,false);
-        } */
+
         AudioManager.Instance.SetMusicArea(MusicTracks.FIGHT);
     }
     private void AssignController()
@@ -559,7 +545,6 @@ public class GameController : MonoBehaviour
         Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
         yield return new WaitForSeconds(2f);
         transitionAnim.SetTrigger("FadeIn");
-        //SoundFXManager.instance.PlaySoundByName("DoorSlideClose", transform, 0.9f, 1f);
         AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
         yield return new WaitForSeconds(0.5f);
         NextMatch();
@@ -597,7 +582,6 @@ public class GameController : MonoBehaviour
 
     public void Instakill()
     {
-        //SoundFXManager.instance.PlaySoundByName("Instakill", transform, 0.9f, 0.9f);
         AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceInstakill, transform.position);
         UIPowerUps[0].SetActive(true);
         foreach (PlayerStats player in playerStats)
@@ -615,7 +599,6 @@ public class GameController : MonoBehaviour
     }
     public void DoublePoints()
     {
-        //SoundFXManager.instance.PlaySoundByName("DoublePoints", transform, 0.9f, 0.9f);
         AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceDoublePoints, transform.position);
         UIPowerUps[1].SetActive(true);
         pointsToGive *= 2;

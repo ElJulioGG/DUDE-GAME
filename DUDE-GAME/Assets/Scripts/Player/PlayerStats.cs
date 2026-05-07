@@ -145,13 +145,6 @@ public class PlayerStats : MonoBehaviour
             usingPowerUp = true;
         }
     }
-    void Update()
-    {
-        //if (health <= 0 && playerAlive)
-        //{
-        //    KillPlayer();
-        //}
-    }
 
     public void KillPlayer()
     {
@@ -160,7 +153,6 @@ public class PlayerStats : MonoBehaviour
         gameObject.SetActive(false);
 
         // Play death sound
-        //SoundFXManager.instance.PlaySoundByName("Death", transform, 0.6f, 1.5f);
         AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
 
         // Instantiate blood splatter specific to the player index
