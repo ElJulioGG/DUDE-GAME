@@ -703,11 +703,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &37893688
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -13083,11 +13078,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &307230411
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -39918,8 +39908,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1056285419
+  m_SortingLayer: 3
   m_SortingOrder: -1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0.0625, y: 0.0625, z: 0}
@@ -59417,11 +59407,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &528444290
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -65371,11 +65356,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &601923381
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -90473,11 +90453,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &902477184
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -90937,11 +90912,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &915856893
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -137593,11 +137563,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &1226726201
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -178645,11 +178610,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &1617551287
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -188329,11 +188289,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &1680475157
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -189679,8 +189634,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1056285419
+  m_SortingLayer: 3
   m_SortingOrder: -2
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0.0625, y: 0.0625, z: 0}
@@ -215854,11 +215809,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &2042957668
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -218121,11 +218071,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &2064858174
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -226871,11 +226816,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7b344cf477c1cb45bf4058464bc3eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  bloodySprites: []
-  spriteChildName: Sprite
-  childRenderer: {fileID: 0}
-  currentBloodLevel: 0
 --- !u!61 &2132943865
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -230891,9 +230831,9 @@ SceneRoots:
   - {fileID: 811228899}
   - {fileID: 489963931}
   - {fileID: 1471025708}
-  - {fileID: 1458313674}
   - {fileID: 1862414081}
   - {fileID: 1945009170}
+  - {fileID: 1458313674}
   - {fileID: 519420032}
   - {fileID: 1330119676}
   - {fileID: 5627152722810320262}

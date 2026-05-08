@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{ee65f629-360a-43cc-81e4-17f19ff405c5}">
+		<property name="name">
+			<value>cambiar area</value>
+		</property>
+		<relationship name="folder">
+			<destination>{44bbffe7-94f3-48ac-a3b7-d9581b02c75b}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{63f843b2-3b45-45ee-a291-fc06d3708538}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{63f843b2-3b45-45ee-a291-fc06d3708538}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>
