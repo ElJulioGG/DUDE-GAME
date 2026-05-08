@@ -102,6 +102,7 @@ public class PlayerStats : MonoBehaviour
     public void KillPlayer()
     {
         if (playerVisuals != null) playerVisuals.SpawnBloodSplatter(playerIndex, transform.position);
+        if (playerVisuals != null) playerVisuals.SpawnDeathEffect();
         playerAlive = false;
         gunHolder.DropCurrentWeapon();
 

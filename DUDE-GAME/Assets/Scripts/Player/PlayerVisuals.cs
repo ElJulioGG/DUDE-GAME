@@ -24,6 +24,8 @@ public class PlayerVisuals : MonoBehaviour
     [SerializeField] private ParticleSystem RippleParticle;
     [SerializeField] private ParticleSystem AuraParticle;
     [SerializeField] private GameObject damageParticlePrefab;
+    [SerializeField] private GameObject deathParticlePrefab;
+    [SerializeField] private float deathVelocityMultiplier = 2f;
 
     private Rigidbody2D rb;
 
@@ -115,6 +117,28 @@ public class PlayerVisuals : MonoBehaviour
     {
         RippleParticle.Play();
         AuraParticle.Play();
+    }
+
+    public void SpawnDeathEffect()
+    {
+        if (deathParticlePrefab == null) return;
+        GameObject obj = Instantiate(deathParticlePrefab, transform.position, transform.rotation);
+        InjectPlayerVelocity(obj);
+    }
+
+    private void InjectPlayerVelocity(GameObject obj)
+    {
+        if (rb == null) return;
+        Vector2 vel = rb.linearVelocity * deathVelocityMultiplier;
+
+        foreach (var ps in obj.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var vol = ps.velocityOverLifetime;
+            vol.enabled = true;
+            vol.space = ParticleSystemSimulationSpace.World;
+            vol.x = new ParticleSystem.MinMaxCurve(vel.x);
+            vol.y = new ParticleSystem.MinMaxCurve(vel.y);
+        }
     }
 
     public void SpawnBloodSplatter(int playerIndex, Vector3 position)

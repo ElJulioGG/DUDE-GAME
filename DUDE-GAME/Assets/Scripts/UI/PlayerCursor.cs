@@ -137,7 +137,7 @@ public class PlayerCursor : MonoBehaviour
                 if (!isAssigned && !IsButtonHoveredByAnotherCursor(hoveredButton))
                 {
                     SetButtonColor(hoveredButton, Color.white);
-                    SetButtonTextColor(hoveredButton, Color.black);
+                    //SetButtonTextColor(hoveredButton, Color.black);
                 }
             }
 
@@ -154,7 +154,7 @@ public class PlayerCursor : MonoBehaviour
                     else if (hoveredButton == player4Button) targetColor = playerColors[3];
 
                     SetButtonColor(hoveredButton, targetColor);
-                    SetButtonTextColor(hoveredButton, Color.white);
+                    //SetButtonTextColor(hoveredButton, Color.white);
                 }
             }
             else if (!isAssigned)

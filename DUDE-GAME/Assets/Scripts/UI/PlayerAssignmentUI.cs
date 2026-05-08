@@ -17,9 +17,13 @@ public class PlayerAssignmentUI : MonoBehaviour
 
     [Header("Player Slot UI")]
     [SerializeField] private Image[] playerSlotBackgrounds;
-    [SerializeField] private TextMeshProUGUI[] playerSlotTexts;
+    [SerializeField] private Image[] playerSlotDarkenImages;
     [SerializeField] private Image[] playerSlotIcons;
     [SerializeField] private GameObject[] playerSlotAssignedIndicators;
+
+    [Header("Darken Image Opacity")]
+    [Range(0f, 1f)] [SerializeField] private float darkenAssignedAlpha = 0.8f;
+    [Range(0f, 1f)] [SerializeField] private float darkenUnassignedAlpha = 0f;
 
     [Header("Colors")]
     [SerializeField] private Color player1Color = Color.red;
@@ -59,7 +63,7 @@ public class PlayerAssignmentUI : MonoBehaviour
             resetButton.onClick.AddListener(OnResetButtonClicked);
 
         int limit = Mathf.Min(playerSlotPanels.Length, playerSlotBackgrounds.Length,
-                              playerSlotTexts.Length, playerSlotAssignedIndicators.Length);
+                              playerSlotDarkenImages.Length, playerSlotAssignedIndicators.Length);
         for (int i = 0; i < limit; i++)
         {
             if (playerSlotPanels[i] != null)
@@ -68,11 +72,8 @@ public class PlayerAssignmentUI : MonoBehaviour
             if (playerSlotBackgrounds[i] != null)
                 playerSlotBackgrounds[i].color = unassignedColor;
 
-            if (playerSlotTexts[i] != null)
-            {
-                playerSlotTexts[i].text = $"Player {i + 1}";
-                playerSlotTexts[i].color = Color.white;
-            }
+            if (playerSlotDarkenImages[i] != null)
+                SetImageAlpha(playerSlotDarkenImages[i], darkenUnassignedAlpha);
 
             if (playerSlotAssignedIndicators[i] != null)
                 playerSlotAssignedIndicators[i].SetActive(false);
@@ -90,6 +91,31 @@ public class PlayerAssignmentUI : MonoBehaviour
     {
         UpdateInstructionText(assignedCount);
         UpdateStartButtonState(assignedCount);
+        UpdateDarkenImages();
+    }
+
+    private void UpdateDarkenImages()
+    {
+        if (playerSlotDarkenImages == null) return;
+
+        bool[] slotAssigned = new bool[playerSlotDarkenImages.Length];
+
+        var cursors = PlayerCursor.All;
+        if (cursors != null)
+        {
+            foreach (var cursor in cursors)
+            {
+                int idx = cursor.AssignedPlayerIndex;
+                if (cursor.IsAssigned && idx >= 0 && idx < slotAssigned.Length)
+                    slotAssigned[idx] = true;
+            }
+        }
+
+        for (int i = 0; i < playerSlotDarkenImages.Length; i++)
+        {
+            if (playerSlotDarkenImages[i] != null)
+                SetImageAlpha(playerSlotDarkenImages[i], slotAssigned[i] ? darkenAssignedAlpha : darkenUnassignedAlpha);
+        }
     }
 
     private void UpdateInstructionText(int assignedCount)
@@ -130,24 +156,11 @@ public class PlayerAssignmentUI : MonoBehaviour
             _startButtonText.text = canStart ? "Press \"Start\" to begin!" : "At least 2 Players To Start...";
     }
 
-    private void OnPlayerAssigned(int playerIndex, Gamepad gamepad)
+    private static void SetImageAlpha(Image image, float alpha)
     {
-        if (playerIndex < 0 || playerIndex >= playerSlotPanels.Length) return;
-
-        playerSlotBackgrounds[playerIndex].color = GetPlayerColor(playerIndex);
-        playerSlotTexts[playerIndex].text = $"Player {playerIndex + 1}\n{gamepad.displayName}";
-        playerSlotTexts[playerIndex].color = Color.white;
-        playerSlotAssignedIndicators[playerIndex].SetActive(true);
-    }
-
-    private void OnPlayerUnassigned(int playerIndex)
-    {
-        if (playerIndex < 0 || playerIndex >= playerSlotPanels.Length) return;
-
-        playerSlotBackgrounds[playerIndex].color = unassignedColor;
-        playerSlotTexts[playerIndex].text = $"Player {playerIndex + 1}";
-        playerSlotTexts[playerIndex].color = Color.white;
-        playerSlotAssignedIndicators[playerIndex].SetActive(false);
+        Color c = image.color;
+        c.a = alpha;
+        image.color = c;
     }
 
     private void OnGameStarted()
@@ -186,8 +199,6 @@ public class PlayerAssignmentUI : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < playerSlotPanels.Length; i++)
-            OnPlayerUnassigned(i);
     }
 
     public void ShowUI()
