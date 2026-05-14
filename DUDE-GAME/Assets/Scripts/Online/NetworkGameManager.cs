@@ -7,44 +7,57 @@ using FishNet.Transporting;
 using UnityEngine;
 
 /// <summary>
-/// Sits on the NetworkManager GameObject. Handles the handshake that assigns
-/// global player slots to each connected machine.
+/// Handles the handshake that assigns global player slots (0-3) to each connected machine,
+/// and keeps a shared lobby-state view of every slot's character selection synced to all clients.
 ///
-/// Flow:
-///   1. Client connects → sends RegisterBroadcast (how many local players)
-///   2. Server buffers the count and waits for OnClientLoadedStartScenes
-///   3. Once both arrive → gives ownership of the correct PlayerSlots + sends AssignBroadcast back
-///   4. Client receives AssignBroadcast → tells LocalPlayerRegistry which slots it owns
+/// Variable count rules:
+///   - Each machine may request 1-3 local players.
+///   - The server allocates min(requested, remaining_slots) — first come, first served.
+///   - Total slots = 4. If 4 machines connect they each get 1. If 2 connect, the first
+///     can take up to 3 (1 left for the second). No hard-coded cap beyond available slots.
 /// </summary>
 public class NetworkGameManager : NetworkBehaviour
 {
     public static NetworkGameManager Instance { get; private set; }
 
-    // --- Set this before calling StartConnection (from lobby UI / character select) ---
-    // 1 = solo online, 2 = two players on same couch going online together
-    public static int LocalPlayerCount = 1;
+    // --- Set before StartConnection (from OnlineLobbyManager after local CSS) ---
+    public static int   LocalPlayerCount         = 1;
+    public static int[] LocalCharacterSelections = new int[3] { -1, -1, -1 };
 
-    // Assign all 4 player NetworkPlayerControllers here in the Inspector (slots 0-3)
+    // 4 player NetworkPlayerControllers — drag them in the Inspector in slot order 0-3
     [SerializeField] private NetworkPlayerController[] _playerSlots;
 
-    // Server-side state
-    private readonly Dictionary<int, int> _pendingCounts    = new(); // clientId → localPlayerCount
-    private readonly HashSet<int>         _readyConnections = new(); // clientIds that finished loading scenes
+    // Server-side
+    private readonly Dictionary<int, PendingRegistration> _pending = new();
+    private readonly HashSet<int>                         _ready   = new();
+    private readonly int[]                                _charSelections = { -1, -1, -1, -1 };
     private int _nextGlobalIndex = 0;
 
+    private struct PendingRegistration
+    {
+        public int Count;
+        public int Char0, Char1, Char2;
+    }
+
     // -------------------------------------------------------------------------
-    // Broadcast structs
+    // Broadcast types
     // -------------------------------------------------------------------------
 
     public struct RegisterBroadcast : IBroadcast
     {
         public int LocalPlayerCount;
+        public int CharIndex0, CharIndex1, CharIndex2; // character list index per local player (-1 = none)
     }
 
     public struct AssignBroadcast : IBroadcast
     {
-        public int Index0; // global slot index for this machine's local player 0 (-1 = none)
-        public int Index1; // global slot index for this machine's local player 1 (-1 = none)
+        public int Index0, Index1, Index2; // global slot assigned to local players 0-2 (-1 = none)
+    }
+
+    // Sent to ALL clients whenever any slot's character selection changes.
+    public struct LobbyStateBroadcast : IBroadcast
+    {
+        public int Char0, Char1, Char2, Char3; // character index per global slot (-1 = empty)
     }
 
     // -------------------------------------------------------------------------
@@ -69,70 +82,80 @@ public class NetworkGameManager : NetworkBehaviour
         base.OnStopServer();
         InstanceFinder.ServerManager.UnregisterBroadcast<RegisterBroadcast>(OnServerReceiveRegister);
         InstanceFinder.NetworkManager.SceneManager.OnClientLoadedStartScenes -= OnClientLoadedScenes;
-        _pendingCounts.Clear();
-        _readyConnections.Clear();
+        _pending.Clear();
+        _ready.Clear();
         _nextGlobalIndex = 0;
+        for (int i = 0; i < _charSelections.Length; i++) _charSelections[i] = -1;
     }
 
     public override void OnStartClient()
     {
         base.OnStartClient();
         InstanceFinder.ClientManager.RegisterBroadcast<AssignBroadcast>(OnClientReceiveAssign);
+        InstanceFinder.ClientManager.RegisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
 
-        // Tell the server how many local players this machine has.
-        // The host also does this — it goes through the same server handler.
-        InstanceFinder.ClientManager.Broadcast(new RegisterBroadcast { LocalPlayerCount = LocalPlayerCount });
+        InstanceFinder.ClientManager.Broadcast(new RegisterBroadcast
+        {
+            LocalPlayerCount = LocalPlayerCount,
+            CharIndex0       = LocalCharacterSelections[0],
+            CharIndex1       = LocalCharacterSelections[1],
+            CharIndex2       = LocalCharacterSelections[2],
+        });
     }
 
     public override void OnStopClient()
     {
         base.OnStopClient();
         InstanceFinder.ClientManager.UnregisterBroadcast<AssignBroadcast>(OnClientReceiveAssign);
+        InstanceFinder.ClientManager.UnregisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
     }
 
     // -------------------------------------------------------------------------
-    // Server: receive player count from a connection
+    // Server: receive registration from a machine
     // -------------------------------------------------------------------------
 
     private void OnServerReceiveRegister(NetworkConnection conn, RegisterBroadcast msg, Channel channel)
     {
-        _pendingCounts[conn.ClientId] = msg.LocalPlayerCount;
+        _pending[conn.ClientId] = new PendingRegistration
+        {
+            Count = msg.LocalPlayerCount,
+            Char0 = msg.CharIndex0,
+            Char1 = msg.CharIndex1,
+            Char2 = msg.CharIndex2,
+        };
         TryAssign(conn);
     }
-
-    // -------------------------------------------------------------------------
-    // Server: a client finished loading all start scenes — safe to give ownership
-    // -------------------------------------------------------------------------
 
     private void OnClientLoadedScenes(NetworkConnection conn, bool asServer)
     {
         if (!asServer) return;
-        _readyConnections.Add(conn.ClientId);
+        _ready.Add(conn.ClientId);
         TryAssign(conn);
     }
 
     // -------------------------------------------------------------------------
-    // Assign player slots once BOTH conditions are met for a connection
+    // Server: assign slots once both count and scene-ready are known
     // -------------------------------------------------------------------------
 
     private void TryAssign(NetworkConnection conn)
     {
-        // Both pieces of info must be available before we can assign
-        if (!_pendingCounts.ContainsKey(conn.ClientId))    return;
-        if (!_readyConnections.Contains(conn.ClientId))    return;
+        if (!_pending.ContainsKey(conn.ClientId)) return;
+        if (!_ready.Contains(conn.ClientId))      return;
 
-        int count = _pendingCounts[conn.ClientId];
-        _pendingCounts.Remove(conn.ClientId);
+        PendingRegistration reg = _pending[conn.ClientId];
+        _pending.Remove(conn.ClientId);
 
         int available = _playerSlots.Length - _nextGlobalIndex;
-        count = Mathf.Clamp(count, 1, Mathf.Min(2, available));
+        int count = Mathf.Clamp(reg.Count, 1, available);   // no artificial max-2 cap
+
         if (count <= 0)
         {
-            Debug.LogWarning($"[NetworkGameManager] No player slots left for clientId {conn.ClientId}.");
+            Debug.LogWarning($"[NetworkGameManager] No slots left for clientId {conn.ClientId}.");
             return;
         }
 
-        int idx0 = -1, idx1 = -1;
+        int[] charIndices = { reg.Char0, reg.Char1, reg.Char2 };
+        int idx0 = -1, idx1 = -1, idx2 = -1;
 
         for (int i = 0; i < count; i++)
         {
@@ -140,21 +163,59 @@ public class NetworkGameManager : NetworkBehaviour
             _playerSlots[gi].NetworkObject.GiveOwnership(conn);
             _playerSlots[gi].ServerInit(gi);
 
-            if (i == 0) idx0 = gi;
-            else        idx1 = gi;
+            if (i < charIndices.Length && charIndices[i] >= 0)
+                _charSelections[gi] = charIndices[i];
+
+            if      (i == 0) idx0 = gi;
+            else if (i == 1) idx1 = gi;
+            else if (i == 2) idx2 = gi;
         }
 
-        InstanceFinder.ServerManager.Broadcast(conn, new AssignBroadcast { Index0 = idx0, Index1 = idx1 });
-        Debug.Log($"[NetworkGameManager] ClientId {conn.ClientId} → slots [{idx0}, {idx1}]");
+        // Tell this machine which global slots it owns
+        InstanceFinder.ServerManager.Broadcast(conn, new AssignBroadcast
+        {
+            Index0 = idx0, Index1 = idx1, Index2 = idx2
+        });
+
+        // Broadcast the updated lobby state to EVERY connected client
+        BroadcastLobbyState();
+
+        Debug.Log($"[NetworkGameManager] ClientId {conn.ClientId} → slots [{idx0},{idx1},{idx2}]");
     }
 
     // -------------------------------------------------------------------------
-    // Client: receive assigned global indices
+    // Server: send full lobby state to all clients
+    // -------------------------------------------------------------------------
+
+    [Server]
+    public void BroadcastLobbyState()
+    {
+        InstanceFinder.ServerManager.Broadcast(new LobbyStateBroadcast
+        {
+            Char0 = _charSelections[0],
+            Char1 = _charSelections[1],
+            Char2 = _charSelections[2],
+            Char3 = _charSelections[3],
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Client: receive assigned global slots
     // -------------------------------------------------------------------------
 
     private void OnClientReceiveAssign(AssignBroadcast msg, Channel channel)
     {
-        LocalPlayerRegistry.Instance?.SetAssignment(msg.Index0, msg.Index1);
-        Debug.Log($"[NetworkGameManager] This machine owns global slots [{msg.Index0}, {msg.Index1}]");
+        LocalPlayerRegistry.Instance?.SetAssignment(msg.Index0, msg.Index1, msg.Index2);
+        OnlineLobbyManager.Instance?.ApplyNetworkAssignment();
+        Debug.Log($"[NetworkGameManager] This machine owns slots [{msg.Index0},{msg.Index1},{msg.Index2}]");
+    }
+
+    // -------------------------------------------------------------------------
+    // Client: receive combined lobby state (reserved for future lobby UI)
+    // -------------------------------------------------------------------------
+
+    private void OnClientReceiveLobbyState(LobbyStateBroadcast msg, Channel channel)
+    {
+        // Future: update lobby UI showing all players' selections
     }
 }

@@ -9,10 +9,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Scenes/Menu2.unity
+    path: Assets/Scenes/Menu.unity
     guid: dcce760a78d0dcb4dbd42b23e2766710
   - enabled: 1
-    path: Assets/Scenes/JulioScene.unity
+    path: Assets/Scenes/GameScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 0
     path: Assets/Scenes/CharacterSelection.unity
