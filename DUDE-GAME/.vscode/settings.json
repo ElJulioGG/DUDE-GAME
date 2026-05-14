@@ -57,5 +57,5 @@
         "Temp/": true
     },
     "dotnet.defaultSolution": "DUDE-GAME.slnx",
-    "workbench.colorTheme": "Visual Studio Dark"
+    "workbench.colorTheme": "Visual Studio 2019 Dark"
 }

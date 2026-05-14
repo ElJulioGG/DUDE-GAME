@@ -604,7 +604,7 @@ PlayerSettings:
     PS5: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2
     QNX: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2
     ReservedCFE: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2
-    Standalone: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2;GRENADE_DEBUG
+    Standalone: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2;GRENADE_DEBUG;MIRROR;MIRROR_89_OR_NEWER;MIRROR_90_OR_NEWER;MIRROR_93_OR_NEWER;MIRROR_96_OR_NEWER;EDGEGAP_PLUGIN_SERVERS;FISHNET;FISHNET_V4;STEAMWORKS_NET
     VisionOS: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2
     WebGL: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2
     Windows Store Apps: DOTWEEN
@@ -628,7 +628,7 @@ PlayerSettings:
   gcIncremental: 1
   gcWBarrierValidation: 0
   apiCompatibilityLevelPerPlatform: {}
-  editorAssembliesCompatibilityLevel: 1
+  editorAssembliesCompatibilityLevel: 2
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: DUDE-GAME
@@ -705,7 +705,7 @@ PlayerSettings:
   hmiCpuConfiguration: 
   hmiLogStartupTiming: 0
   qnxGraphicConfPath: 
-  apiCompatibilityLevel: 6
+  apiCompatibilityLevel: 3
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
