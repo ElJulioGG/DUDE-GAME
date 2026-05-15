@@ -29,6 +29,12 @@ public class PlayerCursor : MonoBehaviour
     [SerializeField] private Color unassignedColor = Color.black;
 
     private Button hoveredButton = null;
+    private Slider hoveredSlider = null;
+    private TMP_InputField hoveredInputField = null;
+    private Toggle hoveredToggle = null;
+    private Scrollbar hoveredScrollbar = null;
+    private Scrollbar _grabbedScrollbar = null;
+    private bool _isGrabbingScrollbar = false;
     private static int assignedCursorCount = 0;
     [SerializeField] private GameObject readyImage;
 
@@ -116,19 +122,34 @@ public class PlayerCursor : MonoBehaviour
         {
             HandleMovement();
             HandleButtonHover();
+            HandleSliderInput();
+            HandleScrollbarDrag();
         }
     }
 
     private void HandleButtonHover()
     {
         GameObject hitObject = GetUIObjectUnderCursor();
+
         Button foundButton = null;
+        Slider foundSlider = null;
+        TMP_InputField foundInputField = null;
+        Toggle foundToggle = null;
+        Scrollbar foundScrollbar = null;
 
         if (hitObject != null)
+        {
             foundButton = hitObject.GetComponentInParent<Button>();
+            if (foundButton != null && !foundButton.interactable) foundButton = null;
 
-        if (foundButton != null && !foundButton.interactable)
-            foundButton = null;
+            if (foundButton == null)
+            {
+                foundSlider     = hitObject.GetComponentInParent<Slider>();
+                foundInputField = hitObject.GetComponentInParent<TMP_InputField>();
+                foundToggle     = hitObject.GetComponentInParent<Toggle>();
+                foundScrollbar  = hitObject.GetComponentInParent<Scrollbar>();
+            }
+        }
 
         if (hoveredButton != foundButton)
         {
@@ -162,23 +183,82 @@ public class PlayerCursor : MonoBehaviour
                 cursorImage.color = unassignedColor;
             }
         }
+
+        hoveredSlider     = foundSlider;
+        hoveredInputField = foundInputField;
+        hoveredToggle     = foundToggle;
+        hoveredScrollbar  = foundScrollbar;
     }
 
     private void PressButtonUnderCursor()
     {
-        if (hoveredButton == null) return;
+        if (hoveredButton != null)
+        {
+            if (IsAssignmentButton(hoveredButton))
+            {
+                if (hoveredButton == player1Button) AssignPlayer(0);
+                else if (hoveredButton == player2Button) AssignPlayer(1);
+                else if (hoveredButton == player3Button) AssignPlayer(2);
+                else if (hoveredButton == player4Button) AssignPlayer(3);
+            }
+            else
+            {
+                hoveredButton.onClick.Invoke();
+            }
+            return;
+        }
 
-        if (IsAssignmentButton(hoveredButton))
+        if (hoveredInputField != null)
         {
-            if (hoveredButton == player1Button) AssignPlayer(0);
-            else if (hoveredButton == player2Button) AssignPlayer(1);
-            else if (hoveredButton == player3Button) AssignPlayer(2);
-            else if (hoveredButton == player4Button) AssignPlayer(3);
+            hoveredInputField.Select();
+            hoveredInputField.ActivateInputField();
+            return;
         }
-        else
+
+        if (hoveredToggle != null && hoveredToggle.interactable)
         {
-            hoveredButton.onClick.Invoke();
+            hoveredToggle.isOn = !hoveredToggle.isOn;
+            return;
         }
+    }
+
+    private void HandleScrollbarDrag()
+    {
+        if (_grabbedScrollbar == null) return;
+
+        RectTransform scrollbarRect = _grabbedScrollbar.GetComponent<RectTransform>();
+        Vector3[] corners = new Vector3[4];
+        scrollbarRect.GetWorldCorners(corners);
+
+        // corners[0] = bottom-left, corners[1] = top-left in screen/world space
+        float minY = corners[0].y;
+        float maxY = corners[1].y;
+
+        float cursorY = GetCursorScreenPosition().y;
+        float t = Mathf.InverseLerp(minY, maxY, cursorY);
+
+        if (_grabbedScrollbar.direction == Scrollbar.Direction.TopToBottom)
+            t = 1f - t;
+
+        _grabbedScrollbar.value = Mathf.Clamp01(t);
+    }
+
+    private void HandleSliderInput()
+    {
+        if (hoveredSlider == null || !hoveredSlider.interactable) return;
+
+        float stickX = 0f;
+        if (inputDevice is Gamepad pad)
+            stickX = pad.rightStick.ReadValue().x;
+
+        if (Mathf.Abs(stickX) < deadZone) return;
+
+        float range = hoveredSlider.maxValue - hoveredSlider.minValue;
+        hoveredSlider.value = Mathf.Clamp(
+            hoveredSlider.value + stickX * range * Time.unscaledDeltaTime,
+            hoveredSlider.minValue,
+            hoveredSlider.maxValue
+        );
     }
 
     private bool IsAssignmentButton(Button btn)
@@ -237,6 +317,8 @@ public class PlayerCursor : MonoBehaviour
 
         if (moveInput.magnitude < deadZone) moveInput = Vector2.zero;
 
+        if (_isGrabbingScrollbar) moveInput.x = 0f;
+
         if (moveInput != Vector2.zero)
         {
             Vector2 movement = moveInput.normalized * moveSpeed * Time.unscaledDeltaTime;
@@ -248,23 +330,43 @@ public class PlayerCursor : MonoBehaviour
     private void HandleInput()
     {
         bool pressedSelect = false;
+        bool releasedSelect = false;
         bool pressedCancel = false;
         bool pressedStart = false;
 
         if (inputDevice is Gamepad pad)
         {
-            if (pad.buttonSouth.wasPressedThisFrame) pressedSelect = true;
-            if (pad.buttonEast.wasPressedThisFrame) pressedCancel = true;
-            if (pad.startButton.wasPressedThisFrame) pressedStart = true;
+            if (pad.buttonSouth.wasPressedThisFrame)  pressedSelect  = true;
+            if (pad.buttonSouth.wasReleasedThisFrame) releasedSelect = true;
+            if (pad.buttonEast.wasPressedThisFrame)   pressedCancel  = true;
+            if (pad.startButton.wasPressedThisFrame)  pressedStart   = true;
         }
         else if (inputDevice is Keyboard kb)
         {
-            if (kb.spaceKey.wasPressedThisFrame) pressedSelect = true;
-            if (kb.spaceKey.wasPressedThisFrame && isAssigned) pressedCancel = true;
-            if (kb.enterKey.wasPressedThisFrame) pressedStart = true;
+            if (kb.spaceKey.wasPressedThisFrame)               pressedSelect  = true;
+            if (kb.spaceKey.wasReleasedThisFrame)              releasedSelect = true;
+            if (kb.spaceKey.wasPressedThisFrame && isAssigned) pressedCancel  = true;
+            if (kb.enterKey.wasPressedThisFrame)               pressedStart   = true;
         }
 
-        if (!isAssigned && pressedSelect) PressButtonUnderCursor();
+        if (releasedSelect && _isGrabbingScrollbar)
+        {
+            _grabbedScrollbar    = null;
+            _isGrabbingScrollbar = false;
+        }
+
+        if (!isAssigned && pressedSelect)
+        {
+            if (hoveredScrollbar != null)
+            {
+                _grabbedScrollbar    = hoveredScrollbar;
+                _isGrabbingScrollbar = true;
+            }
+            else
+            {
+                PressButtonUnderCursor();
+            }
+        }
         else if (isAssigned && pressedCancel) UnassignPlayer();
 
         if (pressedStart && CanStartGame())
