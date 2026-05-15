@@ -29,7 +29,6 @@ public class NetworkGameManager : NetworkBehaviour
 
     // Server-side
     private readonly Dictionary<int, PendingRegistration> _pending = new();
-    private readonly HashSet<int>                         _ready   = new();
     private readonly int[]                                _charSelections = { -1, -1, -1, -1 };
     private int _nextGlobalIndex = 0;
 
@@ -60,6 +59,15 @@ public class NetworkGameManager : NetworkBehaviour
         public int Char0, Char1, Char2, Char3; // character index per global slot (-1 = empty)
     }
 
+    // Streamed every ~50 ms per machine during the CSS phase so all machines can render remote cursors.
+    public struct CSSCursorStateBroadcast : IBroadcast
+    {
+        public int ClientId;  // filled by server relay
+        public float X0, Y0; public bool Active0; public bool Assigned0; public sbyte PlayerIndex0;
+        public float X1, Y1; public bool Active1; public bool Assigned1; public sbyte PlayerIndex1;
+        public float X2, Y2; public bool Active2; public bool Assigned2; public sbyte PlayerIndex2;
+    }
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -74,16 +82,15 @@ public class NetworkGameManager : NetworkBehaviour
     {
         base.OnStartServer();
         InstanceFinder.ServerManager.RegisterBroadcast<RegisterBroadcast>(OnServerReceiveRegister);
-        InstanceFinder.NetworkManager.SceneManager.OnClientLoadedStartScenes += OnClientLoadedScenes;
+        InstanceFinder.ServerManager.RegisterBroadcast<CSSCursorStateBroadcast>(OnServerReceiveCSSCursors);
     }
 
     public override void OnStopServer()
     {
         base.OnStopServer();
         InstanceFinder.ServerManager.UnregisterBroadcast<RegisterBroadcast>(OnServerReceiveRegister);
-        InstanceFinder.NetworkManager.SceneManager.OnClientLoadedStartScenes -= OnClientLoadedScenes;
+        InstanceFinder.ServerManager.UnregisterBroadcast<CSSCursorStateBroadcast>(OnServerReceiveCSSCursors);
         _pending.Clear();
-        _ready.Clear();
         _nextGlobalIndex = 0;
         for (int i = 0; i < _charSelections.Length; i++) _charSelections[i] = -1;
     }
@@ -93,14 +100,6 @@ public class NetworkGameManager : NetworkBehaviour
         base.OnStartClient();
         InstanceFinder.ClientManager.RegisterBroadcast<AssignBroadcast>(OnClientReceiveAssign);
         InstanceFinder.ClientManager.RegisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
-
-        InstanceFinder.ClientManager.Broadcast(new RegisterBroadcast
-        {
-            LocalPlayerCount = LocalPlayerCount,
-            CharIndex0       = LocalCharacterSelections[0],
-            CharIndex1       = LocalCharacterSelections[1],
-            CharIndex2       = LocalCharacterSelections[2],
-        });
     }
 
     public override void OnStopClient()
@@ -108,6 +107,17 @@ public class NetworkGameManager : NetworkBehaviour
         base.OnStopClient();
         InstanceFinder.ClientManager.UnregisterBroadcast<AssignBroadcast>(OnClientReceiveAssign);
         InstanceFinder.ClientManager.UnregisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
+    }
+
+    // -------------------------------------------------------------------------
+    // Server: relay CSS cursor positions to all clients
+    // -------------------------------------------------------------------------
+
+    private void OnServerReceiveCSSCursors(NetworkConnection conn, CSSCursorStateBroadcast msg, Channel channel)
+    {
+        // ClientId is already stamped by the sender with its own random LocalSessionId.
+        // Just relay unchanged to every client.
+        InstanceFinder.ServerManager.Broadcast(msg);
     }
 
     // -------------------------------------------------------------------------
@@ -126,21 +136,13 @@ public class NetworkGameManager : NetworkBehaviour
         TryAssign(conn);
     }
 
-    private void OnClientLoadedScenes(NetworkConnection conn, bool asServer)
-    {
-        if (!asServer) return;
-        _ready.Add(conn.ClientId);
-        TryAssign(conn);
-    }
-
     // -------------------------------------------------------------------------
-    // Server: assign slots once both count and scene-ready are known
+    // Server: assign slots when registration arrives (CSS is already done)
     // -------------------------------------------------------------------------
 
     private void TryAssign(NetworkConnection conn)
     {
         if (!_pending.ContainsKey(conn.ClientId)) return;
-        if (!_ready.Contains(conn.ClientId))      return;
 
         PendingRegistration reg = _pending[conn.ClientId];
         _pending.Remove(conn.ClientId);
@@ -186,6 +188,9 @@ public class NetworkGameManager : NetworkBehaviour
     // -------------------------------------------------------------------------
     // Server: send full lobby state to all clients
     // -------------------------------------------------------------------------
+
+    public NetworkPlayerController GetPlayerSlot(int globalIndex) =>
+        (globalIndex >= 0 && globalIndex < _playerSlots.Length) ? _playerSlots[globalIndex] : null;
 
     [Server]
     public void BroadcastLobbyState()

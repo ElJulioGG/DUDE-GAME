@@ -10,6 +10,8 @@ public class PlayerInputHandler : MonoBehaviour
     public PlayerInput playerInput;
     public int index;
 
+    private NetworkPlayerController _netController;
+
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
@@ -20,24 +22,45 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void reasignController(int newIndex)
     {
-        if (playerMovement != null)
+        // Zero out the old target before re-linking
+        if (GameSession.IsOnline && _netController != null)
+            _netController.RpcMove(Vector2.zero);
+        else if (playerMovement != null)
             playerMovement.SetInputVector(Vector2.zero);
 
         index = newIndex;
         LinkComponents(newIndex);
+
+        _netController = GameSession.IsOnline
+            ? NetworkGameManager.Instance?.GetPlayerSlot(newIndex)
+            : null;
+
         DetectAndSetControllerType();
     }
 
     private void LinkComponents(int targetIndex)
     {
-        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
+        // PlayerStats.playerIndex is [SerializeField] — reliable even when the GO is inactive.
+        // PlayerMovement.playerIndex is set in Start(), so it's wrong for inactive objects.
+        // We anchor on PlayerStats and grab siblings from the same hierarchy.
+        var allStats = FindObjectsByType<PlayerStats>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         playerStats = allStats.FirstOrDefault(s => s.GetPlayerIndex() == targetIndex);
 
-        var allMovers = FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None);
-        playerMovement = allMovers.FirstOrDefault(m => m.GetPlayerIndex() == targetIndex);
+        if (playerStats != null)
+        {
+            playerMovement = playerStats.GetComponent<PlayerMovement>()
+                          ?? playerStats.GetComponentInParent<PlayerMovement>(true)
+                          ?? playerStats.GetComponentInChildren<PlayerMovement>(true);
 
-        var allHolders = FindObjectsByType<GunHolder>(FindObjectsSortMode.None);
-        gunHolder = allHolders.FirstOrDefault(h => h.GetPlayerIndex() == targetIndex);
+            gunHolder = playerStats.GetComponent<GunHolder>()
+                     ?? playerStats.GetComponentInParent<GunHolder>(true)
+                     ?? playerStats.GetComponentInChildren<GunHolder>(true);
+        }
+        else
+        {
+            playerMovement = null;
+            gunHolder      = null;
+        }
     }
 
     private void DetectAndSetControllerType()
@@ -68,39 +91,55 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (playerMovement != null)
-            playerMovement.SetInputVector(context.ReadValue<Vector2>());
+        var input = context.ReadValue<Vector2>();
+        if (GameSession.IsOnline && _netController != null)
+            _netController.RpcMove(input);
+        else if (playerMovement != null)
+            playerMovement.SetInputVector(input);
     }
 
     public void OnAim(InputAction.CallbackContext context)
     {
         if (!GameManager.instance.playersCanAim) return;
-        if (gunHolder != null)
-            gunHolder.SetAimDirection(context.ReadValue<Vector2>());
+        var dir = context.ReadValue<Vector2>();
+        if (GameSession.IsOnline && _netController != null)
+            _netController.RpcAim(dir);
+        else if (gunHolder != null)
+            gunHolder.SetAimDirection(dir);
     }
 
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (!GameManager.instance.playersCanPickDrop) return;
-        if (context.performed && gunHolder != null)
+        if (!context.performed) return;
+        if (GameSession.IsOnline && _netController != null)
+            _netController.RpcInteract();
+        else if (gunHolder != null)
             gunHolder.HandlePickDrop();
     }
 
     public void OnShoot(InputAction.CallbackContext context)
     {
         if (!GameManager.instance.playersCanShoot) return;
-        if (gunHolder == null) return;
-
-        if (context.performed)
-            gunHolder.HandleShoot();
-        else if (context.canceled)
-            gunHolder.HandleStopShoot();
+        if (GameSession.IsOnline && _netController != null)
+        {
+            if (context.performed)     _netController.RpcShootStart();
+            else if (context.canceled) _netController.RpcShootStop();
+        }
+        else if (gunHolder != null)
+        {
+            if (context.performed)     gunHolder.HandleShoot();
+            else if (context.canceled) gunHolder.HandleStopShoot();
+        }
     }
 
     public void OnReload(InputAction.CallbackContext context)
     {
         if (!GameManager.instance.playersCanReload) return;
-        if (context.performed && gunHolder != null)
+        if (!context.performed) return;
+        if (GameSession.IsOnline && _netController != null)
+            _netController.RpcReload();
+        else if (gunHolder != null)
             gunHolder.HandleReload();
     }
 
@@ -109,9 +148,12 @@ public class PlayerInputHandler : MonoBehaviour
         if (!GameManager.instance.playersCanPowerUp)
         {
             AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
-           return; 
-        } 
-        if (context.performed && playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
+            return;
+        }
+        if (!context.performed) return;
+        if (GameSession.IsOnline && _netController != null)
+            _netController.RpcPowerUp();
+        else if (playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
             playerStats.usingPowerUp = true;
     }
 }

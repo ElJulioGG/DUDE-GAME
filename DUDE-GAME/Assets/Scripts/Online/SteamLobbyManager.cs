@@ -1,5 +1,6 @@
 using System;
 using FishNet;
+using FishySteamworks;
 using Steamworks;
 using UnityEngine;
 
@@ -43,6 +44,8 @@ public class SteamLobbyManager : MonoBehaviour
     private bool   _pendingIsPublic;
     private string _pendingCode;
 
+    private FishySteamworks.FishySteamworks _fishySteamworks;
+
     // -------------------------------------------------------------------------
 
     private void Awake()
@@ -54,6 +57,10 @@ public class SteamLobbyManager : MonoBehaviour
 
     private void Start()
     {
+        _fishySteamworks = InstanceFinder.NetworkManager?.GetComponent<FishySteamworks.FishySteamworks>();
+        if (_fishySteamworks == null)
+            Debug.LogWarning("[SteamLobbyManager] FishySteamworks component not found on NetworkManager.");
+
         if (!SteamManager.Initialized) { Debug.LogError("[SteamLobbyManager] Steam not initialized."); return; }
 
         _cbCreated    = Callback<LobbyCreated_t>.Create(OnCreated_Cb);
@@ -107,6 +114,7 @@ public class SteamLobbyManager : MonoBehaviour
         if (!_pendingIsPublic && !string.IsNullOrEmpty(_pendingCode))
             SteamMatchmaking.SetLobbyData(CurrentLobbyID, KEY_CODE, _pendingCode);
 
+        SwapToFishySteamworks();
         InstanceFinder.NetworkManager.ServerManager.StartConnection();
         InstanceFinder.NetworkManager.ClientManager.StartConnection();
 
@@ -139,6 +147,8 @@ public class SteamLobbyManager : MonoBehaviour
             return;
         }
 
+        GameSession.IsOnline = true;
+        SwapToFishySteamworks();
         InstanceFinder.NetworkManager.ClientManager.StartConnection(hostID);
         Debug.Log($"[SteamLobbyManager] Joined lobby, connecting to host {hostID}");
         OnLobbyJoined?.Invoke();
@@ -221,12 +231,19 @@ public class SteamLobbyManager : MonoBehaviour
         if (InstanceFinder.IsClientStarted)
             InstanceFinder.NetworkManager.ClientManager.StopConnection();
 
+        GameSession.IsOnline = false;
         OnDisconnected?.Invoke();
     }
 
     // =========================================================================
     // Helpers
     // =========================================================================
+
+    private void SwapToFishySteamworks()
+    {
+        if (_fishySteamworks == null) return;
+        InstanceFinder.NetworkManager.TransportManager.Transport = _fishySteamworks;
+    }
 
     private LobbyInfo[] Build(int count)
     {

@@ -1,4 +1,5 @@
 using System.Linq;
+using FishNet;
 using UnityEngine;
 
 /// <summary>
@@ -31,24 +32,48 @@ public class OnlineLobbyManager : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Call this from your "Go Online" / "Host" / "Join" button handler,
-    /// BEFORE calling SteamLobbyManager.Host/Join.
-    /// Counts how many local cursors are currently assigned and stores the
-    /// result in NetworkGameManager.LocalPlayerCount.
+    /// Call this from your "Host" / "Join" button handler BEFORE SteamLobbyManager.Host/Join.
+    /// Marks the session as online; actual player count is snapshotted later by SendRegistration().
     /// </summary>
     public void PrepareOnlineSession()
     {
+        GameSession.IsOnline = true;
+        Debug.Log("[OnlineLobbyManager] Online session prepared.");
+    }
+
+    /// <summary>
+    /// Called by PlayerCursor when Start is pressed in the GameScene (online mode).
+    /// Snapshots how many cursors are assigned on this machine and sends a
+    /// RegisterBroadcast so the server can allocate global player slots.
+    /// </summary>
+    public void SendRegistration()
+    {
         int count = 0;
+        var chars = new int[] { -1, -1, -1 };
+
         var cursors = PlayerCursor.All;
         if (cursors != null)
+        {
+            int slot = 0;
             foreach (var c in cursors)
-                if (c.IsAssigned) count++;
+            {
+                if (!c.IsAssigned || slot >= 3) continue;
+                count++;
+                slot++;
+            }
+        }
 
-        // At least 1, at most 3 (server always needs to leave 1 slot open per extra machine)
-        NetworkGameManager.LocalPlayerCount         = Mathf.Clamp(count, 1, 3);
-        NetworkGameManager.LocalCharacterSelections = new int[] { -1, -1, -1 };
+        count = Mathf.Clamp(count, 1, 3);
 
-        Debug.Log($"[OnlineLobbyManager] PrepareOnlineSession: {NetworkGameManager.LocalPlayerCount} local player(s)");
+        InstanceFinder.ClientManager.Broadcast(new NetworkGameManager.RegisterBroadcast
+        {
+            LocalPlayerCount = count,
+            CharIndex0       = chars[0],
+            CharIndex1       = chars[1],
+            CharIndex2       = chars[2],
+        });
+
+        Debug.Log($"[OnlineLobbyManager] SendRegistration: {count} local player(s)");
     }
 
     // -------------------------------------------------------------------------

@@ -53,6 +53,7 @@ public class EditorLobbyTest : MonoBehaviour
     {
         if (_tugboat == null) { Debug.LogError("[EditorLobbyTest] Tugboat not found."); return; }
 
+        GameSession.IsOnline = true;
         SwapToTugboat();
         InstanceFinder.NetworkManager.ServerManager.StartConnection();
         InstanceFinder.NetworkManager.ClientManager.StartConnection();
@@ -63,6 +64,7 @@ public class EditorLobbyTest : MonoBehaviour
     {
         if (_tugboat == null) { Debug.LogError("[EditorLobbyTest] Tugboat not found."); return; }
 
+        GameSession.IsOnline = true;
         SwapToTugboat();
         InstanceFinder.NetworkManager.ClientManager.StartConnection(localAddress);
         Debug.Log($"[EditorLobbyTest] Started Client → {localAddress}:{port}.");

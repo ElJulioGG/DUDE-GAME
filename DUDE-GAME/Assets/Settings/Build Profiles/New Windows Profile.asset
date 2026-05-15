@@ -22,12 +22,6 @@ MonoBehaviour:
   m_Scenes:
   - m_enabled: 1
     m_path: Assets/Scenes/Menu.unity
-  - m_enabled: 1
-    m_path: Assets/Scenes/CharacterSelection.unity
-  - m_enabled: 1
-    m_path: Assets/Scenes/JulioScene.unity
-  - m_enabled: 1
-    m_path: Assets/Scenes/NEW SCNENEN.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:
@@ -101,6 +95,7 @@ MonoBehaviour:
     - line: '|   androidStartInFullscreen: 1'
     - line: '|   androidRenderOutsideSafeArea: 1'
     - line: '|   androidUseSwappy: 1'
+    - line: '|   androidDisplayOptions: 1'
     - line: '|   androidBlitType: 0'
     - line: '|   androidResizeableActivity: 1'
     - line: '|   androidDefaultWindowWidth: 1920'
@@ -117,6 +112,7 @@ MonoBehaviour:
     - line: '|   muteOtherAudioSources: 0'
     - line: '|   Prepare IOS For Recording: 0'
     - line: '|   Force IOS Speakers When Recording: 0'
+    - line: '|   audioSpatialExperience: 0'
     - line: '|   deferSystemGesturesMode: 0'
     - line: '|   hideHomeButton: 0'
     - line: '|   submitAnalytics: 1'
@@ -172,7 +168,11 @@ MonoBehaviour:
     - line: '|   visionOSBundleVersion: 1.0'
     - line: '|   tvOSBundleVersion: 1.0'
     - line: '|   bundleVersion: 1.0'
-    - line: '|   preloadedAssets: []'
+    - line: '|   preloadedAssets:'
+    - line: '|   - {fileID: -944628639613478452, guid: 1dda534c34e13804babb0fecca0c8bc2,
+        type: 3}'
+    - line: '|   - {fileID: 11400000, guid: 9c8131c0cecdf78439441635f6ab41e7, type:
+        2}'
     - line: '|   metroInputSource: 0'
     - line: '|   wsaTransparentSwapchain: 0'
     - line: '|   m_HolographicPauseOnTrackingLoss: 1'
@@ -302,6 +302,9 @@ MonoBehaviour:
     - line: '|   AndroidBuildApkPerCpuArchitecture: 0'
     - line: '|   AndroidTVCompatibility: 0'
     - line: '|   AndroidIsGame: 1'
+    - line: '|   androidAppCategory: 3'
+    - line: '|   useAndroidAppCategory: 1'
+    - line: '|   androidAppCategoryOther: '
     - line: '|   AndroidEnableTango: 0'
     - line: '|   androidEnableBanner: 1'
     - line: '|   androidUseLowAccuracyLocation: 0'
@@ -353,6 +356,7 @@ MonoBehaviour:
     - line: '|     iPhone: 1'
     - line: '|     tvOS: 1'
     - line: '|   m_BuildTargetGroupLightmapEncodingQuality: []'
+    - line: '|   m_BuildTargetGroupHDRCubemapEncodingQuality: []'
     - line: '|   m_BuildTargetGroupLightmapSettings: []'
     - line: '|   m_BuildTargetGroupLoadStoreDebugModeSettings: []'
     - line: '|   m_BuildTargetNormalMapEncoding: []'
@@ -633,7 +637,7 @@ MonoBehaviour:
     - line: '|     PS5: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2'
     - line: '|     QNX: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2'
     - line: '|     ReservedCFE: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2'
-    - line: '|     Standalone: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2'
+    - line: '|     Standalone: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2;STEAMWORKS_NET'
     - line: '|     VisionOS: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2'
     - line: '|     WebGL: DOTWEEN;UNITY_POST_PROCESSING_STACK_V2'
     - line: '|     Windows Store Apps: DOTWEEN'

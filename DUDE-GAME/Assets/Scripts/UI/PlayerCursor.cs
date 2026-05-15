@@ -371,9 +371,18 @@ public class PlayerCursor : MonoBehaviour
 
         if (pressedStart && CanStartGame())
         {
-            GameManager.instance.assignController = false;
-            parentCanvas.gameObject.SetActive(false);
-            Debug.Log("Game Started!");
+            if (GameSession.IsOnline)
+            {
+                // Online: send CSS results to server; server responds with AssignBroadcast
+                // which triggers ApplyNetworkAssignment() → assignController = false
+                OnlineLobbyManager.Instance?.SendRegistration();
+            }
+            else
+            {
+                GameManager.instance.assignController = false;
+                parentCanvas.gameObject.SetActive(false);
+                Debug.Log("Game Started!");
+            }
         }
     }
 
@@ -398,7 +407,8 @@ public class PlayerCursor : MonoBehaviour
         int assignedCount = 0;
         foreach (var cursor in _allCursors)
             if (cursor.IsAssigned) assignedCount++;
-        return assignedCount >= 2;
+        int minRequired = GameSession.IsOnline ? 1 : 2;
+        return assignedCount >= minRequired;
     }
 
     private void AssignPlayer(int playerIndex)
@@ -511,7 +521,8 @@ public class PlayerCursor : MonoBehaviour
             active++;
             if (cursor.IsAssigned) assigned++;
         }
-        bool canStart = assigned >= 2 && assigned == active;
+        int minRequired = GameSession.IsOnline ? 1 : 2;
+        bool canStart = assigned >= minRequired && assigned == active;
         if (readyImage != null) readyImage.SetActive(canStart);
     }
 

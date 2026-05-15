@@ -298,6 +298,12 @@ public class GameController : MonoBehaviour
     {
         ActivateAssignedPlayers();
 
+        // Re-link now that player GameObjects are guaranteed active.
+        // Needed when FishNet disabled scene NetworkObjects before CSS ran.
+        var handlers = FindObjectsByType<PlayerInputHandler>(FindObjectsSortMode.None);
+        foreach (var h in handlers)
+            h.reasignController(h.index);
+
         GameManager.instance.destroyProyectiles = false;
         transitionAnim.SetTrigger("FadeOut");
         AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorOpen, transform.position);
@@ -428,6 +434,12 @@ public class GameController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha0) && GameManager.instance.assignController)
+        {
+            foreach (var cursor in PlayerCursor.All)
+                if (cursor != null && cursor.IsAssigned) cursor.UnassignPlayer();
         }
 
         if (!matchEnded)
