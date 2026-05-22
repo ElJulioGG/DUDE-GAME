@@ -99,17 +99,34 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void KillPlayer()
+    // Plays blood/death particles and death sound — safe to call on any machine.
+    public void PlayDeathEffects()
     {
         if (playerVisuals != null) playerVisuals.SpawnBloodSplatter(playerIndex, transform.position);
         if (playerVisuals != null) playerVisuals.SpawnDeathEffect();
+        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
+    }
+
+    public void KillPlayer()
+    {
+        PlayDeathEffects();
         playerAlive = false;
         gunHolder.DropCurrentWeapon();
-
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
-        
-
         gameObject.SetActive(false);
+    }
+
+    // Applies damage feedback (shake, particles, sound) without triggering death.
+    // Used by NetworkPlayerController.ServerTakeDamage so health/death are server-authoritative.
+    public void ApplyDamageWithoutKill(int damageAmount)
+    {
+        if (!playerAlive) return;
+        health -= damageAmount;
+        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
+        if (playerVisuals != null)
+        {
+            playerVisuals.PlayDamageShake();
+            playerVisuals.SpawnDamageParticles(damageAmount, baseHealth);
+        }
     }
 
     public void ApplyKnockback(Vector2 origin, float force)

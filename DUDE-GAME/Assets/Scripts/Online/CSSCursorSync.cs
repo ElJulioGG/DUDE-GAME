@@ -23,10 +23,27 @@ public class CSSCursorSync : MonoBehaviour
     // (FishySteamworks assigns 32767 to all local connections, which breaks ID-based filtering).
     private static readonly int LocalSessionId = System.Guid.NewGuid().GetHashCode();
 
+    // Exposed so OnlineLobbyManager can stamp outgoing RegisterBroadcast messages.
+    public static int LocalId => LocalSessionId;
+
     private readonly float _sendInterval = 0.05f;
     private float _sendTimer;
 
     private readonly Dictionary<int, GhostCursorSet> _remotes = new();
+
+    // Tracks which player slots (0-3) remote machines have claimed — keyed by clientId.
+    private readonly Dictionary<int, HashSet<int>> _remoteSlots = new();
+
+    // Returns true if a remote machine has already claimed this player slot.
+    public static bool IsSlotClaimedByRemote(int slot)
+    {
+        if (_instance == null) return false;
+        foreach (var slots in _instance._remoteSlots.Values)
+            if (slots.Contains(slot)) return true;
+        return false;
+    }
+
+    private static CSSCursorSync _instance;
 
     private static readonly Color[] PlayerColors =
     {
@@ -37,18 +54,16 @@ public class CSSCursorSync : MonoBehaviour
 
     private void OnEnable()
     {
+        _instance = this;
         if (InstanceFinder.ClientManager != null)
             InstanceFinder.ClientManager.RegisterBroadcast<NetworkGameManager.CSSCursorStateBroadcast>(OnReceiveRemote);
-        if (InstanceFinder.ServerManager != null)
-            InstanceFinder.ServerManager.RegisterBroadcast<NetworkGameManager.CSSCursorStateBroadcast>(OnServerReceiveCursor);
     }
 
     private void OnDisable()
     {
+        if (_instance == this) _instance = null;
         if (InstanceFinder.ClientManager != null)
             InstanceFinder.ClientManager.UnregisterBroadcast<NetworkGameManager.CSSCursorStateBroadcast>(OnReceiveRemote);
-        if (InstanceFinder.ServerManager != null)
-            InstanceFinder.ServerManager.UnregisterBroadcast<NetworkGameManager.CSSCursorStateBroadcast>(OnServerReceiveCursor);
         ClearAllGhosts();
     }
 
@@ -72,12 +87,10 @@ public class CSSCursorSync : MonoBehaviour
 
     // -------------------------------------------------------------------------
 
-    private bool _loggedSend;
     private void SendLocalState()
     {
         var msg = new NetworkGameManager.CSSCursorStateBroadcast { ClientId = LocalSessionId };
         var cursors = PlayerCursor.All;
-        bool anyActive = false;
 
         if (cursors != null)
         {
@@ -85,7 +98,6 @@ public class CSSCursorSync : MonoBehaviour
             {
                 var c = cursors[i];
                 if (c == null || !c.gameObject.activeSelf) continue;
-                anyActive = true;
                 var rt = c.GetComponent<RectTransform>();
                 float x = rt != null ? rt.anchoredPosition.x : 0f;
                 float y = rt != null ? rt.anchoredPosition.y : 0f;
@@ -99,22 +111,13 @@ public class CSSCursorSync : MonoBehaviour
             }
         }
 
-        if (!_loggedSend)
-        {
-            _loggedSend = true;
-            Debug.Log($"[CSSCursorSync] SendLocalState: anyActive={anyActive}, LocalSessionId={LocalSessionId}, cursors={(cursors == null ? "null" : cursors.Length.ToString())}");
-        }
-
         InstanceFinder.ClientManager.Broadcast(msg);
     }
 
     private void OnReceiveRemote(NetworkGameManager.CSSCursorStateBroadcast msg, Channel channel)
     {
-        Debug.Log($"[CSSCursorSync] OnReceiveRemote: clientId={msg.ClientId}, localId={LocalSessionId}, active={msg.Active0}/{msg.Active1}/{msg.Active2}");
-        if (msg.ClientId == LocalSessionId) return; // own echo
-
-        bool inCSS = GameManager.instance != null && GameManager.instance.assignController;
-        if (!inCSS || ghostContainer == null) return;
+        if (msg.ClientId == LocalSessionId) return;
+        if (ghostContainer == null) return;
 
         if (!_remotes.TryGetValue(msg.ClientId, out var set))
         {
@@ -125,28 +128,55 @@ public class CSSCursorSync : MonoBehaviour
         set.ApplySlot(0, msg.Active0, msg.X0, msg.Y0, msg.Assigned0, msg.PlayerIndex0);
         set.ApplySlot(1, msg.Active1, msg.X1, msg.Y1, msg.Assigned1, msg.PlayerIndex1);
         set.ApplySlot(2, msg.Active2, msg.X2, msg.Y2, msg.Assigned2, msg.PlayerIndex2);
+        UpdateRemoteSlots(msg);
     }
 
-    // Server-side handler — FishNet's ServerManager.Broadcast doesn't loop back to the
-    // host's own local client, so the host processes remote cursor data here directly.
-    private void OnServerReceiveCursor(FishNet.Connection.NetworkConnection conn, NetworkGameManager.CSSCursorStateBroadcast msg, FishNet.Transporting.Channel channel)
+    // Called directly by NetworkGameManager after relaying — avoids the FishNet
+    // single-handler-per-type limitation and ServerManager.Broadcast loopback gap.
+    public static void ProcessRemoteOnHost(NetworkGameManager.CSSCursorStateBroadcast msg)
     {
-        Debug.Log($"[CSSCursorSync] OnServerReceiveCursor fired: clientId={msg.ClientId} isHost={InstanceFinder.IsServerStarted && InstanceFinder.IsClientStarted}");
-        if (!InstanceFinder.IsServerStarted || !InstanceFinder.IsClientStarted) return; // host only
+        if (_instance == null) return;
+        if (!InstanceFinder.IsServerStarted || !InstanceFinder.IsClientStarted) return;
         if (msg.ClientId == LocalSessionId) return;
+        if (_instance.ghostContainer == null) return;
 
-        bool inCSS = GameManager.instance != null && GameManager.instance.assignController;
-        if (!inCSS || ghostContainer == null) return;
-
-        if (!_remotes.TryGetValue(msg.ClientId, out var set))
+        if (!_instance._remotes.TryGetValue(msg.ClientId, out var set))
         {
-            set = new GhostCursorSet(ghostContainer);
-            _remotes[msg.ClientId] = set;
+            set = new GhostCursorSet(_instance.ghostContainer);
+            _instance._remotes[msg.ClientId] = set;
         }
 
         set.ApplySlot(0, msg.Active0, msg.X0, msg.Y0, msg.Assigned0, msg.PlayerIndex0);
         set.ApplySlot(1, msg.Active1, msg.X1, msg.Y1, msg.Assigned1, msg.PlayerIndex1);
         set.ApplySlot(2, msg.Active2, msg.X2, msg.Y2, msg.Assigned2, msg.PlayerIndex2);
+        _instance.UpdateRemoteSlots(msg);
+    }
+
+    private void UpdateRemoteSlots(NetworkGameManager.CSSCursorStateBroadcast msg)
+    {
+        if (!_remoteSlots.TryGetValue(msg.ClientId, out var slots))
+        {
+            slots = new HashSet<int>();
+            _remoteSlots[msg.ClientId] = slots;
+        }
+        slots.Clear();
+        if (msg.Active0 && msg.Assigned0 && msg.PlayerIndex0 >= 0) slots.Add(msg.PlayerIndex0);
+        if (msg.Active1 && msg.Assigned1 && msg.PlayerIndex1 >= 0) slots.Add(msg.PlayerIndex1);
+        if (msg.Active2 && msg.Assigned2 && msg.PlayerIndex2 >= 0) slots.Add(msg.PlayerIndex2);
+
+        var cursors = PlayerCursor.All;
+        if (cursors != null)
+            foreach (var c in cursors)
+                c?.NotifyRemoteStateChanged();
+    }
+
+    public static int GetRemoteAssignedCount()
+    {
+        if (_instance == null) return 0;
+        int count = 0;
+        foreach (var slots in _instance._remoteSlots.Values)
+            count += slots.Count;
+        return count;
     }
 
     private void ClearAllGhosts()
@@ -154,6 +184,7 @@ public class CSSCursorSync : MonoBehaviour
         foreach (var set in _remotes.Values)
             set.DestroyAll();
         _remotes.Clear();
+        _remoteSlots.Clear();
     }
 
     // =========================================================================

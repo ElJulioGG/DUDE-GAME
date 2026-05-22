@@ -1,24 +1,21 @@
 using System.Linq;
 using FishNet;
+using FishNet.Transporting;
 using UnityEngine;
 
 /// <summary>
-/// Bridges your existing PlayerCursor / ControllerMapper CSS with the online session.
+/// Bridges PlayerCursor CSS with the online session.
 ///
-/// PHASE 1 — Before connecting:
-///   Players join and pick slots with their gamepads exactly as in local play
-///   (cursors press P1-P4 buttons). When the host presses "Go Online",
-///   call PrepareOnlineSession() to snapshot the local cursor state, then call
-///   SteamLobbyManager.HostPublicLobby() or JoinLobby().
-///
-/// PHASE 2 — After the server sends back slot assignments:
-///   ApplyNetworkAssignment() is called automatically. It reads LocalPlayerRegistry
-///   to find which global indices this machine owns, then reassigns each local
-///   PlayerInputHandler to its correct global playerIndex and updates GameManager.
+/// PHASE 1 — CSS: players pick slots locally. When ready, call SendRegistration().
+/// PHASE 2 — MatchStart: server assigns global slots and map, broadcasts to everyone
+///            simultaneously. ProcessMatchStartOnHost handles the host directly;
+///            OnReceiveMatchStart handles non-host clients via ClientManager broadcast.
 /// </summary>
 public class OnlineLobbyManager : MonoBehaviour
 {
     public static OnlineLobbyManager Instance { get; private set; }
+
+    private bool _registered = false;
 
     private void Awake()
     {
@@ -27,29 +24,98 @@ public class OnlineLobbyManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void OnEnable()
+    {
+        if (InstanceFinder.ClientManager != null)
+            InstanceFinder.ClientManager.RegisterBroadcast<NetworkGameManager.MatchStartBroadcast>(OnReceiveMatchStart);
+    }
+
+    private void OnDisable()
+    {
+        if (InstanceFinder.ClientManager != null)
+            InstanceFinder.ClientManager.UnregisterBroadcast<NetworkGameManager.MatchStartBroadcast>(OnReceiveMatchStart);
+    }
+
     // -------------------------------------------------------------------------
-    // PHASE 1: Snapshot cursor state before connecting
+    // Called by NetworkGameManager on the server when it is also the host.
+    // Mirrors OnReceiveMatchStart without going through the broadcast loopback.
     // -------------------------------------------------------------------------
 
-    /// <summary>
-    /// Call this from your "Host" / "Join" button handler BEFORE SteamLobbyManager.Host/Join.
-    /// Marks the session as online; actual player count is snapshotted later by SendRegistration().
-    /// </summary>
+    public static void ProcessMatchStartOnHost(NetworkGameManager.MatchStartBroadcast msg)
+    {
+        if (Instance == null) return;
+        if (!InstanceFinder.IsHostStarted) return;
+        Instance.ApplyMatchStart(msg);
+    }
+
+    // -------------------------------------------------------------------------
+    // Client-side: receive MatchStart broadcast from server
+    // -------------------------------------------------------------------------
+
+    private void OnReceiveMatchStart(NetworkGameManager.MatchStartBroadcast msg, Channel channel)
+    {
+        // Host is handled by ProcessMatchStartOnHost — skip to avoid double-apply.
+        if (InstanceFinder.IsHostStarted) return;
+        ApplyMatchStart(msg);
+    }
+
+    // -------------------------------------------------------------------------
+    // Core: apply map + slot assignment + trigger match start
+    // -------------------------------------------------------------------------
+
+    private void ApplyMatchStart(NetworkGameManager.MatchStartBroadcast msg)
+    {
+        int mySession = CSSCursorSync.LocalId;
+        int[] ownerSessions = { msg.OwnerSession0, msg.OwnerSession1, msg.OwnerSession2, msg.OwnerSession3 };
+
+        // Extract which global slots THIS machine owns.
+        int slot0 = -1, slot1 = -1, slot2 = -1;
+        int localIdx = 0;
+        for (int gi = 0; gi < 4; gi++)
+        {
+            if (ownerSessions[gi] != mySession) continue;
+            if      (localIdx == 0) slot0 = gi;
+            else if (localIdx == 1) slot1 = gi;
+            else if (localIdx == 2) slot2 = gi;
+            localIdx++;
+        }
+
+        Debug.Log($"[OnlineLobbyManager] MatchStart — session={mySession} → slots [{slot0},{slot1},{slot2}] map={msg.MapIndex}");
+
+        // Sync map before respawning players so spawn points are correct.
+        GameController.instance?.SetMapByIndex(msg.MapIndex);
+
+        // Mark ALL occupied slots as playable across every machine.
+        // Without this, each machine only enables its own player and the match ends immediately.
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.player1Playable = ownerSessions[0] != -1;
+            GameManager.instance.player2Playable = ownerSessions[1] != -1;
+            GameManager.instance.player3Playable = ownerSessions[2] != -1;
+            GameManager.instance.player4Playable = ownerSessions[3] != -1;
+        }
+
+        LocalPlayerRegistry.Instance?.SetAssignment(slot0, slot1, slot2);
+        ApplyNetworkAssignment();
+    }
+
+    // -------------------------------------------------------------------------
+    // PHASE 1: Send registration when local players have selected in CSS
+    // -------------------------------------------------------------------------
+
     public void PrepareOnlineSession()
     {
         GameSession.IsOnline = true;
         Debug.Log("[OnlineLobbyManager] Online session prepared.");
     }
 
-    /// <summary>
-    /// Called by PlayerCursor when Start is pressed in the GameScene (online mode).
-    /// Snapshots how many cursors are assigned on this machine and sends a
-    /// RegisterBroadcast so the server can allocate global player slots.
-    /// </summary>
     public void SendRegistration()
     {
+        if (_registered) return;
+        _registered = true;
+
         int count = 0;
-        var chars = new int[] { -1, -1, -1 };
+        int chosen0 = -1, chosen1 = -1, chosen2 = -1;
 
         var cursors = PlayerCursor.All;
         if (cursors != null)
@@ -58,6 +124,9 @@ public class OnlineLobbyManager : MonoBehaviour
             foreach (var c in cursors)
             {
                 if (!c.IsAssigned || slot >= 3) continue;
+                if      (slot == 0) chosen0 = c.AssignedPlayerIndex;
+                else if (slot == 1) chosen1 = c.AssignedPlayerIndex;
+                else if (slot == 2) chosen2 = c.AssignedPlayerIndex;
                 count++;
                 slot++;
             }
@@ -67,63 +136,50 @@ public class OnlineLobbyManager : MonoBehaviour
 
         InstanceFinder.ClientManager.Broadcast(new NetworkGameManager.RegisterBroadcast
         {
+            SessionId      = CSSCursorSync.LocalId,
             LocalPlayerCount = count,
-            CharIndex0       = chars[0],
-            CharIndex1       = chars[1],
-            CharIndex2       = chars[2],
+            ChosenSlot0    = chosen0,
+            ChosenSlot1    = chosen1,
+            ChosenSlot2    = chosen2,
         });
 
-        Debug.Log($"[OnlineLobbyManager] SendRegistration: {count} local player(s)");
+        Debug.Log($"[OnlineLobbyManager] SendRegistration: {count} player(s), chosen=[{chosen0},{chosen1},{chosen2}]");
     }
 
     // -------------------------------------------------------------------------
-    // PHASE 2: Apply global assignments — called by NetworkGameManager
+    // PHASE 2: Apply global slot assignments and start the match
     // -------------------------------------------------------------------------
 
-    /// <summary>
-    /// Called after the server assigns global slots to this machine.
-    /// Maps each local PlayerInputHandler (ordered by InputSystem device index)
-    /// to its assigned global playerIndex, then sets GameManager.playerXPlayable
-    /// and triggers the game start (sets assignController = false).
-    /// </summary>
     public void ApplyNetworkAssignment()
     {
         var reg = LocalPlayerRegistry.Instance;
         if (reg == null || reg.LocalPlayerCount == 0)
         {
-            Debug.LogWarning("[OnlineLobbyManager] ApplyNetworkAssignment called but registry is empty.");
+            Debug.LogWarning("[OnlineLobbyManager] ApplyNetworkAssignment: registry empty — unpausing anyway.");
+            if (GameManager.instance != null) GameManager.instance.assignController = false;
             return;
         }
 
-        // Get all PlayerInputHandlers sorted by their Unity InputSystem player index
-        // (0 = first controller that joined, 1 = second, etc.)
         var handlers = FindObjectsByType<PlayerInputHandler>(FindObjectsSortMode.None)
                        .OrderBy(h => h.index)
                        .ToArray();
 
-        // Pair each local handler with the global index the server assigned
-        TryApplySlot(handlers, localSlot: 0, reg.GlobalIndex0);
-        TryApplySlot(handlers, localSlot: 1, reg.GlobalIndex1);
-        TryApplySlot(handlers, localSlot: 2, reg.GlobalIndex2);
+        TryApplySlot(handlers, 0, reg.GlobalIndex0);
+        TryApplySlot(handlers, 1, reg.GlobalIndex1);
+        TryApplySlot(handlers, 2, reg.GlobalIndex2);
 
-        // Signal GameController to unpause and start the match
         if (GameManager.instance != null)
             GameManager.instance.assignController = false;
 
         Debug.Log($"[OnlineLobbyManager] Applied assignment: slots [{reg.GlobalIndex0},{reg.GlobalIndex1},{reg.GlobalIndex2}]");
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     private void TryApplySlot(PlayerInputHandler[] handlers, int localSlot, int globalIndex)
     {
-        if (globalIndex < 0)                    return;
-        if (localSlot  >= handlers.Length)      return;
+        if (globalIndex < 0)               return;
+        if (localSlot >= handlers.Length)  return;
 
-        var handler = handlers[localSlot];
-        handler.reasignController(globalIndex);
+        handlers[localSlot].reasignController(globalIndex);
 
         if (GameManager.instance != null)
         {

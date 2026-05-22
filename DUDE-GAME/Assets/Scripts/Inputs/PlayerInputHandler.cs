@@ -22,10 +22,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void reasignController(int newIndex)
     {
-        // Zero out the old target before re-linking
-        if (GameSession.IsOnline && _netController != null)
-            _netController.RpcMove(Vector2.zero);
-        else if (playerMovement != null)
+        // Zero out movement on the old target before re-linking
+        if (playerMovement != null)
             playerMovement.SetInputVector(Vector2.zero);
 
         index = newIndex;
@@ -92,9 +90,9 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         var input = context.ReadValue<Vector2>();
-        if (GameSession.IsOnline && _netController != null)
-            _netController.RpcMove(input);
-        else if (playerMovement != null)
+        // Always drive movement locally — the owning client moves its character directly.
+        // NetworkTransform (client authority) syncs the position to the server and all others.
+        if (playerMovement != null)
             playerMovement.SetInputVector(input);
     }
 
@@ -102,10 +100,11 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (!GameManager.instance.playersCanAim) return;
         var dir = context.ReadValue<Vector2>();
+        // Always apply locally for immediate feedback on the owning machine.
+        if (gunHolder != null) gunHolder.SetAimDirection(dir);
+        // Send to server so it can relay to all other machines via BroadcastAim.
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcAim(dir);
-        else if (gunHolder != null)
-            gunHolder.SetAimDirection(dir);
     }
 
     public void OnInteract(InputAction.CallbackContext context)

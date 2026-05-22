@@ -1,3 +1,4 @@
+using FishNet.Object;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -9,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 moveInput;
     private Rigidbody2D rb;
     private int playerIndex;
+    private NetworkObject _netObj;
 
     private float _speedMultiplier = 1f;
     private float _boostEndTime;
@@ -17,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         playerIndex = playerStats.GetPlayerIndex();
+        _netObj = GetComponent<NetworkObject>();
     }
 
     public void SetPlayerIndex(int index)
@@ -36,6 +39,11 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
             return;
         }
+
+        // In online play, non-owner machines let NetworkTransform drive the position.
+        // Applying physics here would fight the incoming sync and cause jitter.
+        if (GameSession.IsOnline && _netObj != null && !_netObj.IsOwner)
+            return;
 
         if (_speedMultiplier > 1f && Time.time >= _boostEndTime)
             _speedMultiplier = 1f;

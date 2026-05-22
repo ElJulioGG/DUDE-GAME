@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
+    public static GameController instance { get; private set; }
     // Enable the GRENADE_DEBUG scripting define to log round resets impacting grenades.
     [SerializeField] private LevelTimer levelTimer;
     [SerializeField] private PlayerStats[] playerStats;
@@ -304,6 +305,11 @@ public class GameController : MonoBehaviour
         foreach (var h in handlers)
             h.reasignController(h.index);
 
+        // For online play the generic re-link above uses device index as global index, which is
+        // wrong. Re-apply the correct server-assigned global indices from LocalPlayerRegistry.
+        if (GameSession.IsOnline)
+            OnlineLobbyManager.Instance?.ApplyNetworkAssignment();
+
         GameManager.instance.destroyProyectiles = false;
         transitionAnim.SetTrigger("FadeOut");
         AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorOpen, transform.position);
@@ -353,6 +359,10 @@ public class GameController : MonoBehaviour
             yield return new WaitForSeconds(waitTime);
             UIIntroObjects[i].SetActive(false);
         }
+        // Safety: ensure movement is always re-enabled even if the intro loop was empty or short.
+        GameManager.instance.playersCanMove  = true;
+        GameManager.instance.playersCanPowerUp = true;
+
         int randomMutatorID = Random.Range(1, mutator1InChance+1); // 1 en 10
         if(randomMutatorID == 1)
         {
@@ -595,8 +605,28 @@ public class GameController : MonoBehaviour
     }
     public void Awake()
     {
+        instance = this;
         PauseGame();
         Cursor.visible = false;
+    }
+
+    // Returns the index of the currently active map (used by server to tell clients which map to load).
+    public int CurrentMapIndex()
+    {
+        for (int i = 0; i < maps.Length; i++)
+            if (maps[i] != null && maps[i].activeSelf) return i;
+        return 0;
+    }
+
+    // Called on clients to match the server's map selection before the match begins.
+    public void SetMapByIndex(int index)
+    {
+        if (maps == null || index < 0 || index >= maps.Length) return;
+        foreach (var map in maps) map.SetActive(false);
+        maps[index].SetActive(true);
+        poisonStormController = maps[index].GetComponentInChildren<PoisonStormController>(true);
+        AssignPlayerPositions();
+        Debug.Log($"[GameController] Map synced to: {maps[index].name}");
     }
     public void DoublePoints()
     {

@@ -1,3 +1,5 @@
+using FishNet;
+using FishNet.Object;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -216,7 +218,7 @@ public class WeaponBase : MonoBehaviour
 
                     usedAngles.Add(randomAngle);
                     float currentAngle = baseAngle + randomAngle;
-                    Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, currentAngle));
+                    SpawnBullet(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, currentAngle));
                 }
             }
             else
@@ -227,13 +229,13 @@ public class WeaponBase : MonoBehaviour
                 for (int i = 0; i < bulletsPerShot; i++)
                 {
                     float currentAngle = startAngle + angleStep * i;
-                    Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, currentAngle));
+                    SpawnBullet(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, currentAngle));
                 }
             }
         }
         else
         {
-            Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, baseAngle));
+            SpawnBullet(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, baseAngle));
         }
 
         // Play shoot sound
@@ -347,5 +349,14 @@ public class WeaponBase : MonoBehaviour
     void OnDestroy()
     {
         StopAllCoroutines();
+    }
+
+    // Instantiates a bullet and, when online on the server, network-spawns it so all clients see it.
+    protected void SpawnBullet(GameObject prefab, Vector3 pos, Quaternion rot)
+    {
+        var go = Instantiate(prefab, pos, rot);
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted
+            && go.TryGetComponent<NetworkObject>(out _))
+            InstanceFinder.ServerManager.Spawn(go);
     }
 }

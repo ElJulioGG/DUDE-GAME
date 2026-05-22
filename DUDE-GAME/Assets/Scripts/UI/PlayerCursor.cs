@@ -402,13 +402,18 @@ public class PlayerCursor : MonoBehaviour
         return _raycastResults.Count > 0 ? _raycastResults[0].gameObject : null;
     }
 
+    public void NotifyRemoteStateChanged() => CheckIfAllReady();
+
     private bool CanStartGame()
     {
-        int assignedCount = 0;
+        int localAssigned = 0;
         foreach (var cursor in _allCursors)
-            if (cursor.IsAssigned) assignedCount++;
-        int minRequired = GameSession.IsOnline ? 1 : 2;
-        return assignedCount >= minRequired;
+            if (cursor.IsAssigned) localAssigned++;
+        if (localAssigned == 0) return false;
+        // Online: at least 1 local player selected is enough — we're already in a lobby.
+        // Offline: need at least 2 players on this machine.
+        if (GameSession.IsOnline) return true;
+        return localAssigned >= 2;
     }
 
     private void AssignPlayer(int playerIndex)
@@ -420,12 +425,17 @@ public class PlayerCursor : MonoBehaviour
         {
             if (cursor != this && cursor.IsAssigned && cursor.AssignedPlayerIndex == playerIndex)
             {
-                Debug.LogWarning($"Player {playerIndex + 1} ya está asignado.");
-                //SoundFXManager.instance.PlaySoundByName("Deselect", transform, 0.6f, 1f);
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectDeselect, transform.position);
                 GetComponent<Shaker>()?.Shake();
                 return;
             }
+        }
+
+        if (GameSession.IsOnline && CSSCursorSync.IsSlotClaimedByRemote(playerIndex))
+        {
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectDeselect, transform.position);
+            GetComponent<Shaker>()?.Shake();
+            return;
         }
 
         //SoundFXManager.instance.PlaySoundByName("Select", transform, 0.6f, 1f);
@@ -514,15 +524,19 @@ public class PlayerCursor : MonoBehaviour
 
     private void CheckIfAllReady()
     {
-        int active = 0, assigned = 0;
+        int localActive = 0, localAssigned = 0;
         foreach (var cursor in _allCursors)
         {
             if (!cursor.isActiveAndEnabled) continue;
-            active++;
-            if (cursor.IsAssigned) assigned++;
+            localActive++;
+            if (cursor.IsAssigned) localAssigned++;
         }
-        int minRequired = GameSession.IsOnline ? 1 : 2;
-        bool canStart = assigned >= minRequired && assigned == active;
+        bool allLocalReady = localActive > 0 && localAssigned == localActive;
+        bool canStart;
+        if (GameSession.IsOnline)
+            canStart = localAssigned >= 1; // lobby guarantees other players exist
+        else
+            canStart = allLocalReady && localAssigned >= 2;
         if (readyImage != null) readyImage.SetActive(canStart);
     }
 

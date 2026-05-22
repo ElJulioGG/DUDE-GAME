@@ -1,4 +1,6 @@
 using System.Collections;
+using FishNet;
+using FishNet.Object;
 using UnityEngine;
 using UnityEngine.Events;
 using FMODUnity;
@@ -52,8 +54,9 @@ public class BulletBehavior : MonoBehaviour
 
         if (!destroyOnInvisible)
         {
-            Invoke(nameof(DestroyBullet), destroyTime);
-            //Destroy(gameObject, destroyTime);
+            // Timed destruction is managed by the server (or locally in offline mode)
+            if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
+                Invoke(nameof(DestroyBullet), destroyTime);
         }
     }
 
@@ -67,6 +70,8 @@ public class BulletBehavior : MonoBehaviour
             return;
         }
         if (isQuitting) return;
+        // Non-server machines let NetworkTransform drive the bullet position.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
 
         Vector2 newPosition = previousPosition + direction * speed * Time.fixedDeltaTime;
         float distance = Vector2.Distance(previousPosition, newPosition);
@@ -116,7 +121,7 @@ public class BulletBehavior : MonoBehaviour
 
     void HandleDamage(RaycastHit2D hit)
     {
-        // 1) Intentar da�ar cualquier NPC/objeto que implemente IDamageable
+        // IDamageable (NPCs, custom objects) — handle locally or via their own network logic
         var dmgTarget = hit.collider.GetComponentInParent<IDamageable>();
         if (dmgTarget != null)
         {
@@ -129,10 +134,21 @@ public class BulletBehavior : MonoBehaviour
             return;
         }
 
-        // 2) Mantener tu comportamiento actual para Player
         if (hit.collider.CompareTag("Player"))
         {
-            hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
+            if (GameSession.IsOnline)
+            {
+                // Route through NetworkPlayerController so damage is server-authoritative
+                var netCtrl = hit.collider.GetComponentInParent<NetworkPlayerController>();
+                if (netCtrl != null)
+                    netCtrl.ServerTakeDamage(damage);
+                else
+                    hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
+            }
+            else
+            {
+                hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
+            }
 
             if (destroyOnPlayerHit)
             {
@@ -180,7 +196,9 @@ public class BulletBehavior : MonoBehaviour
     {
         if (destroyOnInvisible && !isQuitting)
         {
-            DestroyBullet();
+            // Only the server (or offline) should trigger destruction
+            if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
+                DestroyBullet();
         }
     }
     IEnumerator MoveToCollisionAndDestroy(Vector2 targetPoint, Vector2 normal)
@@ -220,6 +238,12 @@ public class BulletBehavior : MonoBehaviour
         if (onDestroyMethod)
             onDestroyCallback?.Invoke();
 
+        // In online play the server despawns the NetworkObject which destroys it on all clients.
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+        {
+            var no = GetComponent<NetworkObject>();
+            if (no != null) { InstanceFinder.ServerManager.Despawn(no); return; }
+        }
         Destroy(gameObject);
     }
 
