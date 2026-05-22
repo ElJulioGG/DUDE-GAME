@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using FishNet;
 using UnityEngine;
 
 public class GrenadeWeapon : WeaponBase
@@ -59,7 +60,11 @@ public class GrenadeWeapon : WeaponBase
         cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity, parent);
         cooking.Init(definition, GetOwnerIndexSafe());
         cooking.SetOwner(this);
-        cooking.Arm();                 
+        cooking.Arm();
+
+        // Network-spawn so all remote clients see the grenade.
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            InstanceFinder.ServerManager.Spawn(cooking.gameObject);
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
 

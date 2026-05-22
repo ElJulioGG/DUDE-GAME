@@ -114,6 +114,7 @@ public class SteamLobbyManager : MonoBehaviour
         if (!_pendingIsPublic && !string.IsNullOrEmpty(_pendingCode))
             SteamMatchmaking.SetLobbyData(CurrentLobbyID, KEY_CODE, _pendingCode);
 
+        GameSession.IsOnline = true;
         SwapToFishySteamworks();
         InstanceFinder.NetworkManager.ServerManager.StartConnection();
         InstanceFinder.NetworkManager.ClientManager.StartConnection();

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using FishNet;
+using FishNet.Object;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +27,8 @@ public class GunHolder : MonoBehaviour
     // **New**: Track the last aim direction
     private Vector2 lastAimDirection = Vector2.right; // Default aiming right
 
+    private NetworkPlayerController _netController;
+
     private const float STEAL_RADIUS = 1.0f;
     private const float STEAL_COOLDOWN = 0.35f;
     private float lastStealTime = -999f;
@@ -36,6 +40,7 @@ public class GunHolder : MonoBehaviour
     public void Start()
     {
         playerIndex = playerStats.GetPlayerIndex();
+        _netController = GetComponentInParent<NetworkPlayerController>();
 
         // Instantiate default melee at start
         if (defaultMeleePrefab != null)
@@ -189,6 +194,7 @@ public class GunHolder : MonoBehaviour
                     currentMeleeScript.SetAimDirection(lastAimDirection);
                 }
 
+                SyncWeaponToNetwork(weaponName);
                 return;
             }
         }
@@ -227,6 +233,7 @@ public class GunHolder : MonoBehaviour
                     activeWeapon = "melee";
                     currentMeleeScript?.SetAimDirection(lastAimDirection);
                 }
+                SyncWeaponToNetwork("");
             }
             return;
         }
@@ -246,6 +253,7 @@ public class GunHolder : MonoBehaviour
                 activeWeapon = "melee";
                 currentMeleeScript?.SetAimDirection(lastAimDirection);
             }
+            SyncWeaponToNetwork("");
             return;
         }
 
@@ -273,6 +281,13 @@ public class GunHolder : MonoBehaviour
         if (isMoving) pickup.Throw(lastMovementDirection);
         else pickup.Throw(Vector2.zero);
 
+        // Network-spawn so all remote clients see the dropped weapon.
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+        {
+            drop.GetComponent<NetworkWeaponPickupSync>()?.SetWeaponNamePreSpawn(weaponName);
+            InstanceFinder.ServerManager.Spawn(drop);
+        }
+
         Destroy(currentWeapon);
         currentWeapon = null;
         currentGunScript = null;
@@ -287,6 +302,7 @@ public class GunHolder : MonoBehaviour
             activeWeapon = "melee";
             currentMeleeScript?.SetAimDirection(lastAimDirection);
         }
+        SyncWeaponToNetwork("");
     }
 
 
@@ -320,7 +336,50 @@ public class GunHolder : MonoBehaviour
             if (currentMeleeScript != null)
                 currentMeleeScript.SetAimDirection(lastAimDirection);
         }
+        SyncWeaponToNetwork("");
     }
+    // Tells the server which weapon this player is now holding so all clients can show the visual.
+    private void SyncWeaponToNetwork(string name)
+    {
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            _netController?.ServerSetWeapon(name);
+    }
+
+    // Called on remote clients via SyncVar to show the correct weapon sprite without running gameplay logic.
+    public void ShowWeaponVisual(string weaponName)
+    {
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted) return;
+
+        if (currentWeapon != null) Destroy(currentWeapon);
+        currentWeapon = null;
+        currentGunScript = null;
+        currentMeleeScript = null;
+
+        if (string.IsNullOrEmpty(weaponName))
+        {
+            if (defaultMeleePrefab != null)
+            {
+                currentWeapon = Instantiate(defaultMeleePrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+                currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
+                currentMeleeScript?.SetAimDirection(lastAimDirection);
+            }
+            return;
+        }
+
+        foreach (var prefab in allWeapons)
+        {
+            if (prefab.name == weaponName)
+            {
+                currentWeapon = Instantiate(prefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
+                currentGunScript = currentWeapon.GetComponent<WeaponBase>();
+                currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
+                currentGunScript?.SetAimDirection(lastAimDirection);
+                currentMeleeScript?.SetAimDirection(lastAimDirection);
+                return;
+            }
+        }
+    }
+
     public void HandlePickDrop()
     {
         if (TryStealNearbyGrenade())
@@ -369,7 +428,14 @@ public class GunHolder : MonoBehaviour
             Debug.Log($"[PICKUP] {name} taking WeaponPickup {pickup.name} weapon={pickup.weaponName} clip={pickup.savedClipAmmo} reserve={pickup.savedReserveAmmo}");
 #endif
             EquipWeapon(pickup.weaponName, pickup);
-            Destroy(pickup.gameObject);
+            if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            {
+                var no = pickup.GetComponent<NetworkObject>();
+                if (no != null) InstanceFinder.ServerManager.Despawn(no);
+                else Destroy(pickup.gameObject);
+            }
+            else
+                Destroy(pickup.gameObject);
         }
         else if (hasWeapon)
         {

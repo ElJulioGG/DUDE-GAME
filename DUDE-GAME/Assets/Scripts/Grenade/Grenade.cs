@@ -1,8 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
+using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-public class Grenade : MonoBehaviour
+public class Grenade : NetworkBehaviour
 {
     // Enable the GRENADE_DEBUG scripting define to surface hot-potato diagnostics.
     public enum State { Safe, Armed, Thrown, Exploded }
@@ -48,6 +50,9 @@ public class Grenade : MonoBehaviour
     private int ownerIndex = -1;
     private bool hasInitialized = false;
 
+    // Syncs grenade state to remote clients in online mode.
+    private readonly SyncVar<byte> _netState = new SyncVar<byte>((byte)State.Safe);
+
     private Color baseColor = Color.white;
     private Coroutine blinkCo;
     private Coroutine beepCo;
@@ -57,6 +62,52 @@ public class Grenade : MonoBehaviour
         if (_id == 0)
         {
             _id = ++_idSeed;
+        }
+    }
+
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
+        _netState.OnChange += OnNetStateChanged;
+    }
+
+    public override void OnStopNetwork()
+    {
+        base.OnStopNetwork();
+        _netState.OnChange -= OnNetStateChanged;
+    }
+
+    // On remote clients, disable physics so NetworkTransform drives position.
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        if (!IsServerStarted)
+        {
+            if (!rb) rb = GetComponent<Rigidbody2D>();
+            if (!col) col = GetComponent<Collider2D>();
+            if (rb) rb.bodyType = RigidbodyType2D.Kinematic;
+            if (col) col.enabled = false;
+        }
+    }
+
+    private void OnNetStateChanged(byte prev, byte next, bool asServer)
+    {
+        if (asServer || !GameSession.IsOnline) return;
+        switch ((State)next)
+        {
+            case State.Armed:
+                state = State.Armed;
+                ticking = true;
+                if (definition != null) fuseLeft = definition.fuseSeconds;
+                SetOpenVisual();
+                if (useBlink && blinkCo == null) blinkCo = StartCoroutine(BlinkRoutine());
+                if (useBeep && beepCo == null) beepCo = StartCoroutine(BeepRoutine());
+                break;
+            case State.Thrown:
+                state = State.Thrown;
+                heldInHand = false;
+                SetOpenVisual();
+                break;
         }
     }
 
@@ -124,7 +175,7 @@ public class Grenade : MonoBehaviour
         if (!rb) rb = GetComponent<Rigidbody2D>();
         if (!col) col = GetComponent<Collider2D>();
 
-        heldInHand = held; // <- marca estado real
+        heldInHand = held;
 
         if (held)
         {
@@ -191,12 +242,15 @@ public class Grenade : MonoBehaviour
         State previous = state;
         state = State.Armed;
         ticking = true;
-        fuseLeft = definition.fuseSeconds; 
+        fuseLeft = definition.fuseSeconds;
         SetOpenVisual();
         SetHeldInHand(true);
 
         if (useBlink && blinkCo == null) blinkCo = StartCoroutine(BlinkRoutine());
         if (useBeep && beepCo == null) beepCo = StartCoroutine(BeepRoutine());
+
+        if (GameSession.IsOnline && IsServerStarted)
+            _netState.Value = (byte)State.Armed;
 
 //#if GRENADE_DEBUG
 //        // DEBUG:
@@ -228,6 +282,9 @@ public class Grenade : MonoBehaviour
             rb.linearVelocity = dir.normalized * speed;
         }
 
+        if (GameSession.IsOnline && IsServerStarted)
+            _netState.Value = (byte)State.Thrown;
+
 //#if GRENADE_DEBUG
 //        // DEBUG:
 //        Debug.Log($"[GRENADE][{_id}][STATE] {name} {previous} -> {state} fuseLeft={fuseLeft:F2} def={definition?.name ?? "null"} owner={ownerIndex}");
@@ -235,7 +292,7 @@ public class Grenade : MonoBehaviour
     }
 
 
-    /// Soltarla al mundo si estaba armada 
+    /// Soltarla al mundo si estaba armada
     public void DropArmed()
     {
         if (state == State.Safe) Arm();
@@ -268,6 +325,10 @@ public class Grenade : MonoBehaviour
         if (!ticking) return;
 
         fuseLeft -= Time.deltaTime;
+
+        // Remote clients tick locally for visual accuracy but never trigger explosion.
+        if (GameSession.IsOnline && !IsServerStarted) return;
+
         if (fuseLeft <= 0f)
         {
             StartCoroutine(Explode());
@@ -291,32 +352,24 @@ public class Grenade : MonoBehaviour
         if (spriteRenderer) spriteRenderer.color = baseColor;
 
         Vector2 center = transform.position;
-        if (definition != null && definition.effects != null)
-        {
-            foreach (var eff in definition.effects)
-                if (eff != null) eff.ApplyEffect(center, ownerIndex);
-        }
 
-        if (armedVfx) armedVfx.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-        if (explodeVfx) explodeVfx.Play();
-
-        if (definition != null && definition.explosionPrefab != null)
+        // Damage runs on server only (or always in local mode).
+        if (!GameSession.IsOnline || IsServerStarted)
         {
-            var fx = Instantiate(definition.explosionPrefab, transform.position, Quaternion.identity);
-            //SoundFXManager.instance.PlaySoundByName("Explosion", transform, 1f, 1f, false);
-            AudioManager.Instance.PlaySound(FMODEvents.Instance.Explosion, transform.position);
-            if (CameraShakeManager.Instance != null) CameraShakeManager.Instance.Shake(explosionShakeStrength, explosionShakeDuration);
-            if (spriteRenderer && definition.matchSortingForExplosion)
+            if (definition != null && definition.effects != null)
             {
-                var srFx = fx.GetComponentInChildren<SpriteRenderer>();
-                if (srFx)
-                {
-                    srFx.sortingLayerID = spriteRenderer.sortingLayerID;
-                    srFx.sortingOrder = spriteRenderer.sortingOrder + 1;
-                }
+                foreach (var eff in definition.effects)
+                    if (eff != null) eff.ApplyEffect(center, ownerIndex);
             }
-            Destroy(fx, definition.explosionLifetime);
         }
+
+        // Broadcast explosion visuals to all remote clients before destroying.
+        if (GameSession.IsOnline && IsServerStarted)
+            ObserversExplodeVisuals(center);
+
+        // Play visuals locally (server in online, everyone in local).
+        if (!GameSession.IsOnline || IsServerStarted)
+            PlayExplosionVfx(center);
 
         // Notificar SOLO si explota en mano
         if (heldInHand && ownerWeapon != null)
@@ -331,7 +384,37 @@ public class Grenade : MonoBehaviour
 //#endif
 
         yield return new WaitForSeconds(0.05f);
-        Destroy(gameObject);
+        if (GameSession.IsOnline && IsServerStarted)
+            ServerManager.Despawn(NetworkObject);
+        else
+            Destroy(gameObject);
+    }
+
+    [ObserversRpc(ExcludeServer = true)]
+    private void ObserversExplodeVisuals(Vector2 center) => PlayExplosionVfx(center);
+
+    private void PlayExplosionVfx(Vector2 center)
+    {
+        if (armedVfx) armedVfx.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        if (explodeVfx) explodeVfx.Play();
+
+        if (definition != null && definition.explosionPrefab != null)
+        {
+            var fx = Instantiate(definition.explosionPrefab, center, Quaternion.identity);
+            //SoundFXManager.instance.PlaySoundByName("Explosion", transform, 1f, 1f, false);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.Explosion, center);
+            if (CameraShakeManager.Instance != null) CameraShakeManager.Instance.Shake(explosionShakeStrength, explosionShakeDuration);
+            if (spriteRenderer && definition.matchSortingForExplosion)
+            {
+                var srFx = fx.GetComponentInChildren<SpriteRenderer>();
+                if (srFx)
+                {
+                    srFx.sortingLayerID = spriteRenderer.sortingLayerID;
+                    srFx.sortingOrder = spriteRenderer.sortingOrder + 1;
+                }
+            }
+            Destroy(fx, definition.explosionLifetime);
+        }
     }
 
     private IEnumerator BlinkRoutine()
@@ -361,8 +444,6 @@ public class Grenade : MonoBehaviour
             {
                 beepSource.pitch = pitch;
                 beepSource.PlayOneShot(beepClip);
-                //SoundFXManager.instance.PlaySoundByName("metalPing", transform, 0.7f, 1f, false);
-                
             }
             yield return new WaitForSeconds(interval);
         }
@@ -396,5 +477,3 @@ public class Grenade : MonoBehaviour
     }
 
 }
-
-

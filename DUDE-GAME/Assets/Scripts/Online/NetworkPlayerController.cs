@@ -17,6 +17,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private readonly SyncVar<int>  _health = new SyncVar<int>(0);
     private readonly SyncVar<bool> _alive  = new SyncVar<bool>(true);
+    private readonly SyncVar<string> _weaponName = new SyncVar<string>("");
 
     private PlayerMovement _movement;
     private GunHolder      _gunHolder;
@@ -40,6 +41,7 @@ public class NetworkPlayerController : NetworkBehaviour
         base.OnStartNetwork();
         _health.OnChange += OnHealthChanged;
         _alive.OnChange  += OnAliveChanged;
+        _weaponName.OnChange += OnWeaponNameChanged;
     }
 
     public override void OnStopNetwork()
@@ -47,6 +49,7 @@ public class NetworkPlayerController : NetworkBehaviour
         base.OnStopNetwork();
         _health.OnChange -= OnHealthChanged;
         _alive.OnChange  -= OnAliveChanged;
+        _weaponName.OnChange -= OnWeaponNameChanged;
     }
 
     // -------------------------------------------------------------------------
@@ -88,6 +91,18 @@ public class NetworkPlayerController : NetworkBehaviour
         // Ensure playerAlive flag is correct on clients even if RPC arrives late
         if (!next && !asServer && _stats != null)
             _stats.playerAlive = false;
+    }
+
+    private void OnWeaponNameChanged(string prev, string next, bool asServer)
+    {
+        if (asServer) return;
+        _gunHolder?.ShowWeaponVisual(next);
+    }
+
+    [Server]
+    public void ServerSetWeapon(string weaponName)
+    {
+        _weaponName.Value = weaponName;
     }
 
     [ObserversRpc(ExcludeServer = true)]

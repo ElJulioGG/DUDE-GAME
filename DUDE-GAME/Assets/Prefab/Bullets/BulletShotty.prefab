@@ -321,6 +321,7 @@ GameObject:
   - component: {fileID: 2387887588072187216}
   - component: {fileID: 1563260716157786651}
   - component: {fileID: 2598186350291484763}
+  - component: {fileID: 640559663738486888}
   m_Layer: 3
   m_Name: BulletShotty
   m_TagString: Bullet
@@ -645,7 +646,7 @@ MonoBehaviour:
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
   RuntimeChildNetworkBehaviours: []
-  _isNetworked: 1
+  _isNetworked: 0
   _isSpawnable: 1
   _isGlobal: 0
   _initializeOrder: 0
@@ -679,6 +680,21 @@ MonoBehaviour:
     Rotation: {x: 0, y: 0, z: 0, w: 0}
     Scale: {x: 0, y: 0, z: 0}
     IsValid: 0
+--- !u!114 &640559663738486888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3914717485759597175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a6a39c46bf52104ba8efe3100bce3f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 2598186350291484763}
+  _networkObjectCache: {fileID: 0}
 --- !u!1 &4592505165037038264
 GameObject:
   m_ObjectHideFlags: 0
