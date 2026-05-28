@@ -4729,6 +4729,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 96720433}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -4809,6 +4813,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 96720433}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (6)
@@ -12318,6 +12326,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 244140897}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -12398,6 +12410,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 244140897}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (7)
@@ -14012,6 +14028,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 317213002}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -14092,6 +14112,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 317213002}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (1)
@@ -68945,6 +68969,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 675413078}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -69025,6 +69053,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 675413078}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (8)
@@ -82355,7 +82387,6 @@ MonoBehaviour:
   - {fileID: 713385006}
   - {fileID: 1833707595}
   - {fileID: 923913106}
-  hideOriginalsOnStart: 1
 --- !u!4 &791749946
 Transform:
   m_ObjectHideFlags: 0
@@ -89278,7 +89309,6 @@ MonoBehaviour:
   - {fileID: 1802825011}
   - {fileID: 864603499}
   - {fileID: 1450302123}
-  hideOriginalsOnStart: 1
 --- !u!4 &801754439
 Transform:
   m_ObjectHideFlags: 0
@@ -89998,7 +90028,6 @@ MonoBehaviour:
   - {fileID: 1403591039}
   - {fileID: 1935204079}
   - {fileID: 611565966}
-  hideOriginalsOnStart: 1
 --- !u!4 &836677488
 Transform:
   m_ObjectHideFlags: 0
@@ -112901,7 +112930,6 @@ MonoBehaviour:
   - {fileID: 1969288856}
   - {fileID: 1074341373}
   - {fileID: 1253278925}
-  hideOriginalsOnStart: 1
 --- !u!114 &1012784668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151279,6 +151307,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1321688618}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -151359,6 +151391,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1321688618}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (4)
@@ -152203,6 +152239,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1352009899}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -152283,6 +152323,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1352009899}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (2)
@@ -157554,7 +157598,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  hideOriginalsOnStart: 1
 --- !u!4 &1414107499
 Transform:
   m_ObjectHideFlags: 0
@@ -178781,7 +178824,6 @@ MonoBehaviour:
   - {fileID: 1217801922}
   - {fileID: 1455014254}
   - {fileID: 809898459}
-  hideOriginalsOnStart: 1
 --- !u!4 &1490403225
 Transform:
   m_ObjectHideFlags: 0
@@ -178921,7 +178963,6 @@ MonoBehaviour:
   - {fileID: 1343825788}
   - {fileID: 40043517}
   - {fileID: 315904456}
-  hideOriginalsOnStart: 1
 --- !u!4 &1492145689
 Transform:
   m_ObjectHideFlags: 0
@@ -182558,12 +182599,13 @@ MonoBehaviour:
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
-  NetworkBehaviours: []
+  NetworkBehaviours:
+  - {fileID: 1609117085}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
   RuntimeChildNetworkBehaviours: []
-  _isNetworked: 0
+  _isNetworked: 1
   _isSpawnable: 1
   _isGlobal: 0
   _initializeOrder: 0
@@ -193567,7 +193609,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSceneObjects:
   - {fileID: 1431066948}
-  hideOriginalsOnStart: 1
 --- !u!4 &1712122345
 Transform:
   m_ObjectHideFlags: 0
@@ -193867,7 +193908,6 @@ MonoBehaviour:
   - {fileID: 565620772}
   - {fileID: 1211781057}
   - {fileID: 141132591}
-  hideOriginalsOnStart: 1
 --- !u!114 &1722222617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204388,6 +204428,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1766046730}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -204468,6 +204512,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1766046730}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (5)
@@ -217867,7 +217915,6 @@ MonoBehaviour:
   - {fileID: 1125078545}
   - {fileID: 1463579557}
   - {fileID: 901660712}
-  hideOriginalsOnStart: 1
 --- !u!4 &1919439986
 Transform:
   m_ObjectHideFlags: 0
@@ -218888,6 +218935,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1954398117}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -218968,6 +219019,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 1954398117}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab (3)
@@ -236022,6 +236077,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 7295329749357768716}
+    - target: {fileID: -5061644441846177045, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 860610394410899680, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: _addedNetworkObject
       value: 
@@ -236086,6 +236145,10 @@ PrefabInstance:
       propertyPath: _addedNetworkObject
       value: 
       objectReference: {fileID: 7295329749357768716}
+    - target: {fileID: 5923776345626406980, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
+      propertyPath: _networkObjectCache
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6192896243936263217, guid: b1afd62c32152d54faccaff0e0d3b8ec, type: 3}
       propertyPath: m_Name
       value: WeaponDropPrefab

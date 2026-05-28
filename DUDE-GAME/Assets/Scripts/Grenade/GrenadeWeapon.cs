@@ -51,20 +51,27 @@ public class GrenadeWeapon : WeaponBase
 
     public override void Shoot()
     {
-        if (cooking != null) return; 
+        if (cooking != null) return;
 
         if (currentClipAmmo <= 0 || grenadePrefab == null || definition == null)
             return;
 
         Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
-        cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity, parent);
+
+        // Instantiate at world position first so the NetworkObject spawns with a clean world transform,
+        // then parent so it follows the hand while held.
+        cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity);
+        cooking.transform.SetParent(parent, worldPositionStays: true);
         cooking.Init(definition, GetOwnerIndexSafe());
         cooking.SetOwner(this);
-        cooking.Arm();
 
-        // Network-spawn so all remote clients see the grenade.
+        // Spawn BEFORE Arm() so OnStartServer() has been called on the NetworkBehaviour
+        // by the time Arm() sets the _netState SyncVar. Without this, clients receive
+        // the spawn packet with State.Safe and never transition to State.Armed.
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
-            InstanceFinder.ServerManager.Spawn(cooking.gameObject);
+            InstanceFinder.ServerManager.Spawn(cooking.NetworkObject);
+
+        cooking.Arm();
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
 

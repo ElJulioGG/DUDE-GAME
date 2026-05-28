@@ -244,6 +244,8 @@ MonoBehaviour:
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
   - {fileID: 860610394410899680}
+  - {fileID: 5923776345626406980}
+  - {fileID: -5061644441846177045}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -254,7 +256,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584221302490457514
+  _initializedTimestamp: -8584221151646422063
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -375,9 +377,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 044ca3c749ab78f4e8aa25c1c1b6cc2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 8783912365426029934}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 8783912365426029934}
 --- !u!114 &-5061644441846177045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,6 +392,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8bd31473792482429205aad16619a9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 8783912365426029934}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 8783912365426029934}

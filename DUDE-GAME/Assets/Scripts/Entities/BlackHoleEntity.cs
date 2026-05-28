@@ -50,7 +50,7 @@ public class BlackHoleEntity : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (GameManager.instance.destroyProyectiles)
+        if (GameManager.instance == null || GameManager.instance.destroyProyectiles)
         {
             Destroy(gameObject);
         }
@@ -91,7 +91,8 @@ public class BlackHoleEntity : MonoBehaviour
 
     public void KillPlayer(Collider2D col)
     {
-        if (col.TryGetComponent<PlayerStats>(out var stats))
+        var stats = col.GetComponentInParent<PlayerStats>();
+        if (stats != null)
             stats.TakeDamage(9999);
     }
 

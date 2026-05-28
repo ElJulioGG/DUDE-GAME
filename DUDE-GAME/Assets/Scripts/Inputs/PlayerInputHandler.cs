@@ -76,6 +76,7 @@ public class PlayerInputHandler : MonoBehaviour
         else if (deviceName.Contains("dualshock") || deviceName.Contains("dualsense") || deviceName.Contains("ps"))
             controllerType = 2;
 
+        if (GameManager.instance == null) return;
         switch (index)
         {
             case 0: GameManager.instance.player1ControllerType = controllerType; break;
@@ -98,7 +99,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnAim(InputAction.CallbackContext context)
     {
-        if (!GameManager.instance.playersCanAim) return;
+        if (GameManager.instance == null || !GameManager.instance.playersCanAim) return;
         var dir = context.ReadValue<Vector2>();
         // Always apply locally for immediate feedback on the owning machine.
         if (gunHolder != null) gunHolder.SetAimDirection(dir);
@@ -109,7 +110,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if (!GameManager.instance.playersCanPickDrop) return;
+        if (GameManager.instance == null || !GameManager.instance.playersCanPickDrop) return;
         if (!context.performed) return;
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcInteract();
@@ -119,7 +120,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnShoot(InputAction.CallbackContext context)
     {
-        if (!GameManager.instance.playersCanShoot) return;
+        if (GameManager.instance == null || !GameManager.instance.playersCanShoot) return;
         if (GameSession.IsOnline && _netController != null)
         {
             if (context.performed)     _netController.RpcShootStart();
@@ -134,7 +135,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnReload(InputAction.CallbackContext context)
     {
-        if (!GameManager.instance.playersCanReload) return;
+        if (GameManager.instance == null || !GameManager.instance.playersCanReload) return;
         if (!context.performed) return;
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcReload();
@@ -144,7 +145,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnPowerUp(InputAction.CallbackContext context)
     {
-        if (!GameManager.instance.playersCanPowerUp)
+        if (GameManager.instance == null || !GameManager.instance.playersCanPowerUp)
         {
             AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
             return;

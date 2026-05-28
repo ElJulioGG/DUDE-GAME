@@ -16,12 +16,17 @@ public class GE_KnockbackExplosion : GrenadeEffect
 
     public override void ApplyEffect(Vector2 center, int ownerPlayerIndex)
     {
+        // ApplyEffect runs on the server only in online mode (see Grenade.Explode).
+        // Knockback on players is routed through TargetRpc to the owning client,
+        // which has physics authority over its character (client-auth NetworkTransform).
         var hits = Physics2D.OverlapCircleAll(center, radius, hitMask);
         foreach (var h in hits)
         {
+            if (h == null) continue;
+
             if (ignoreOwner)
             {
-                var psOwnerCheck = h.GetComponent<PlayerStats>();
+                var psOwnerCheck = h.GetComponentInParent<PlayerStats>();
                 if (psOwnerCheck != null && psOwnerCheck.GetPlayerIndex() == ownerPlayerIndex)
                     continue;
             }
@@ -33,22 +38,28 @@ public class GE_KnockbackExplosion : GrenadeEffect
             float force = maxForce;
             if (useDistanceFalloff)
             {
-                float t = 1f - Mathf.Clamp01(dist / radius); 
+                float t = 1f - Mathf.Clamp01(dist / radius);
                 force *= t;
             }
 
-            var ps = h.GetComponent<PlayerStats>();
+            var ps = h.GetComponentInParent<PlayerStats>();
             if (ps != null)
             {
-                ps.ApplyKnockback(center, force);
+                if (GameSession.IsOnline)
+                {
+                    var netCtrl = h.GetComponentInParent<NetworkPlayerController>();
+                    if (netCtrl != null) netCtrl.ServerApplyKnockback(center, force);
+                }
+                else
+                {
+                    ps.ApplyKnockback(center, force);
+                }
                 continue;
             }
 
             var rb = h.attachedRigidbody;
             if (rb != null)
-            {
                 rb.AddForce(dir * force, ForceMode2D.Impulse);
-            }
         }
     }
 }

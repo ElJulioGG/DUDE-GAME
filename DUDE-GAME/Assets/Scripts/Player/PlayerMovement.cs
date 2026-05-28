@@ -2,6 +2,7 @@ using FishNet.Object;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float maxSpeed = 5f;
@@ -18,7 +19,8 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        playerIndex = playerStats.GetPlayerIndex();
+        if (playerStats == null) playerStats = GetComponent<PlayerStats>();
+        if (playerStats != null) playerIndex = playerStats.GetPlayerIndex();
         _netObj = GetComponent<NetworkObject>();
     }
 

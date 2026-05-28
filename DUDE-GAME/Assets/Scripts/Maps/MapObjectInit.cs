@@ -1,122 +1,58 @@
 using UnityEngine;
 
+/// <summary>
+/// Manages map objects between rounds using SetActive — never Instantiate.
+///
+/// WHY: Calling Instantiate() on a GameObject that contains a NetworkObject duplicates
+/// its serialized SceneId. FishNet uses SceneIds to reconcile scene objects between
+/// server and client, so duplicates cause "[object] have the same sceneId" errors
+/// and break multiplayer spawning. SetActive avoids this entirely.
+///
+/// WeaponBox handles its own network reset via a SyncVar when re-enabled.
+/// </summary>
 public class MapObjectManager : MonoBehaviour
 {
-    [Header("Object Management")]
-    [SerializeField] private GameObject[] originalSceneObjects; // Drag your scene objects here
-    [SerializeField] private bool hideOriginalsOnStart = true;
+    [SerializeField] private GameObject[] originalSceneObjects;
 
-    private GameObject[] objectCopies;
-    private Vector3[] originalPositions;
-    private Quaternion[] originalRotations;
-    private bool isInitialized = false;
+    private Vector3[]    _initialPositions;
+    private Quaternion[] _initialRotations;
+    private bool         _cacheReady;
 
     private void Awake()
     {
-        InitializeObjectCopies();
+        CacheInitialTransforms();
+        SetObjectsActive(false);
     }
 
-    private void InitializeObjectCopies()
+    private void CacheInitialTransforms()
     {
-        if (isInitialized) return;
-
-        // Initialize arrays
-        objectCopies = new GameObject[originalSceneObjects.Length];
-        originalPositions = new Vector3[originalSceneObjects.Length];
-        originalRotations = new Quaternion[originalSceneObjects.Length];
-
+        if (_cacheReady) return;
+        _initialPositions = new Vector3[originalSceneObjects.Length];
+        _initialRotations = new Quaternion[originalSceneObjects.Length];
         for (int i = 0; i < originalSceneObjects.Length; i++)
         {
             if (originalSceneObjects[i] == null) continue;
-
-            // Save original transform data
-            originalPositions[i] = originalSceneObjects[i].transform.position;
-            originalRotations[i] = originalSceneObjects[i].transform.rotation;
-
-            // Create copy
-            objectCopies[i] = Instantiate(
-                originalSceneObjects[i],
-                originalPositions[i],
-                originalRotations[i],
-                transform
-            );
-
-            // Name it for identification
-            objectCopies[i].name = $"{originalSceneObjects[i].name}_Copy";
-
-            // Hide original if requested
-            if (hideOriginalsOnStart)
-            {
-                originalSceneObjects[i].SetActive(false);
-            }
+            _initialPositions[i] = originalSceneObjects[i].transform.position;
+            _initialRotations[i] = originalSceneObjects[i].transform.rotation;
         }
-
-        isInitialized = true;
+        _cacheReady = true;
     }
 
-    public void SetMapActive(bool active)
+    private void SetObjectsActive(bool active)
     {
-        if (!isInitialized) InitializeObjectCopies();
-
-        for (int i = 0; i < objectCopies.Length; i++)
+        if (!_cacheReady) CacheInitialTransforms();
+        for (int i = 0; i < originalSceneObjects.Length; i++)
         {
             if (originalSceneObjects[i] == null) continue;
-
             if (active)
             {
-                // If copy was destroyed, recreate it
-                if (objectCopies[i] == null)
-                {
-                    objectCopies[i] = Instantiate(
-                        originalSceneObjects[i],
-                        originalPositions[i],
-                        originalRotations[i],
-                        transform
-                    );
-                    objectCopies[i].name = $"{originalSceneObjects[i].name}_Copy";
-                }
-
-                objectCopies[i].SetActive(true);
+                originalSceneObjects[i].transform.position = _initialPositions[i];
+                originalSceneObjects[i].transform.rotation = _initialRotations[i];
             }
-            else
-            {
-                if (objectCopies[i] != null)
-                {
-                    objectCopies[i].SetActive(false);
-                }
-            }
+            originalSceneObjects[i].SetActive(active);
         }
     }
 
-    private void OnEnable()
-    {
-        SetMapActive(true);
-    }
-
-    private void OnDisable()
-    {
-        SetMapActive(false);
-    }
-
-    // Cleanup when this object is destroyed
-    private void OnDestroy()
-    {
-        // Destroy all copies
-        if (objectCopies != null)
-        {
-            foreach (var copy in objectCopies)
-            {
-                if (copy != null) Destroy(copy);
-            }
-        }
-
-        // Reactivate originals if we hid them
-        if (hideOriginalsOnStart && originalSceneObjects != null)
-        {
-            foreach (var original in originalSceneObjects)
-            {
-                if (original != null) original.SetActive(true);
-            }
-        }
-    }
+    private void OnEnable()  => SetObjectsActive(true);
+    private void OnDisable() => SetObjectsActive(false);
 }

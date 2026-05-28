@@ -9,13 +9,31 @@ public class GE_DamageExplosion : GrenadeEffect
 
     public override void ApplyEffect(Vector2 center, int ownerPlayerIndex)
     {
+        // ApplyEffect runs on the server only in online mode (see Grenade.Explode).
+        bool prevQueryHitTriggers = Physics2D.queriesHitTriggers;
+        Physics2D.queriesHitTriggers = false;
         var hits = Physics2D.OverlapCircleAll(center, radius, hitMask);
+        Physics2D.queriesHitTriggers = prevQueryHitTriggers;
+
         foreach (var h in hits)
         {
-            var stats = h.GetComponent<PlayerStats>();
+            if (h == null) continue;
+
+            var stats = h.GetComponentInParent<PlayerStats>();
             if (stats != null)
             {
-                stats.TakeDamage(damage);
+                if (GameSession.IsOnline)
+                {
+                    var netCtrl = h.GetComponentInParent<NetworkPlayerController>();
+                    if (netCtrl != null)
+                        netCtrl.ServerTakeDamage(damage);
+                    else
+                        stats.TakeDamage(damage);
+                }
+                else
+                {
+                    stats.TakeDamage(damage);
+                }
                 continue;
             }
 

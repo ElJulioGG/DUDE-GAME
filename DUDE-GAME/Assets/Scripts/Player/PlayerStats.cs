@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class PlayerStats : MonoBehaviour
+public class PlayerStats : MonoBehaviour, IDamageable
 {
     [SerializeField] public int playerIndex = 0;
     [SerializeField] private int health = 200;
@@ -57,7 +57,7 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
     }
 
-    public void TakeDamage(int damageAmount)
+    public void TakeDamage(int damageAmount = 1)
     {
         if (!playerAlive) return;
 
@@ -99,6 +99,12 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // Plays the points-earned sound — used by online mode where score is awarded via SyncVar.
+    public void PlayPointsSound()
+    {
+        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PointGain, transform.position);
+    }
+
     // Plays blood/death particles and death sound — safe to call on any machine.
     public void PlayDeathEffects()
     {
@@ -111,7 +117,7 @@ public class PlayerStats : MonoBehaviour
     {
         PlayDeathEffects();
         playerAlive = false;
-        gunHolder.DropCurrentWeapon();
+        if (gunHolder != null) gunHolder.DropCurrentWeapon();
         gameObject.SetActive(false);
     }
 

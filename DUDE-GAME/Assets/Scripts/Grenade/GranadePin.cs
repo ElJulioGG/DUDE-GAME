@@ -30,7 +30,7 @@ public class GranadePin : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (GameManager.instance.destroyProyectiles)
+        if (GameManager.instance == null || GameManager.instance.destroyProyectiles)
         {
             Destroy(gameObject);
             return;
