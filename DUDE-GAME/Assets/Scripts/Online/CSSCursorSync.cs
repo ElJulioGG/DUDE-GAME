@@ -52,6 +52,20 @@ public class CSSCursorSync : MonoBehaviour
 
     // -------------------------------------------------------------------------
 
+    private void Awake()
+    {
+        if (ghostContainer == null)
+        {
+            var cursors = FindObjectsByType<PlayerCursor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (cursors.Length > 0 && cursors[0].transform.parent != null)
+                ghostContainer = cursors[0].transform.parent.GetComponent<RectTransform>();
+            if (ghostContainer != null)
+                Debug.Log($"[CSSCursorSync] Auto-found ghostContainer: {ghostContainer.name}");
+            else
+                Debug.LogWarning("[CSSCursorSync] ghostContainer not assigned and could not be auto-found. Remote cursors will not render.");
+        }
+    }
+
     private void OnEnable()
     {
         _instance = this;
@@ -94,7 +108,10 @@ public class CSSCursorSync : MonoBehaviour
 
         if (cursors != null)
         {
-            for (int i = 0; i < cursors.Length && i < 3; i++)
+            // Use a separate slot counter so active cursors are packed even if they are
+            // at array index 3+ (FindObjectsByType order is non-deterministic).
+            int slot = 0;
+            for (int i = 0; i < cursors.Length && slot < 3; i++)
             {
                 var c = cursors[i];
                 if (c == null || !c.gameObject.activeSelf) continue;
@@ -102,12 +119,13 @@ public class CSSCursorSync : MonoBehaviour
                 float x = rt != null ? rt.anchoredPosition.x : 0f;
                 float y = rt != null ? rt.anchoredPosition.y : 0f;
 
-                switch (i)
+                switch (slot)
                 {
                     case 0: msg.Active0 = true; msg.X0 = x; msg.Y0 = y; msg.Assigned0 = c.IsAssigned; msg.PlayerIndex0 = (sbyte)c.AssignedPlayerIndex; break;
                     case 1: msg.Active1 = true; msg.X1 = x; msg.Y1 = y; msg.Assigned1 = c.IsAssigned; msg.PlayerIndex1 = (sbyte)c.AssignedPlayerIndex; break;
                     case 2: msg.Active2 = true; msg.X2 = x; msg.Y2 = y; msg.Assigned2 = c.IsAssigned; msg.PlayerIndex2 = (sbyte)c.AssignedPlayerIndex; break;
                 }
+                slot++;
             }
         }
 

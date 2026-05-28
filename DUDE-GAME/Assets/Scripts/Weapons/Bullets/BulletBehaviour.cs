@@ -50,7 +50,6 @@ public class BulletBehavior : MonoBehaviour
     {
         direction = transform.right;
         previousPosition = rb.position;
-        Physics2D.queriesHitTriggers = false;
 
         if (!destroyOnInvisible)
         {
@@ -64,7 +63,7 @@ public class BulletBehavior : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (GameManager.instance.destroyProyectiles)
+        if (GameManager.instance == null || GameManager.instance.destroyProyectiles)
         {
             DestroyBullet();
             return;
@@ -76,6 +75,8 @@ public class BulletBehavior : MonoBehaviour
         Vector2 newPosition = previousPosition + direction * speed * Time.fixedDeltaTime;
         float distance = Vector2.Distance(previousPosition, newPosition);
 
+        bool prevQueryHitTriggers = Physics2D.queriesHitTriggers;
+        Physics2D.queriesHitTriggers = false;
         RaycastHit2D[] hits = Physics2D.CircleCastAll(
             previousPosition,
             bulletRadius,
@@ -83,6 +84,7 @@ public class BulletBehavior : MonoBehaviour
             distance,
             damageableMask | bounceableMask
         );
+        Physics2D.queriesHitTriggers = prevQueryHitTriggers;
 
         foreach (var hit in hits)
         {
@@ -121,11 +123,23 @@ public class BulletBehavior : MonoBehaviour
 
     void HandleDamage(RaycastHit2D hit)
     {
-        // IDamageable (NPCs, custom objects) — handle locally or via their own network logic
-        var dmgTarget = hit.collider.GetComponentInParent<IDamageable>();
-        if (dmgTarget != null)
+        // Check for player first so damage always routes through the correct online/offline path.
+        var playerStats = hit.collider.GetComponentInParent<PlayerStats>();
+        if (playerStats != null)
         {
-            dmgTarget.TakeDamage(damage);
+            if (GameSession.IsOnline)
+            {
+                var netCtrl = hit.collider.GetComponentInParent<NetworkPlayerController>();
+                if (netCtrl != null)
+                    netCtrl.ServerTakeDamage(damage);
+                else
+                    playerStats.TakeDamage(damage);
+            }
+            else
+            {
+                playerStats.TakeDamage(damage);
+            }
+
             if (destroyOnPlayerHit)
             {
                 StopAllCoroutines();
@@ -134,22 +148,11 @@ public class BulletBehavior : MonoBehaviour
             return;
         }
 
-        if (hit.collider.CompareTag("Player"))
+        // Non-player IDamageable (NPCs, custom objects)
+        var dmgTarget = hit.collider.GetComponentInParent<IDamageable>();
+        if (dmgTarget != null)
         {
-            if (GameSession.IsOnline)
-            {
-                // Route through NetworkPlayerController so damage is server-authoritative
-                var netCtrl = hit.collider.GetComponentInParent<NetworkPlayerController>();
-                if (netCtrl != null)
-                    netCtrl.ServerTakeDamage(damage);
-                else
-                    hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
-            }
-            else
-            {
-                hit.collider.GetComponent<PlayerStats>()?.TakeDamage(damage);
-            }
-
+            dmgTarget.TakeDamage(damage);
             if (destroyOnPlayerHit)
             {
                 StopAllCoroutines();

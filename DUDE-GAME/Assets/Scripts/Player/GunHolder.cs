@@ -261,25 +261,23 @@ public class GunHolder : MonoBehaviour
         Vector3 spawnPosition = transform.position;
         float dropDistance = 1f;
 
-        bool isMoving = lastMovementDirection.sqrMagnitude > 0.01f;
-        if (isMoving)
-            spawnPosition += (Vector3)lastMovementDirection.normalized * dropDistance;
+        Vector2 throwDir = (lastAimDirection.sqrMagnitude > 0.01f) ? lastAimDirection :
+                           (lastMovementDirection.sqrMagnitude > 0.01f) ? lastMovementDirection :
+                           Vector2.right;
+
+        spawnPosition += (Vector3)throwDir * dropDistance;
 
         GameObject drop = Instantiate(dropPrefab, spawnPosition, Quaternion.identity);
 
-        if (lastAimDirection != Vector2.zero)
-        {
-            float angle = Mathf.Atan2(lastAimDirection.y, lastAimDirection.x) * Mathf.Rad2Deg;
-            drop.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-        }
+        float dropAngle = Mathf.Atan2(throwDir.y, throwDir.x) * Mathf.Rad2Deg;
+        drop.transform.rotation = Quaternion.Euler(0f, 0f, dropAngle);
 
         WeaponPickup pickup = drop.GetComponent<WeaponPickup>();
         pickup.weaponName = weaponName;
         pickup.savedClipAmmo = currentGunScript != null ? currentGunScript.GetCurrentClipAmmo() : 0;
         pickup.savedReserveAmmo = currentGunScript != null ? currentGunScript.GetReserveAmmo() : 0;
 
-        if (isMoving) pickup.Throw(lastMovementDirection);
-        else pickup.Throw(Vector2.zero);
+        pickup.Throw(throwDir);
 
         // Network-spawn so all remote clients see the dropped weapon.
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)

@@ -1,3 +1,4 @@
+using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
@@ -6,18 +7,21 @@ using UnityEngine;
 /// Thin network wrapper on each player GameObject.
 /// Movement: owning client moves locally; NetworkTransform (client authority) syncs to server/observers.
 /// Actions (shoot, aim, interact, powerup): owning client calls ServerRpc → executes on server.
-/// Health/death: server-authoritative via SyncVar<int> _health and SyncVar<bool> _alive.
+/// Health/death/score: server-authoritative via SyncVars.
+/// Knockback: server validates, TargetRpc delivers to owning client who has physics authority.
 /// </summary>
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerStats))]
 public class NetworkPlayerController : NetworkBehaviour
 {
-    private readonly SyncVar<int>  _globalIndex = new SyncVar<int>(-1);
+    private readonly SyncVar<int>    _globalIndex = new SyncVar<int>(-1);
     public int GlobalIndex => _globalIndex.Value;
 
-    private readonly SyncVar<int>  _health = new SyncVar<int>(0);
-    private readonly SyncVar<bool> _alive  = new SyncVar<bool>(true);
+    private readonly SyncVar<int>    _health     = new SyncVar<int>(0);
+    private readonly SyncVar<bool>   _alive      = new SyncVar<bool>(true);
     private readonly SyncVar<string> _weaponName = new SyncVar<string>("");
+    private readonly SyncVar<int>    _score      = new SyncVar<int>(0);
+    public int Score => _score.Value;
 
     private PlayerMovement _movement;
     private GunHolder      _gunHolder;
@@ -39,17 +43,19 @@ public class NetworkPlayerController : NetworkBehaviour
     public override void OnStartNetwork()
     {
         base.OnStartNetwork();
-        _health.OnChange += OnHealthChanged;
-        _alive.OnChange  += OnAliveChanged;
+        _health.OnChange     += OnHealthChanged;
+        _alive.OnChange      += OnAliveChanged;
         _weaponName.OnChange += OnWeaponNameChanged;
+        _score.OnChange      += OnScoreChanged;
     }
 
     public override void OnStopNetwork()
     {
         base.OnStopNetwork();
-        _health.OnChange -= OnHealthChanged;
-        _alive.OnChange  -= OnAliveChanged;
+        _health.OnChange     -= OnHealthChanged;
+        _alive.OnChange      -= OnAliveChanged;
         _weaponName.OnChange -= OnWeaponNameChanged;
+        _score.OnChange      -= OnScoreChanged;
     }
 
     // -------------------------------------------------------------------------
@@ -80,6 +86,92 @@ public class NetworkPlayerController : NetworkBehaviour
             _stats.KillPlayer();   // server: weapon drop + SetActive(false)
         }
     }
+
+    // Forces health to an exact value — used by server-side powerups (e.g. Instakill).
+    [Server]
+    public void ServerSetHealth(int health)
+    {
+        if (_stats == null || !_stats.playerAlive) return;
+        int clamped = Mathf.Clamp(health, 1, _stats.baseHealth);
+        _stats.SetPlayerHealth(clamped);
+        _health.Value = clamped;
+    }
+
+    // -------------------------------------------------------------------------
+    // Knockback — server validates, TargetRpc pushes to owning client (physics authority)
+    // -------------------------------------------------------------------------
+
+    [Server]
+    public void ServerApplyKnockback(Vector2 origin, float force)
+    {
+        if (Owner == null || !_stats.playerAlive) return;
+        TargetApplyKnockback(Owner, origin, force);
+    }
+
+    [TargetRpc]
+    private void TargetApplyKnockback(NetworkConnection conn, Vector2 origin, float force)
+    {
+        if (_stats != null) _stats.ApplyKnockback(origin, force);
+    }
+
+    // -------------------------------------------------------------------------
+    // Score — server increments, SyncVar propagates to all machines
+    // -------------------------------------------------------------------------
+
+    [Server]
+    public void ServerAddScore(int points)
+    {
+        _score.Value += points;
+        SyncScoreToGameManager(_score.Value);
+    }
+
+    private void OnScoreChanged(int prev, int next, bool asServer)
+    {
+        // Fires on every machine (server: asServer=true, clients: asServer=false)
+        if (!asServer) SyncScoreToGameManager(next);
+    }
+
+    private void SyncScoreToGameManager(int value)
+    {
+        if (GameManager.instance == null) return;
+        switch (_globalIndex.Value)
+        {
+            case 0: GameManager.instance.player1Score = value; break;
+            case 1: GameManager.instance.player2Score = value; break;
+            case 2: GameManager.instance.player3Score = value; break;
+            case 3: GameManager.instance.player4Score = value; break;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Respawn — server re-enables the player on all machines for the next round
+    // -------------------------------------------------------------------------
+
+    [Server]
+    public void ServerRespawn()
+    {
+        if (_stats == null) return;
+        _alive.Value  = true;
+        _health.Value = _stats.baseHealth;
+
+        // Notify clients first (FishNet delivers RPCs even to disabled NetworkObjects)
+        RpcOnPlayerRespawned();
+
+        // Server handles itself directly
+        gameObject.SetActive(true);   // OnEnable resets health + playerAlive via PlayerStats
+        _gunHolder?.DestroyCurrentWeapon();
+    }
+
+    [ObserversRpc(ExcludeServer = true)]
+    private void RpcOnPlayerRespawned()
+    {
+        gameObject.SetActive(true);   // OnEnable resets health + playerAlive
+        _gunHolder?.DestroyCurrentWeapon();
+    }
+
+    // -------------------------------------------------------------------------
+    // SyncVar callbacks
+    // -------------------------------------------------------------------------
 
     private void OnHealthChanged(int prev, int next, bool asServer)
     {

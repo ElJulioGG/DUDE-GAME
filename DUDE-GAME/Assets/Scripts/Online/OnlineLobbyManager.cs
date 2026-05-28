@@ -103,6 +103,12 @@ public class OnlineLobbyManager : MonoBehaviour
     // PHASE 1: Send registration when local players have selected in CSS
     // -------------------------------------------------------------------------
 
+    public void ResetForNewSession()
+    {
+        _registered = false;
+        Debug.Log("[OnlineLobbyManager] Reset for new session.");
+    }
+
     public void PrepareOnlineSession()
     {
         GameSession.IsOnline = true;

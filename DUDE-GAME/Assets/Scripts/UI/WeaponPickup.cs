@@ -125,7 +125,7 @@ public class WeaponPickup : MonoBehaviour
             }
             else
             {
-                var target = collision.collider.GetComponent<PlayerStats>();
+                var target = collision.collider.GetComponentInParent<PlayerStats>();
                 if (target != null) target.TakeDamage(damageOnHit);
             }
         }

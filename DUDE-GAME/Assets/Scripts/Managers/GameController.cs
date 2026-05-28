@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using FishNet;
+using FishNet.Object;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -64,41 +66,74 @@ public class GameController : MonoBehaviour
     {
         pointsToGive = 1;
 
-        // Resetear tormenta al iniciar un nuevo round
         if (poisonStormController != null)
-        {
             poisonStormController.OnMatchReset();
-        }
 
-        //#if GRENADE_DEBUG
-        //        // DEBUG:
-        //        Debug.Log("[ROUND] NextMatch start resetting round state");
-        //#endif
         levelTimer.ResetTimer();
         ClearAllMutators();
-        ClearAllWeaponPickups(); // Clear weapons before map change
-        SelectRandomMap();
+        ClearAllWeaponPickups();
+        ClearAllGrenades();
+
+        // Map selection: only the server picks the map so all machines load the same one.
+        // Non-host clients receive the map via RoundMapBroadcast → SetMapByIndex().
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
+            SelectRandomMap();
+
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            NetworkGameManager.Instance?.ServerBroadcastRoundMap(CurrentMapIndex());
+
         GameManager.instance.playersCanMove = false;
         GameManager.instance.destroyProyectiles = true;
         RemovePointsCanvas();
 
-        // Destroy all blood splatters
         foreach (GameObject splatter in PlayerVisuals.allSplatters)
         {
-            if (splatter != null)
-                Destroy(splatter);
+            if (splatter != null) Destroy(splatter);
         }
         PlayerVisuals.allSplatters.Clear();
 
-        // Respawn players
-        foreach (PlayerStats player in playerStats)
+        // Respawn: server issues an RPC that re-enables players on all machines.
+        // Non-server clients skip the local call — they receive RpcOnPlayerRespawned instead.
+        if (GameSession.IsOnline)
         {
-            player.Respawn();
+            if (InstanceFinder.IsServerStarted)
+            {
+                foreach (PlayerStats player in playerStats)
+                {
+                    var netCtrl = player.GetComponent<NetworkPlayerController>();
+                    if (netCtrl != null) netCtrl.ServerRespawn();
+                    else                player.Respawn();
+                }
+            }
+        }
+        else
+        {
+            foreach (PlayerStats player in playerStats)
+                player.Respawn();
         }
 
         matchEnded = false;
         AssignPlayerPositions();
         Invoke("StartGame", 0.5f);
+    }
+
+    // Removes all live grenades from the scene, server-despawning NetworkObjects online.
+    private void ClearAllGrenades()
+    {
+        var grenades = FindObjectsByType<Grenade>(FindObjectsSortMode.None);
+        foreach (var g in grenades)
+        {
+            if (g == null) continue;
+            if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            {
+                if (g.IsSpawned) InstanceFinder.ServerManager.Despawn(g.NetworkObject);
+                else             Destroy(g.gameObject);
+            }
+            else if (!GameSession.IsOnline)
+            {
+                Destroy(g.gameObject);
+            }
+        }
     }
 
 
@@ -181,24 +216,24 @@ public class GameController : MonoBehaviour
     }
     private void ClearAllWeaponPickups()
     {
-#if GRENADE_DEBUG
-        // DEBUG:
-        Debug.Log("[ROUND] ClearAllWeaponPickups â€“ destroying pickups in world");
-#endif
         WeaponPickup[] existingPickups = FindObjectsByType<WeaponPickup>(FindObjectsSortMode.None);
         foreach (WeaponPickup pickup in existingPickups)
         {
-            if (pickup != null && pickup.gameObject != null)
+            if (pickup == null || pickup.gameObject == null) continue;
+
+            if (GameSession.IsOnline)
+            {
+                // Only the server despawns NetworkObjects; clients wait for the despawn event.
+                if (!InstanceFinder.IsServerStarted) continue;
+                var no = pickup.GetComponent<NetworkObject>();
+                if (no != null && no.IsSpawned) InstanceFinder.ServerManager.Despawn(no);
+                else                             Destroy(pickup.gameObject);
+            }
+            else
             {
                 Destroy(pickup.gameObject);
             }
         }
-#if GRENADE_DEBUG
-        // DEBUG:
-        Debug.Log($"[ROUND] Cleared {existingPickups.Length} weapon pickups");
-#endif
-
-
     }
 
     public void ShowPointsCanvas(Transform winnerTransform, int points)
@@ -374,6 +409,20 @@ public class GameController : MonoBehaviour
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
+
+        // Ensure every player GO and its children are on the "Player" layer so bullet
+        // damageableMask (layer 6) detects them correctly regardless of prefab defaults.
+        int playerLayer = LayerMask.NameToLayer("Player");
+        foreach (var go in players)
+        {
+            if (go == null) continue;
+            go.layer = playerLayer;
+            go.tag = "Player";
+            foreach (Transform child in go.GetComponentsInChildren<Transform>(true))
+            {
+                child.gameObject.layer = playerLayer;
+            }
+        }
 
         GameManager.instance.assignController = true;
         GameManager.instance.playersCanMove = false;
@@ -592,6 +641,30 @@ public class GameController : MonoBehaviour
         {
             // If the player hasn't hit the threshold, start the next round
             Debug.Log("No winner yet. Starting next round.");
+        if (GameSession.IsOnline)
+        {
+            yield return new WaitForSeconds(1.5f);
+            // Only the server awards points; the SyncVar propagates the new score to all clients.
+            if (InstanceFinder.IsServerStarted)
+            {
+                var netCtrl = winner.GetComponent<NetworkPlayerController>();
+                if (netCtrl != null) netCtrl.ServerAddScore(pointsToGive);
+            }
+            winner.PlayPointsSound();
+        }
+        else
+        {
+            yield return winner.AddPointsAfterDelay(pointsToGive);
+        }
+
+        ShowPointsCanvas(winner.transform, pointsToGive);
+        if (levelTimer.timeLeft > 0)
+        {
+            Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
+            yield return new WaitForSeconds(2f);
+            transitionAnim.SetTrigger("FadeIn");
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
+            yield return new WaitForSeconds(0.5f);
             NextMatch();
         }
     }
@@ -631,7 +704,13 @@ public class GameController : MonoBehaviour
         UIPowerUps[0].SetActive(true);
         foreach (PlayerStats player in playerStats)
         {
-            if (player.playerAlive)
+            if (!player.playerAlive) continue;
+            if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            {
+                var netCtrl = player.GetComponent<NetworkPlayerController>();
+                if (netCtrl != null) netCtrl.ServerSetHealth(1);
+            }
+            else if (!GameSession.IsOnline)
             {
                 player.SetPlayerHealth(1);
             }

@@ -26,6 +26,7 @@ public class NetworkGameManager : NetworkBehaviour
     private readonly HashSet<int>                         _registeredClients = new();
     private readonly bool[]                               _slotTaken        = new bool[4];
     private readonly int[]                                _charSelections   = { -1, -1, -1, -1 };
+    private bool                                          _matchStarted     = false;
 
     private struct PendingRegistration
     {
@@ -61,6 +62,12 @@ public class NetworkGameManager : NetworkBehaviour
         public int Char0, Char1, Char2, Char3;
     }
 
+    // Sent by server at the start of every new round so all machines load the same map.
+    public struct RoundMapBroadcast : IBroadcast
+    {
+        public int MapIndex;
+    }
+
     // Streamed at ~20 fps during CSS so all machines can render remote ghost cursors.
     public struct CSSCursorStateBroadcast : IBroadcast
     {
@@ -78,6 +85,20 @@ public class NetworkGameManager : NetworkBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        // Scene NetworkObjects with _isNetworked=0 are skipped by FishNet's spawn pass,
+        // leaving NetworkManager null and crashing GiveOwnership. Force true before Start.
+        var nob = GetComponent<NetworkObject>();
+        if (nob != null) nob.SetIsNetworked(true);
+
+        if (_playerSlots != null)
+        {
+            foreach (var slot in _playerSlots)
+            {
+                if (slot == null) continue;
+                var slotNob = slot.GetComponent<NetworkObject>();
+                if (slotNob != null) slotNob.SetIsNetworked(true);
+            }
+        }
     }
 
     public override void OnStartServer()
@@ -99,6 +120,7 @@ public class NetworkGameManager : NetworkBehaviour
         _registeredClients.Clear();
         System.Array.Clear(_slotTaken, 0, _slotTaken.Length);
         for (int i = 0; i < _charSelections.Length; i++) _charSelections[i] = -1;
+        _matchStarted = false;
     }
 
     public override void OnStartClient()
@@ -106,12 +128,17 @@ public class NetworkGameManager : NetworkBehaviour
         base.OnStartClient();
         // MatchStartBroadcast is handled by OnlineLobbyManager.OnEnable (always registered).
         InstanceFinder.ClientManager.RegisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
+        InstanceFinder.ClientManager.RegisterBroadcast<RoundMapBroadcast>(OnClientReceiveRoundMap);
+
+        if (FindFirstObjectByType<CSSCursorSync>() == null)
+            new GameObject("[CSSCursorSync]").AddComponent<CSSCursorSync>();
     }
 
     public override void OnStopClient()
     {
         base.OnStopClient();
         InstanceFinder.ClientManager.UnregisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
+        InstanceFinder.ClientManager.UnregisterBroadcast<RoundMapBroadcast>(OnClientReceiveRoundMap);
     }
 
     // -------------------------------------------------------------------------
@@ -154,12 +181,13 @@ public class NetworkGameManager : NetworkBehaviour
                   $"({_registeredClients.Count}/{total} ready)");
 
         // Fire MatchStart only when every connected machine has registered.
-        if (_registeredClients.Count >= total)
+        if (!_matchStarted && _registeredClients.Count >= total)
             SendMatchStart();
     }
 
     private void SendMatchStart()
     {
+        _matchStarted = true;
         var ownerSessions = new int[] { -1, -1, -1, -1 };
 
         // Assign slots in registration order so early registrants get priority on their choice.
@@ -174,6 +202,12 @@ public class NetworkGameManager : NetworkBehaviour
             {
                 int gi = PickSlot(choices[i]);
                 if (gi < 0) { Debug.LogWarning("[NetworkGameManager] No slots left!"); break; }
+
+                if (_playerSlots == null || gi >= _playerSlots.Length || _playerSlots[gi] == null)
+                {
+                    Debug.LogError($"[NetworkGameManager] _playerSlots[{gi}] is null — assign all 4 NetworkPlayerController slots in the NetworkGameManager Inspector.");
+                    continue;
+                }
 
                 _slotTaken[gi]      = true;
                 ownerSessions[gi]   = sessionId;
@@ -233,4 +267,22 @@ public class NetworkGameManager : NetworkBehaviour
     }
 
     private void OnClientReceiveLobbyState(LobbyStateBroadcast msg, Channel channel) { }
+
+    // -------------------------------------------------------------------------
+    // Round map sync — called by GameController.NextMatch() on the server
+    // -------------------------------------------------------------------------
+
+    public void ServerBroadcastRoundMap(int mapIndex)
+    {
+        if (!IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new RoundMapBroadcast { MapIndex = mapIndex });
+    }
+
+    // Received by non-host clients — host already applied the map inside GameController.NextMatch().
+    private void OnClientReceiveRoundMap(RoundMapBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsHostStarted) return;
+        GameController.instance?.SetMapByIndex(msg.MapIndex);
+        GameController.instance?.AssignPlayerPositions();
+    }
 }
