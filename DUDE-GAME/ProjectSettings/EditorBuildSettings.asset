@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/GioScene.unity
     guid: 1d7ff0acd977abd4db0658db2f4e8b68
+  - enabled: 1
+    path: Assets/Scenes/VictoryScene.unity
+    guid: 985a60ab79100c74baf6d8133d02bdc2
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9c8131c0cecdf78439441635f6ab41e7, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 1dda534c34e13804babb0fecca0c8bc2, type: 3}

@@ -577,7 +577,7 @@ public class GameController : MonoBehaviour
 
         // 3. Read the newly updated score from the GameManager
         int finalScore = GetGlobalScore(winner.playerIndex);
-        int pointsToWin = 3; // SCORE HERE -----------------------
+        int pointsToWin = 5; // SCORE HERE -----------------------
 
         // 4. Check if they hit the threshold
         if (finalScore >= pointsToWin)
