@@ -71,21 +71,22 @@ public class WeaponBox : NetworkBehaviour
     {
         if (_broken.Value || _brokenLocal) return;
         if (!collision.CompareTag("Bullet") && !collision.CompareTag("Melee")) return;
-        if (GameSession.IsOnline && !IsServerStarted) return;
+        // Use InstanceFinder so the check doesn't depend on this NetworkObject being spawned.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
         BreakBox();
     }
 
     private void BreakBox()
     {
         _brokenLocal = true;
-        _broken.Value = true;
+        if (IsSpawned && InstanceFinder.IsServerStarted) _broken.Value = true;
         SpawnWeapon();
 
-        if (GameSession.IsOnline && IsServerStarted)
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
         {
-            // Tell all non-server clients to play audio and disable the box.
-            // Server handles itself below.
-            RpcOnBoxBroken();
+            // Notify all clients via NetworkGameManager (doesn't depend on this box being spawned).
+            NetworkGameManager.Instance?.ServerBroadcastBoxBroken(transform.position);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.BoxBreak, transform.position);
             gameObject.SetActive(false);
         }
         else
@@ -106,8 +107,8 @@ public class WeaponBox : NetworkBehaviour
         }
 
         var go = Instantiate(weaponPickups[index], transform.position, Quaternion.identity);
-        if (GameSession.IsOnline && IsServerStarted)
-            ServerManager.Spawn(go);
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            InstanceFinder.ServerManager.Spawn(go);
     }
 
     [ObserversRpc(ExcludeServer = true)]

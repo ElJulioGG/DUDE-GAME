@@ -31,13 +31,19 @@ public class MeleeDefault : MonoBehaviour
             if (GameSession.IsOnline)
             {
                 var netCtrl = stats.GetComponent<NetworkPlayerController>();
-                if (netCtrl != null) netCtrl.ServerTakeDamage(damage);
+                if (netCtrl != null)
+                {
+                    netCtrl.ServerTakeDamage(damage);
+                    // Knockback must be applied on the owning client (who has physics authority
+                    // for their own player). Routing through TargetRpc.
+                    netCtrl.ServerApplyKnockbackDirection(aimDirection, knockbackForce);
+                }
             }
             else
             {
                 stats.TakeDamage(damage);
+                stats.ApplyKnockbackDirection(aimDirection, knockbackForce);
             }
-            stats.ApplyKnockbackDirection(aimDirection, knockbackForce);
             gameObject.SetActive(false);
             return;
         }

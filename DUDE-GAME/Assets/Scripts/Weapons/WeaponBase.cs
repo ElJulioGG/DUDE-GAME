@@ -75,17 +75,36 @@ public class WeaponBase : MonoBehaviour
     private bool isFiring = false;
     private Vector2 aimDirection = Vector2.right;
     private bool initialized = false;
+    private NetworkPlayerController _netCtrl;
 
     private void Start()
     {
         reloadFillImage.gameObject.SetActive(false);
         noAmmoImage.gameObject.SetActive(false);
         playerRb = GetComponentInParent<Rigidbody2D>();
+        _netCtrl = GetComponentInParent<NetworkPlayerController>();
 
         originalLocalPos = transform.localPosition;
         originalLocalRot = transform.localRotation;
 
         InitializeWeapon();
+    }
+
+    // Called by the server's NetworkPlayerController TargetRpc on the owning client
+    // to display the reload progress (real ammo + reload state are server-authoritative).
+    public void SetExternalReloadingState(bool reloading)
+    {
+        isReloading = reloading;
+        if (reloadFillImage != null)
+            reloadFillImage.gameObject.SetActive(reloading);
+    }
+
+    // Server-side: push current ammo + reload state to the owning client's HUD.
+    private void SyncAmmoToOwner()
+    {
+        if (!GameSession.IsOnline || !InstanceFinder.IsServerStarted) return;
+        if (_netCtrl == null) return;
+        _netCtrl.ServerSyncAmmo(currentClipAmmo, reserveAmmo, isReloading);
     }
 
 
@@ -252,6 +271,7 @@ public class WeaponBase : MonoBehaviour
         }
 
         UpdateUI();
+        SyncAmmoToOwner();
 
         if (currentClipAmmo <= 0 && reserveAmmo > 0)
         {
@@ -263,6 +283,7 @@ public class WeaponBase : MonoBehaviour
     {
         isReloading = true;
         UpdateAimSight();
+        SyncAmmoToOwner();
 
         // Play reload sound
         /* if ( SoundFXManager.instance != null)
@@ -303,6 +324,7 @@ public class WeaponBase : MonoBehaviour
 
         UpdateAimSight();
         UpdateUI();
+        SyncAmmoToOwner();
     }
 
     public void SetAimDirection(Vector2 dir)
@@ -339,7 +361,7 @@ public class WeaponBase : MonoBehaviour
     public int GetReserveAmmo() => reserveAmmo;
     public bool IsReloading() => isReloading;
     public void AddAmmo(int amount) => reserveAmmo = Mathf.Min(reserveAmmo + amount, maxAmmo - currentClipAmmo);
-    public void SetAmmo(int clip, int reserve) { currentClipAmmo = clip; reserveAmmo = reserve; UpdateUI(); }
+    public void SetAmmo(int clip, int reserve) { currentClipAmmo = clip; reserveAmmo = reserve; UpdateUI(); SyncAmmoToOwner(); }
     public void ToggleFireMode() => fullAutoMode = !fullAutoMode;
     public void SetRandomSpread(bool useRandom) => randomSpread = useRandom;
     public void SetSpreadFire(bool enabled) => spreadFireEnabled = enabled;
@@ -352,8 +374,11 @@ public class WeaponBase : MonoBehaviour
     }
 
     // Instantiates a bullet and, when online on the server, network-spawns it so all clients see it.
+    // Online + non-server: skip entirely — the server-spawned networked bullet will replicate to us.
     protected void SpawnBullet(GameObject prefab, Vector3 pos, Quaternion rot)
     {
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
+
         var go = Instantiate(prefab, pos, rot);
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted
             && go.TryGetComponent<NetworkObject>(out _))

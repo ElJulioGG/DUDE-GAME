@@ -127,16 +127,19 @@ public class PlayerInputHandler : MonoBehaviour
         if (playerStats == null || !playerStats.playerAlive) return;
         if (GameSession.IsOnline && _netController != null)
         {
-            // Run the visual locally on the owner so the player sees their own swing/shot,
-            // and call the ServerRpc so the server processes damage authoritatively.
+            // Local execution is only useful for MELEE — it gives instant swing feedback.
+            // For ranged weapons, ammo lives on the server (client's local copy is wrong),
+            // so running HandleShoot locally would just show "no ammo" indicators.
+            // Bullets come back to the owner via FishNet's networked spawn replication.
+            bool isMelee = gunHolder != null && gunHolder.IsMeleeActive;
             if (context.performed)
             {
-                gunHolder?.HandleShoot();
+                if (isMelee) gunHolder.HandleShoot();
                 _netController.RpcShootStart();
             }
             else if (context.canceled)
             {
-                gunHolder?.HandleStopShoot();
+                if (isMelee) gunHolder.HandleStopShoot();
                 _netController.RpcShootStop();
             }
         }

@@ -68,6 +68,12 @@ public class NetworkGameManager : NetworkBehaviour
         public int MapIndex;
     }
 
+    // Sent by server when a WeaponBox breaks. Clients find the box by world position and deactivate it.
+    public struct BoxBrokenBroadcast : IBroadcast
+    {
+        public float X, Y;
+    }
+
     // Streamed at ~20 fps during CSS so all machines can render remote ghost cursors.
     public struct CSSCursorStateBroadcast : IBroadcast
     {
@@ -129,6 +135,7 @@ public class NetworkGameManager : NetworkBehaviour
         // MatchStartBroadcast is handled by OnlineLobbyManager.OnEnable (always registered).
         InstanceFinder.ClientManager.RegisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
         InstanceFinder.ClientManager.RegisterBroadcast<RoundMapBroadcast>(OnClientReceiveRoundMap);
+        InstanceFinder.ClientManager.RegisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
 
         if (FindFirstObjectByType<CSSCursorSync>() == null)
             new GameObject("[CSSCursorSync]").AddComponent<CSSCursorSync>();
@@ -146,6 +153,38 @@ public class NetworkGameManager : NetworkBehaviour
         base.OnStopClient();
         InstanceFinder.ClientManager.UnregisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
         InstanceFinder.ClientManager.UnregisterBroadcast<RoundMapBroadcast>(OnClientReceiveRoundMap);
+        InstanceFinder.ClientManager.UnregisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
+    }
+
+    // Server: tell all machines a box at this position broke.
+    public void ServerBroadcastBoxBroken(Vector3 worldPos)
+    {
+        if (!IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new BoxBrokenBroadcast { X = worldPos.x, Y = worldPos.y });
+    }
+
+    // Client: find the WeaponBox at this position and deactivate it.
+    private void OnClientReceiveBoxBroken(BoxBrokenBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host already handled it
+        var boxes = FindObjectsByType<WeaponBox>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        const float tolerance = 0.25f;
+        WeaponBox match = null;
+        float bestSqr = tolerance * tolerance;
+        foreach (var box in boxes)
+        {
+            if (box == null) continue;
+            float dx = box.transform.position.x - msg.X;
+            float dy = box.transform.position.y - msg.Y;
+            float sqr = dx * dx + dy * dy;
+            if (sqr <= bestSqr) { bestSqr = sqr; match = box; }
+        }
+        if (match != null)
+        {
+            if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.BoxBreak, match.transform.position);
+            match.gameObject.SetActive(false);
+        }
     }
 
     // -------------------------------------------------------------------------

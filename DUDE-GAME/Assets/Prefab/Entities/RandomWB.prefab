@@ -276,6 +276,7 @@ GameObject:
   - component: {fileID: 9192562882050907194}
   - component: {fileID: -6485831107146928449}
   - component: {fileID: -2009636475933105908}
+  - component: {fileID: -1951901361348800415}
   m_Layer: 10
   m_Name: RandomWB
   m_TagString: Wall
@@ -515,7 +516,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584215591803615694
+  _initializedTimestamp: -8584215419032577273
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -543,6 +544,21 @@ MonoBehaviour:
     Rotation: {x: 0, y: 0, z: 0, w: 1}
     Scale: {x: 1, y: 1, z: 1}
     IsValid: 1
+--- !u!114 &-1951901361348800415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306062693290571066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c71fd7f855ec523429999fc4e14a1928, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _overrideType: 3
+  _updateHostVisibility: 0
+  _observerConditions: []
 --- !u!1 &8553070427275567204
 GameObject:
   m_ObjectHideFlags: 0

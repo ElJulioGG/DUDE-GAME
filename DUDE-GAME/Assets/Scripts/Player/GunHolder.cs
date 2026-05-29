@@ -59,6 +59,12 @@ public class GunHolder : MonoBehaviour
 
     public void SetPlayerIndex(int index) => playerIndex = index;
     public int GetPlayerIndex() => playerIndex;
+
+    // True when the currently equipped weapon is a melee (fist) — used by online owner code
+    // to decide whether to run HandleShoot locally for instant swing feedback.
+    public bool IsMeleeActive => currentMeleeScript != null && currentGunScript == null;
+
+    public WeaponBase CurrentGunScript => currentGunScript;
     void FixedUpdate()
     {
         // Track last movement direction with a deadzone threshold

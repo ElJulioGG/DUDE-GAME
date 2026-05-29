@@ -128,6 +128,19 @@ public class NetworkPlayerController : NetworkBehaviour
         if (_stats != null) _stats.ApplyKnockback(origin, force);
     }
 
+    [Server]
+    public void ServerApplyKnockbackDirection(Vector2 direction, float force)
+    {
+        if (Owner == null || !_stats.playerAlive) return;
+        TargetApplyKnockbackDirection(Owner, direction, force);
+    }
+
+    [TargetRpc]
+    private void TargetApplyKnockbackDirection(NetworkConnection conn, Vector2 direction, float force)
+    {
+        if (_stats != null) _stats.ApplyKnockbackDirection(direction, force);
+    }
+
     // -------------------------------------------------------------------------
     // Score — server increments, SyncVar propagates to all machines
     // -------------------------------------------------------------------------
@@ -189,7 +202,11 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void OnHealthChanged(int prev, int next, bool asServer)
     {
-        if (!asServer) _stats?.SetPlayerHealth(next);
+        if (asServer) return;
+        if (_stats == null) return;
+        _stats.SetPlayerHealth(next);
+        // Play hit feedback (sound, shake, particles) on every non-server machine when health drops.
+        if (next < prev) _stats.PlayDamageFeedback(prev - next);
     }
 
     private void OnAliveChanged(bool prev, bool next, bool asServer)
@@ -209,6 +226,25 @@ public class NetworkPlayerController : NetworkBehaviour
     public void ServerSetWeapon(string weaponName)
     {
         _weaponName.Value = weaponName;
+    }
+
+    // Server pushes current ammo state to the owning client so their HUD displays correctly.
+    // The owner does not run HandleShoot locally for ranged, so their local WeaponBase ammo
+    // would otherwise stay at default and the UI would be wrong.
+    [Server]
+    public void ServerSyncAmmo(int clip, int reserve, bool reloading)
+    {
+        if (Owner == null) return;
+        TargetSyncAmmo(Owner, clip, reserve, reloading);
+    }
+
+    [TargetRpc]
+    private void TargetSyncAmmo(NetworkConnection conn, int clip, int reserve, bool reloading)
+    {
+        var weapon = _gunHolder != null ? _gunHolder.CurrentGunScript : null;
+        if (weapon == null) return;
+        weapon.SetAmmo(clip, reserve);
+        weapon.SetExternalReloadingState(reloading);
     }
 
     [ObserversRpc(ExcludeServer = true)]
@@ -240,11 +276,29 @@ public class NetworkPlayerController : NetworkBehaviour
         _gunHolder?.SetAimDirection(dir);
 
     [ServerRpc]
-    public void RpcShootStart() =>
+    public void RpcShootStart()
+    {
+        _gunHolder?.HandleShoot();   // server-authoritative: damage, networked bullet spawn
+        // Only broadcast for melee — ranged is already visible via the networked bullets,
+        // and remote clients have wrong ammo state so HandleShoot would just show "no ammo".
+        if (_gunHolder != null && _gunHolder.IsMeleeActive)
+            BroadcastShootStart();
+    }
+
+    [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
+    private void BroadcastShootStart() =>
         _gunHolder?.HandleShoot();
 
     [ServerRpc]
-    public void RpcShootStop() =>
+    public void RpcShootStop()
+    {
+        _gunHolder?.HandleStopShoot();
+        if (_gunHolder != null && _gunHolder.IsMeleeActive)
+            BroadcastShootStop();
+    }
+
+    [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
+    private void BroadcastShootStop() =>
         _gunHolder?.HandleStopShoot();
 
     [ServerRpc]

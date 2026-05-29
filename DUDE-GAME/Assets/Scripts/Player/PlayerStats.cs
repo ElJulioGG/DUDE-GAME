@@ -116,6 +116,19 @@ public class PlayerStats : MonoBehaviour, IDamageable
             AudioManager.Instance.PlaySound(FMODEvents.Instance.PointGain, transform.position);
     }
 
+    // Plays damage feedback (sound, shake, particles) without modifying health.
+    // Used by NetworkPlayerController on remote clients when the health SyncVar decreases.
+    public void PlayDamageFeedback(int damageAmount)
+    {
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
+        if (playerVisuals != null)
+        {
+            playerVisuals.PlayDamageShake();
+            playerVisuals.SpawnDamageParticles(damageAmount, baseHealth);
+        }
+    }
+
     // Plays blood/death particles and death sound — safe to call on any machine.
     public void PlayDeathEffects()
     {
