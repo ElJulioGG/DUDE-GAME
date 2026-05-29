@@ -106,8 +106,8 @@ public class LevelTimer : MonoBehaviour
         }
         else
         {
-            
-            StartCoroutine(gameController.HandleDraw());
+            if (!gameController.matchEnded)
+                StartCoroutine(gameController.HandleDraw());
             StopTimer();
         }
        

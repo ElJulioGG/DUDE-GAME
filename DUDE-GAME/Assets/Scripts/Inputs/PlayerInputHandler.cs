@@ -90,9 +90,12 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
+        if (playerStats != null && !playerStats.playerAlive)
+        {
+            if (playerMovement != null) playerMovement.SetInputVector(Vector2.zero);
+            return;
+        }
         var input = context.ReadValue<Vector2>();
-        // Always drive movement locally — the owning client moves its character directly.
-        // NetworkTransform (client authority) syncs the position to the server and all others.
         if (playerMovement != null)
             playerMovement.SetInputVector(input);
     }
@@ -100,10 +103,9 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnAim(InputAction.CallbackContext context)
     {
         if (GameManager.instance == null || !GameManager.instance.playersCanAim) return;
+        if (playerStats == null || !playerStats.playerAlive) return;
         var dir = context.ReadValue<Vector2>();
-        // Always apply locally for immediate feedback on the owning machine.
         if (gunHolder != null) gunHolder.SetAimDirection(dir);
-        // Send to server so it can relay to all other machines via BroadcastAim.
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcAim(dir);
     }
@@ -111,6 +113,7 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (GameManager.instance == null || !GameManager.instance.playersCanPickDrop) return;
+        if (playerStats == null || !playerStats.playerAlive) return;
         if (!context.performed) return;
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcInteract();
@@ -121,10 +124,21 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnShoot(InputAction.CallbackContext context)
     {
         if (GameManager.instance == null || !GameManager.instance.playersCanShoot) return;
+        if (playerStats == null || !playerStats.playerAlive) return;
         if (GameSession.IsOnline && _netController != null)
         {
-            if (context.performed)     _netController.RpcShootStart();
-            else if (context.canceled) _netController.RpcShootStop();
+            // Run the visual locally on the owner so the player sees their own swing/shot,
+            // and call the ServerRpc so the server processes damage authoritatively.
+            if (context.performed)
+            {
+                gunHolder?.HandleShoot();
+                _netController.RpcShootStart();
+            }
+            else if (context.canceled)
+            {
+                gunHolder?.HandleStopShoot();
+                _netController.RpcShootStop();
+            }
         }
         else if (gunHolder != null)
         {
@@ -136,6 +150,7 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnReload(InputAction.CallbackContext context)
     {
         if (GameManager.instance == null || !GameManager.instance.playersCanReload) return;
+        if (playerStats == null || !playerStats.playerAlive) return;
         if (!context.performed) return;
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcReload();
@@ -147,13 +162,15 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (GameManager.instance == null || !GameManager.instance.playersCanPowerUp)
         {
-            AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
+            if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
             return;
         }
+        if (playerStats == null || !playerStats.playerAlive) return;
         if (!context.performed) return;
         if (GameSession.IsOnline && _netController != null)
             _netController.RpcPowerUp();
-        else if (playerStats != null && GameManager.instance.playersCanMove && playerStats.playerAlive)
+        else if (GameManager.instance.playersCanMove)
             playerStats.usingPowerUp = true;
     }
 }

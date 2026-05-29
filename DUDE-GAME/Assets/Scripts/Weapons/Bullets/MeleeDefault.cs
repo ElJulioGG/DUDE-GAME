@@ -1,3 +1,4 @@
+using FishNet;
 using UnityEngine;
 
 public class MeleeDefault : MonoBehaviour
@@ -16,25 +17,36 @@ public class MeleeDefault : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // 1) Intento generico
+        // Online: only the server applies damage so it's authoritative.
+        // The owning client still sees the hitbox visually for feedback.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        var stats = other.GetComponentInParent<PlayerStats>();
+        if (stats != null)
+        {
+            if (GameSession.IsOnline)
+            {
+                var netCtrl = stats.GetComponent<NetworkPlayerController>();
+                if (netCtrl != null) netCtrl.ServerTakeDamage(damage);
+            }
+            else
+            {
+                stats.TakeDamage(damage);
+            }
+            stats.ApplyKnockbackDirection(aimDirection, knockbackForce);
+            gameObject.SetActive(false);
+            return;
+        }
+
         var dmg = other.GetComponentInParent<IDamageable>();
         if (dmg != null)
         {
             dmg.TakeDamage(damage);
             gameObject.SetActive(false);
-            return;
-        }
-
-        // 2) Logica existente con Player
-        if (other.CompareTag("Player"))
-        {
-            PlayerStats stats = other.GetComponent<PlayerStats>();
-            if (stats != null)
-            {
-                stats.TakeDamage(damage);
-                stats.ApplyKnockbackDirection(aimDirection, knockbackForce);
-                gameObject.SetActive(false);
-            }
         }
     }
 }

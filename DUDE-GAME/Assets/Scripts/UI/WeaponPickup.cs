@@ -89,14 +89,17 @@ public class WeaponPickup : MonoBehaviour
     {
         if (direction.sqrMagnitude > 0.01f)
         {
-            AudioManager.Instance.PlaySound(FMODEvents.Instance.Throw, transform.position);
+            if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.Throw, transform.position);
+            rb.linearDamping = 0f;
             rb.linearVelocity = direction.normalized * throwSpeed;
             rb.AddTorque(Random.Range(-100f, 100f));
             hasBeenThrown = true;
         }
         else
         {
-            AudioManager.Instance.PlaySound(FMODEvents.Instance.Reload, transform.position);
+            if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.Reload, transform.position);
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
             rb.Sleep();
@@ -113,6 +116,7 @@ public class WeaponPickup : MonoBehaviour
 
         float impactSpeed = collision.relativeVelocity.magnitude;
         hasBeenThrown = false;
+        rb.linearDamping = 3f;
 
         if (impactSpeed < minDamageSpeed) return;
 

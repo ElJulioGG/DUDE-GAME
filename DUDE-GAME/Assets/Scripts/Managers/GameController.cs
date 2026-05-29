@@ -69,7 +69,7 @@ public class GameController : MonoBehaviour
         if (poisonStormController != null)
             poisonStormController.OnMatchReset();
 
-        levelTimer.ResetTimer();
+        if (levelTimer != null) levelTimer.ResetTimer();
         ClearAllMutators();
         ClearAllWeaponPickups();
         ClearAllGrenades();
@@ -100,6 +100,7 @@ public class GameController : MonoBehaviour
             {
                 foreach (PlayerStats player in playerStats)
                 {
+                    if (player == null) continue;
                     var netCtrl = player.GetComponent<NetworkPlayerController>();
                     if (netCtrl != null) netCtrl.ServerRespawn();
                     else                player.Respawn();
@@ -109,7 +110,10 @@ public class GameController : MonoBehaviour
         else
         {
             foreach (PlayerStats player in playerStats)
+            {
+                if (player == null) continue;
                 player.Respawn();
+            }
         }
 
         matchEnded = false;
@@ -346,10 +350,12 @@ public class GameController : MonoBehaviour
             OnlineLobbyManager.Instance?.ApplyNetworkAssignment();
 
         GameManager.instance.destroyProyectiles = false;
-        transitionAnim.SetTrigger("FadeOut");
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorOpen, transform.position);
+        if (transitionAnim != null) transitionAnim.SetTrigger("FadeOut");
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorOpen, transform.position);
         foreach (PlayerStats player in playerStats)
         {
+            if (player == null) continue;
             player.SetPlayerHealth(player.baseHealth);
         }
         AssignPlayerPositions();
@@ -362,32 +368,32 @@ public class GameController : MonoBehaviour
 
             if (i == UIIntroObjects.Length - 1)
             {
-                levelTimer.StartTimer();
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSayFight, transform.position);
+                if (levelTimer != null) levelTimer.StartTimer();
+                if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                    AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSayFight, transform.position);
                 TimerText.SetActive(true);
-    
-                // Avisar a la tormenta que la partida ha comenzado
-                if (poisonStormController != null)
-                {
-                    poisonStormController.OnMatchStarted();
-                }
 
-                // Enable movement immediately when FIGHT appears
+                if (poisonStormController != null)
+                    poisonStormController.OnMatchStarted();
+
                 GameManager.instance.playersCanMove = true;
                 GameManager.instance.playersCanPowerUp = true;
             }
             if (i == UIIntroObjects.Length - 2)
             {
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay1, transform.position);
+                if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                    AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay1, transform.position);
             }
             if (i == UIIntroObjects.Length - 3)
             {
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay2, transform.position);
+                if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                    AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay2, transform.position);
             }
             if (i == UIIntroObjects.Length - 4)
             {
                 StartCoroutine(PlayerCirclesSpawn());
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay3, transform.position);
+                if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                    AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceSay3, transform.position);
             }
 
             float waitTime = (i == UIIntroObjects.Length - 1) ? 0.9f : 1f;
@@ -410,25 +416,24 @@ public class GameController : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
 
-        // Ensure every player GO and its children are on the "Player" layer so bullet
-        // damageableMask (layer 6) detects them correctly regardless of prefab defaults.
+        // Players are placed in the scene on layer 0 (Default) by default.
+        // Bullet damageableMask targets layer 6 ("Player"), so set correct layer/tag at runtime.
         int playerLayer = LayerMask.NameToLayer("Player");
         foreach (var go in players)
         {
             if (go == null) continue;
             go.layer = playerLayer;
             go.tag = "Player";
-            foreach (Transform child in go.GetComponentsInChildren<Transform>(true))
-            {
-                child.gameObject.layer = playerLayer;
-            }
         }
 
         GameManager.instance.assignController = true;
         GameManager.instance.playersCanMove = false;
-        
-        SelectRandomMap();
-       
+
+        // Online clients wait for the server's MatchStartBroadcast / RoundMapBroadcast
+        // to tell them which map to load — picking randomly here desyncs from the host.
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
+            SelectRandomMap();
+
         AssignPlayerPositions();
         Invoke("StartGame", 1.35f);
     }
@@ -501,52 +506,66 @@ public class GameController : MonoBehaviour
                 if (cursor != null && cursor.IsAssigned) cursor.UnassignPlayer();
         }
 
-        if (!matchEnded)
-        {
-            aliveCount = 0;
-            PlayerStats lastAlivePlayer = null;
+        // Win condition is now driven by PlayerStats.KillPlayer() calling OnPlayerDied(),
+        // so no per-frame polling is needed here. aliveCount is initialized in
+        // ActivateAssignedPlayers() and decremented in OnPlayerDied().
+    }
 
-            foreach (PlayerStats player in playerStats)
+    // Called by PlayerStats.KillPlayer() whenever a player dies.
+    // Decrements aliveCount and triggers the win/draw flow when appropriate.
+    public void OnPlayerDied(PlayerStats deadPlayer)
+    {
+        if (matchEnded) return;
+        if (GameManager.instance == null || !GameManager.instance.playersCanMove) return;
+
+        aliveCount--;
+
+        if (aliveCount <= 0)
+        {
+            matchEnded = true;
+            StartCoroutine(HandleDraw());
+            return;
+        }
+
+        if (aliveCount == 1)
+        {
+            PlayerStats lastAlive = null;
+            foreach (var p in playerStats)
             {
-                if (player.playerAlive)
+                if (p != null && p.playerAlive)
                 {
-                    aliveCount++;
-                    lastAlivePlayer = player;
+                    lastAlive = p;
+                    break;
                 }
             }
-            if (aliveCount == 1 && lastAlivePlayer != null)
-            {   
-                
-                matchEnded = true;
-                
-                StartCoroutine(HandleLastPlayerWin(lastAlivePlayer));
-            }
-            else if (aliveCount == 0)
+            if (lastAlive != null)
             {
                 matchEnded = true;
-                StartCoroutine(HandleDraw());
+                StartCoroutine(HandleLastPlayerWin(lastAlive));
             }
         }
     }
-    
+
     public IEnumerator HandleDraw()
     {
         Debug.Log("Draw! No players alive.");
-        yield return new WaitForSeconds(2f); // Optional delay
-        transitionAnim.SetTrigger("FadeIn");
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
+        yield return new WaitForSeconds(2f);
+        if (transitionAnim != null) transitionAnim.SetTrigger("FadeIn");
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
         yield return new WaitForSeconds(0.5f);
-        NextMatch(); // Restart match without awarding points
+        NextMatch();
     }
 
     private void FixedUpdate()
     {
         for (int i = 0; i < playerStats.Length; i++)
         {
+            if (playerStats[i] == null) continue;
             if (playerStats[i].usingPowerUp)
             {
                 TriggerPowerUp(playerStats[i].playerIndex);
-                
+
                 playerStats[i].usingPowerUp = false;
             }
         }
@@ -610,45 +629,16 @@ public class GameController : MonoBehaviour
 
     IEnumerator HandleLastPlayerWin(PlayerStats winner)
     {
-        levelTimer.StopTimer();
+        if (levelTimer != null) levelTimer.StopTimer();
         GameManager.instance.playersCanPowerUp = false;
 
-        // 1. PlayerStats.cs handles the delay, effects, AND updates the global score
-        yield return winner.AddPointsAfterDelay(pointsToGive);
-
-        // 2. Show the visual UI (but do NOT add points again)
-        ShowPointsCanvas(winner.transform, pointsToGive);
-
-        yield return new WaitForSeconds(2f);
-        transitionAnim.SetTrigger("FadeIn");
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
-        yield return new WaitForSeconds(0.5f);
-
-        // 3. Read the newly updated score from the GameManager
-        int finalScore = GetGlobalScore(winner.playerIndex);
-        int pointsToWin = 3; // SCORE HERE -----------------------
-
-        // 4. Check if they hit the threshold
-        if (finalScore >= pointsToWin)
-        {
-            Debug.Log($"Player {winner.playerIndex} won with {finalScore} points! Loading Victory Screen.");
-
-            // Directly load the Victory Scene using Unity's native SceneManager
-            // (No need to search for the SimpleSceneManager in the hierarchy anymore!)
-            SceneManager.LoadScene("VictoryScene");
-        }
-        else
-        {
-            // If the player hasn't hit the threshold, start the next round
-            Debug.Log("No winner yet. Starting next round.");
+        // Award points once — server-authoritative online, local for offline
         if (GameSession.IsOnline)
         {
-            yield return new WaitForSeconds(1.5f);
-            // Only the server awards points; the SyncVar propagates the new score to all clients.
             if (InstanceFinder.IsServerStarted)
             {
-                var netCtrl = winner.GetComponent<NetworkPlayerController>();
-                if (netCtrl != null) netCtrl.ServerAddScore(pointsToGive);
+                if (winner.TryGetComponent(out NetworkPlayerController netCtrl))
+                    netCtrl.ServerAddScore(pointsToGive);
             }
             winner.PlayPointsSound();
         }
@@ -658,13 +648,25 @@ public class GameController : MonoBehaviour
         }
 
         ShowPointsCanvas(winner.transform, pointsToGive);
-        if (levelTimer.timeLeft > 0)
-        {
-            Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
-            yield return new WaitForSeconds(2f);
-            transitionAnim.SetTrigger("FadeIn");
+        Debug.Log($"Match ended. {winner.name} awarded {pointsToGive} point(s).");
+
+        yield return new WaitForSeconds(2f);
+        if (transitionAnim != null) transitionAnim.SetTrigger("FadeIn");
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
             AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
-            yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.5f);
+
+        int finalScore = GetGlobalScore(winner.playerIndex);
+        int pointsToWin = 3;
+
+        if (finalScore >= pointsToWin)
+        {
+            Debug.Log($"Player {winner.playerIndex} won with {finalScore} points! Loading Victory Screen.");
+            SceneManager.LoadScene("VictoryScene");
+        }
+        else
+        {
+            Debug.Log("No winner yet. Starting next round.");
             NextMatch();
         }
     }
@@ -700,11 +702,12 @@ public class GameController : MonoBehaviour
 
     public void Instakill()
     {
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceInstakill, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.VoiceInstakill, transform.position);
         UIPowerUps[0].SetActive(true);
         foreach (PlayerStats player in playerStats)
         {
-            if (!player.playerAlive) continue;
+            if (player == null || !player.playerAlive) continue;
             if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
             {
                 var netCtrl = player.GetComponent<NetworkPlayerController>();
@@ -716,7 +719,7 @@ public class GameController : MonoBehaviour
             }
         }
     }
-    public void Awake()
+    void Awake()
     {
         instance = this;
         PauseGame();

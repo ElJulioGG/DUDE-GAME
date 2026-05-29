@@ -12,9 +12,11 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private int playerIndex;
     private NetworkObject _netObj;
+    private float _diagLogTimer;
 
     private float _speedMultiplier = 1f;
     private float _boostEndTime;
+    private float _knockbackEndTime;
 
     void Start()
     {
@@ -34,12 +36,27 @@ public class PlayerMovement : MonoBehaviour
         return playerIndex;
     }
 
+    public void SetKnockbackWindow(float duration = 0.2f)
+    {
+        _knockbackEndTime = Time.time + duration;
+    }
+
     void FixedUpdate()
     {
         if (!GameManager.instance.playersCanMove)
         {
             rb.linearVelocity = Vector2.zero;
             return;
+        }
+
+        // Log once every 2 seconds so we can see what state each machine thinks each player is in.
+        _diagLogTimer -= Time.fixedDeltaTime;
+        if (_diagLogTimer <= 0f)
+        {
+            _diagLogTimer = 2f;
+            bool isOnline = GameSession.IsOnline;
+            bool isOwner = _netObj != null && _netObj.IsOwner;
+            Debug.Log($"[MOV-DIAG] {name} idx={playerIndex} online={isOnline} netObj={(_netObj != null ? "OK" : "NULL")} IsOwner={isOwner} moveInput={moveInput} vel={rb.linearVelocity}");
         }
 
         // In online play, non-owner machines let NetworkTransform drive the position.
@@ -50,11 +67,14 @@ public class PlayerMovement : MonoBehaviour
         if (_speedMultiplier > 1f && Time.time >= _boostEndTime)
             _speedMultiplier = 1f;
 
+        // Let knockback impulses play out before correcting back to input velocity.
+        if (Time.time < _knockbackEndTime)
+            return;
+
         Vector2 desiredVelocity = moveInput * maxSpeed * _speedMultiplier;
         Vector2 velocityDiff = desiredVelocity - rb.linearVelocity;
 
-        // Apply force to achieve the target velocity over time (responsive but allows physics)
-        rb.AddForce(velocityDiff * 10f, ForceMode2D.Force); // Adjust multiplier for snappiness
+        rb.AddForce(velocityDiff * 10f, ForceMode2D.Force);
     }
 
     public void SetInputVector(Vector2 direction)

@@ -132,6 +132,13 @@ public class NetworkGameManager : NetworkBehaviour
 
         if (FindFirstObjectByType<CSSCursorSync>() == null)
             new GameObject("[CSSCursorSync]").AddComponent<CSSCursorSync>();
+
+        // Required by the match-start flow — auto-create if the user didn't place them in a scene.
+        if (LocalPlayerRegistry.Instance == null)
+            new GameObject("[LocalPlayerRegistry]").AddComponent<LocalPlayerRegistry>();
+        if (OnlineLobbyManager.Instance == null)
+            new GameObject("[OnlineLobbyManager]").AddComponent<OnlineLobbyManager>();
+        OnlineLobbyManager.Instance?.ResetForNewSession();
     }
 
     public override void OnStopClient()

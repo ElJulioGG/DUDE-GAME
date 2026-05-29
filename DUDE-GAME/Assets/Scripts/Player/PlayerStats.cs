@@ -11,6 +11,14 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [SerializeField] public bool usingPowerUp;
     [SerializeField] private GunHolder gunHolder;
     [SerializeField] private PlayerVisuals playerVisuals;
+    private PlayerMovement playerMovement;
+
+    private void Awake()
+    {
+        if (playerVisuals == null) playerVisuals = GetComponent<PlayerVisuals>();
+        if (gunHolder == null) gunHolder = GetComponentInChildren<GunHolder>();
+        playerMovement = GetComponent<PlayerMovement>();
+    }
 
     void Start()
     {
@@ -53,7 +61,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
 
         points += pointsToAdd;
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.PointGain, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PointGain, transform.position);
         Debug.Log($"Player {playerIndex} received {pointsToAdd} points. Total: {points}");
     }
 
@@ -63,7 +72,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         health -= damageAmount;
 
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
         if (playerVisuals != null)
         {
             playerVisuals.PlayDamageShake();
@@ -102,7 +112,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     // Plays the points-earned sound — used by online mode where score is awarded via SyncVar.
     public void PlayPointsSound()
     {
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PointGain, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PointGain, transform.position);
     }
 
     // Plays blood/death particles and death sound — safe to call on any machine.
@@ -110,7 +121,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         if (playerVisuals != null) playerVisuals.SpawnBloodSplatter(playerIndex, transform.position);
         if (playerVisuals != null) playerVisuals.SpawnDeathEffect();
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PlayerDeath, transform.position);
     }
 
     public void KillPlayer()
@@ -119,6 +131,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
         playerAlive = false;
         if (gunHolder != null) gunHolder.DropCurrentWeapon();
         gameObject.SetActive(false);
+
+        if (GameController.instance != null)
+            GameController.instance.OnPlayerDied(this);
     }
 
     // Applies damage feedback (shake, particles, sound) without triggering death.
@@ -127,7 +142,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         if (!playerAlive) return;
         health -= damageAmount;
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.PlayerGetHit, transform.position);
         if (playerVisuals != null)
         {
             playerVisuals.PlayDamageShake();
@@ -142,6 +158,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         {
             Vector2 knockDirection = (transform.position - (Vector3)origin).normalized;
             rb.AddForce(knockDirection * force, ForceMode2D.Impulse);
+            playerMovement?.SetKnockbackWindow();
         }
     }
 
@@ -151,6 +168,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (rb != null)
         {
             rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
+            playerMovement?.SetKnockbackWindow();
         }
     }
 
@@ -162,7 +180,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
                 if (GameManager.instance.player1Playable)
                 {
                     if (playerVisuals != null) playerVisuals.ResetShake();
-                    gunHolder.DestroyCurrentWeapon();
+                    if (gunHolder != null) gunHolder.DestroyCurrentWeapon();
                     health = baseHealth;
                     playerAlive = true;
                     gameObject.SetActive(true);
@@ -172,7 +190,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
                 if (GameManager.instance.player2Playable)
                 {
                     if (playerVisuals != null) playerVisuals.ResetShake();
-                    gunHolder.DestroyCurrentWeapon();
+                    if (gunHolder != null) gunHolder.DestroyCurrentWeapon();
                     health = baseHealth;
                     playerAlive = true;
                     gameObject.SetActive(true);
@@ -182,7 +200,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
                 if (GameManager.instance.player3Playable)
                 {
                     if (playerVisuals != null) playerVisuals.ResetShake();
-                    gunHolder.DestroyCurrentWeapon();
+                    if (gunHolder != null) gunHolder.DestroyCurrentWeapon();
                     health = baseHealth;
                     playerAlive = true;
                     gameObject.SetActive(true);
@@ -192,7 +210,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
                 if (GameManager.instance.player4Playable)
                 {
                     if (playerVisuals != null) playerVisuals.ResetShake();
-                    gunHolder.DestroyCurrentWeapon();
+                    if (gunHolder != null) gunHolder.DestroyCurrentWeapon();
                     health = baseHealth;
                     playerAlive = true;
                     gameObject.SetActive(true);

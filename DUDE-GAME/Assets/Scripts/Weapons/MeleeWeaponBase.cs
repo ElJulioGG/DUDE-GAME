@@ -25,7 +25,7 @@ public class MeleeWeaponBase : MonoBehaviour
 
     public void Attack()
     {
-        if (!isAttacking)
+        if (!isAttacking && isActiveAndEnabled)
         {
             StartCoroutine(AttackRoutine());
         }
@@ -55,8 +55,8 @@ public class MeleeWeaponBase : MonoBehaviour
     private System.Collections.IEnumerator AttackRoutine()
     {
         isAttacking = true;
-        //SoundFXManager.instance.PlaySoundByName("", transform, 0.7f, 1f, false);
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.SwingPunch, transform.position);
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.SwingPunch, transform.position);
         // Activate hitbox for the active time
         if (hitbox != null)
         {

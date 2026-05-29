@@ -47,6 +47,20 @@ public class NetworkPlayerController : NetworkBehaviour
         _alive.OnChange      += OnAliveChanged;
         _weaponName.OnChange += OnWeaponNameChanged;
         _score.OnChange      += OnScoreChanged;
+        bool isLocalOwner = Owner != null && Owner.IsLocalClient;
+        Debug.Log($"[NET-DIAG] OnStartNetwork name={name} slot={_globalIndex.Value} IsServer={IsServerStarted} IsLocalOwner={isLocalOwner} OwnerId={(Owner != null ? Owner.ClientId : -999)} sceneActive={gameObject.activeInHierarchy}");
+    }
+
+    public override void OnOwnershipServer(FishNet.Connection.NetworkConnection prevOwner)
+    {
+        base.OnOwnershipServer(prevOwner);
+        Debug.Log($"[NET-DIAG] OnOwnershipServer name={name} slot={_globalIndex.Value} NewOwnerId={(Owner != null ? Owner.ClientId : -999)}");
+    }
+
+    public override void OnOwnershipClient(FishNet.Connection.NetworkConnection prevOwner)
+    {
+        base.OnOwnershipClient(prevOwner);
+        Debug.Log($"[NET-DIAG] OnOwnershipClient name={name} slot={_globalIndex.Value} IsOwner={IsOwner} NewOwnerId={(Owner != null ? Owner.ClientId : -999)}");
     }
 
     public override void OnStopNetwork()

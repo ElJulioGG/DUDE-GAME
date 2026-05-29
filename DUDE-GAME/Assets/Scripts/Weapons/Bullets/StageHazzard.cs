@@ -34,7 +34,7 @@ public class StageHazzard : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerStats stats = other.GetComponent<PlayerStats>();
+            PlayerStats stats = other.GetComponentInParent<PlayerStats>();
             if (stats == null) return;
 
             bool wasAlive = stats.playerAlive;
