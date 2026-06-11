@@ -51,6 +51,11 @@ public class GrenadeWeapon : WeaponBase
 
     public override void Shoot()
     {
+        // Grenades are real networked objects spawned by the server — non-server
+        // machines must never instantiate a local one (the FishNet spawn replicates
+        // it), otherwise cosmetic shot events would create duplicate grenades.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
+
         if (cooking != null) return;
 
         if (currentClipAmmo <= 0 || grenadePrefab == null || definition == null)
@@ -58,32 +63,28 @@ public class GrenadeWeapon : WeaponBase
 
         Transform parent = handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
 
-        // Instantiate at world position first so the NetworkObject spawns with a clean world transform,
-        // then parent so it follows the hand while held.
+        // The grenade is never parented — it FOLLOWS the hand (Grenade.LateUpdate).
+        // NetworkTransform syncs localPosition, so parenting would make client copies
+        // apply hand-local offsets as world coordinates (invisible at the origin).
         cooking = Instantiate(grenadePrefab, parent.position, Quaternion.identity);
-        cooking.transform.SetParent(parent, worldPositionStays: true);
         cooking.Init(definition, GetOwnerIndexSafe());
         cooking.SetOwner(this);
+        cooking.AttachToHand(parent, GetOwnerIndexSafe());
 
         // Spawn BEFORE Arm() so OnStartServer() has been called on the NetworkBehaviour
         // by the time Arm() sets the _netState SyncVar. Without this, clients receive
         // the spawn packet with State.Safe and never transition to State.Armed.
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+        {
+            cooking.NetworkObject.SetIsNetworked(true); // prefab may ship with _isNetworked=0
             InstanceFinder.ServerManager.Spawn(cooking.NetworkObject);
+        }
 
         cooking.Arm();
 
         if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
 
-        if (forceGrenadeOnTop)
-        {
-            var gsr = cooking.GetComponentInChildren<SpriteRenderer>();
-            if (gsr && weaponBodyRenderer)
-            {
-                gsr.sortingLayerID = weaponBodyRenderer.sortingLayerID;
-                gsr.sortingOrder = weaponBodyRenderer.sortingOrder + 1;
-            }
-        }
+        ApplyGrenadeSorting(cooking);
 
         if (grenadePinPrefab != null) Instantiate(grenadePinPrefab, transform.position, transform.rotation);
         AudioManager.Instance.PlaySound(FMODEvents.Instance.GranadePin, transform.position);
@@ -116,6 +117,40 @@ public class GrenadeWeapon : WeaponBase
         return true;
     }
 
+
+    // ---- Cosmetic mirror for non-server machines -------------------------------
+    // The server hides the weapon body and pops the pin inside Shoot(); remote
+    // machines (including the activating owner) mirror it from the replicated
+    // grenade's synced state — see Grenade.OnNetStateChanged.
+
+    public void ShowCookingVisuals(bool playPin = true)
+    {
+        if (weaponBodyRenderer) weaponBodyRenderer.enabled = false;
+        if (playPin)
+        {
+            if (grenadePinPrefab != null) Instantiate(grenadePinPrefab, transform.position, transform.rotation);
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.GranadePin, transform.position);
+        }
+    }
+
+    public void HideCookingVisuals()
+    {
+        if (weaponBodyRenderer) weaponBodyRenderer.enabled = true;
+    }
+
+    // Puts the grenade's sprite above the weapon body so it's never hidden behind the
+    // player or the map. The server runs this from Shoot(); replicated client grenades
+    // run it from Grenade.OnStartClient — without it they render behind everything.
+    public void ApplyGrenadeSorting(Grenade g)
+    {
+        if (!forceGrenadeOnTop || g == null || weaponBodyRenderer == null) return;
+        var gsr = g.GetComponentInChildren<SpriteRenderer>();
+        if (gsr)
+        {
+            gsr.sortingLayerID = weaponBodyRenderer.sortingLayerID;
+            gsr.sortingOrder = weaponBodyRenderer.sortingOrder + 1;
+        }
+    }
 
     private IEnumerator AutoDestroyThisWeaponNextFrame()
     {

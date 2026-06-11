@@ -28,6 +28,7 @@ public class GunHolder : MonoBehaviour
     private Vector2 lastAimDirection = Vector2.right; // Default aiming right
 
     private NetworkPlayerController _netController;
+    private PlayerMovement _playerMovement;
 
     private const float STEAL_RADIUS = 1.0f;
     private const float STEAL_COOLDOWN = 0.35f;
@@ -41,6 +42,7 @@ public class GunHolder : MonoBehaviour
     {
         playerIndex = playerStats.GetPlayerIndex();
         _netController = GetComponentInParent<NetworkPlayerController>();
+        _playerMovement = GetComponent<PlayerMovement>();
 
         // Instantiate default melee at start
         if (defaultMeleePrefab != null)
@@ -68,12 +70,12 @@ public class GunHolder : MonoBehaviour
     void FixedUpdate()
     {
         // Track last movement direction with a deadzone threshold
-        PlayerMovement movement = GetComponent<PlayerMovement>();
-        if (movement != null)
+        // (reference cached in Start — GetComponent every physics tick was waste).
+        if (_playerMovement != null)
         {
-            if (movement.moveInput.sqrMagnitude > 0.1f)
+            if (_playerMovement.moveInput.sqrMagnitude > 0.1f)
             {
-                lastMovementDirection = movement.moveInput.normalized;
+                lastMovementDirection = _playerMovement.moveInput.normalized;
             }
             else
             {
@@ -156,6 +158,14 @@ public class GunHolder : MonoBehaviour
     }
     public void EquipWeapon(string weaponName, WeaponPickup pickup)
     {
+        EquipWeapon(weaponName,
+            pickup != null ? pickup.savedClipAmmo : -1,
+            pickup != null ? pickup.savedReserveAmmo : -1);
+    }
+
+    // -1/-1 ammo = use the weapon's starting defaults.
+    public void EquipWeapon(string weaponName, int savedClipAmmo, int savedReserveAmmo)
+    {
         if (currentWeapon != null)
         {
             Destroy(currentWeapon);
@@ -178,19 +188,18 @@ public class GunHolder : MonoBehaviour
 
 #if GRENADE_DEBUG
                 // DEBUG:
-                string pickupInfo = pickup != null ? $"clip={pickup.savedClipAmmo} reserve={pickup.savedReserveAmmo}" : "pickup=null";
-                Debug.Log($"[PICKUP] {name} EquipWeapon weapon={weaponName} hasGun={currentGunScript != null} {pickupInfo}");
+                Debug.Log($"[PICKUP] {name} EquipWeapon weapon={weaponName} hasGun={currentGunScript != null} clip={savedClipAmmo} reserve={savedReserveAmmo}");
 #endif
 
                 if (currentGunScript != null)
                 {
-                    if (pickup.savedClipAmmo == -1 && pickup.savedReserveAmmo == -1)
+                    if (savedClipAmmo == -1 && savedReserveAmmo == -1)
                     {
                         currentGunScript.InitializeWeapon(true);
                     }
                     else
                     {
-                        currentGunScript.SetAmmo(pickup.savedClipAmmo, pickup.savedReserveAmmo);
+                        currentGunScript.SetAmmo(savedClipAmmo, savedReserveAmmo);
                     }
 
                     currentGunScript.SetAimDirection(lastAimDirection);
@@ -288,8 +297,15 @@ public class GunHolder : MonoBehaviour
         // Network-spawn so all remote clients see the dropped weapon.
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
         {
-            drop.GetComponent<NetworkWeaponPickupSync>()?.SetWeaponNamePreSpawn(weaponName);
-            InstanceFinder.ServerManager.Spawn(drop);
+            var sync = drop.GetComponent<NetworkWeaponPickupSync>();
+            sync?.SetWeaponNamePreSpawn(weaponName);
+            sync?.SetThrownPreSpawn(throwDir.sqrMagnitude > 0.01f);
+            var dropNob = drop.GetComponent<NetworkObject>();
+            if (dropNob != null)
+            {
+                dropNob.SetIsNetworked(true); // prefab may ship with _isNetworked=0
+                InstanceFinder.ServerManager.Spawn(drop);
+            }
         }
 
         Destroy(currentWeapon);
@@ -379,6 +395,10 @@ public class GunHolder : MonoBehaviour
                 currentMeleeScript = currentWeapon.GetComponent<MeleeWeaponBase>();
                 currentGunScript?.SetAimDirection(lastAimDirection);
                 currentMeleeScript?.SetAimDirection(lastAimDirection);
+                // The server's ammo sync may have arrived before this weapon existed —
+                // apply the buffered values so the owner's local weapon fires correctly.
+                if (currentGunScript != null && _netController != null && _netController.IsOwner)
+                    _netController.ApplyPendingAmmoTo(currentGunScript);
                 return;
             }
         }
@@ -398,7 +418,7 @@ public class GunHolder : MonoBehaviour
             GrenadeWeapon gw = currentGunScript as GrenadeWeapon;
             if (gw == null)
             {
-                EquipWeapon("GrenadeWeapon", new WeaponPickup { savedClipAmmo = -1, savedReserveAmmo = -1 });
+                EquipWeapon("GrenadeWeapon", -1, -1);
                 gw = currentGunScript as GrenadeWeapon;
             }
 
@@ -447,6 +467,15 @@ public class GunHolder : MonoBehaviour
         }
     }
 
+
+    // Spawns bullets from the server's authoritative shot data (origin + angles) so
+    // this machine's cosmetic bullets match the server's trajectories exactly.
+    public void SpawnRemoteShot(Vector2 origin, float[] angles)
+    {
+        if (currentGunScript == null) return;
+        if (playerStats != null && !playerStats.playerAlive) return;
+        currentGunScript.SpawnShotData(origin, angles);
+    }
 
     public void HandleShoot()
     {
@@ -604,7 +633,7 @@ public class GunHolder : MonoBehaviour
         GrenadeWeapon myGrenadeWeapon = currentGunScript as GrenadeWeapon;
         if (myGrenadeWeapon == null)
         {
-            EquipWeapon("GrenadeWeapon", new WeaponPickup { savedClipAmmo = -1, savedReserveAmmo = -1 });
+            EquipWeapon("GrenadeWeapon", -1, -1);
             myGrenadeWeapon = currentGunScript as GrenadeWeapon;
         }
 

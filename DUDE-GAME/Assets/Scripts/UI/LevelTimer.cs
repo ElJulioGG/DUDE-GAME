@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using FishNet;
 
 public class LevelTimer : MonoBehaviour
 {
@@ -13,6 +14,12 @@ public class LevelTimer : MonoBehaviour
     public float timeLeft;
     private bool isRunning = false;
     private int lastSecondPlayed = -1;
+
+    // Online: the server broadcasts its remaining time every few seconds so client
+    // timers can't drift; clients snap when the difference exceeds a small threshold.
+    private const float NetSyncInterval  = 3f;
+    private const float NetSnapThreshold = 0.5f;
+    private float _netSyncTimer;
 
 
     [Header("Shake Settings")]
@@ -32,6 +39,7 @@ public class LevelTimer : MonoBehaviour
 
     private Sequence shakeSequence;
     private Vector2 originalPosition;
+    private int _lastShakeSecond = -1;
 
     void Start()
     {
@@ -48,6 +56,18 @@ public class LevelTimer : MonoBehaviour
         if (timeLeft > 0f)
         {
             timeLeft -= Time.deltaTime;
+
+            // Server: keep client timers locked to ours.
+            if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            {
+                _netSyncTimer -= Time.deltaTime;
+                if (_netSyncTimer <= 0f)
+                {
+                    _netSyncTimer = NetSyncInterval;
+                    NetworkGameManager.Instance?.ServerBroadcastRoundTimer(timeLeft);
+                }
+            }
+
             int currentSecond = Mathf.CeilToInt(timeLeft);
 
             if (currentSecond != lastSecondPlayed)
@@ -83,31 +103,44 @@ public class LevelTimer : MonoBehaviour
                 timerText.color = Color.Lerp(orange, endColor, (t - 0.66f) / 0.34f);
             }
 
-            // Shake only if timeLeft < shakeStartTime
+            // Shake only if timeLeft < shakeStartTime. The shake intensity only
+            // changes meaningfully per second — rebuilding the looping tween every
+            // frame (the old behavior) churned allocations for the whole final 30s.
             if (timeLeft <= shakeStartTime)
             {
-                float shakeT = 1f - (timeLeft / shakeStartTime);
-                float strength = Mathf.Lerp(minStrength, maxStrength, shakeT);
-                int vibrato = Mathf.RoundToInt(Mathf.Lerp(minVibrato, maxVibrato, shakeT));
+                if (currentSecond != _lastShakeSecond)
+                {
+                    _lastShakeSecond = currentSecond;
 
-                timerText.rectTransform.anchoredPosition = originalPosition;
+                    float shakeT = 1f - (timeLeft / shakeStartTime);
+                    float strength = Mathf.Lerp(minStrength, maxStrength, shakeT);
+                    int vibrato = Mathf.RoundToInt(Mathf.Lerp(minVibrato, maxVibrato, shakeT));
 
-                shakeSequence.Kill();
-                shakeSequence = DOTween.Sequence().SetLoops(-1, LoopType.Restart);
-                shakeSequence.Append(timerText.rectTransform
-                    .DOShakeAnchorPos(shakeDuration, strength, vibrato, randomness, snapBack, fadeOut)
-                    .SetEase(Ease.Linear));
+                    timerText.rectTransform.anchoredPosition = originalPosition;
+
+                    shakeSequence?.Kill();
+                    shakeSequence = DOTween.Sequence().SetLoops(-1, LoopType.Restart);
+                    shakeSequence.Append(timerText.rectTransform
+                        .DOShakeAnchorPos(shakeDuration, strength, vibrato, randomness, snapBack, fadeOut)
+                        .SetEase(Ease.Linear));
+                }
             }
-            else
+            else if (shakeSequence != null)
             {
-                shakeSequence?.Kill();
+                shakeSequence.Kill();
+                shakeSequence = null;
                 timerText.rectTransform.anchoredPosition = originalPosition;
             }
         }
         else
         {
-            if (!gameController.matchEnded)
-                StartCoroutine(gameController.HandleDraw());
+            // Only the server (or offline play) may end the round on timeout.
+            // Clients ending rounds from their own local timer was a major desync source.
+            if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
+            {
+                if (!gameController.matchEnded)
+                    StartCoroutine(gameController.HandleDraw());
+            }
             StopTimer();
         }
        
@@ -126,19 +159,34 @@ public class LevelTimer : MonoBehaviour
     {
         isRunning = false;
         shakeSequence?.Kill();
+        shakeSequence = null;
         timerText.rectTransform.anchoredPosition = originalPosition;
         timerText.color = endColor;
+    }
+
+    // Client-side: snap to the server's remaining time when we've drifted.
+    public void NetworkSyncTime(float serverTimeLeft)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+
+        if (!isRunning && serverTimeLeft > 0f && !gameController.matchEnded)
+            isRunning = true;
+
+        if (Mathf.Abs(timeLeft - serverTimeLeft) > NetSnapThreshold)
+            timeLeft = serverTimeLeft;
     }
 
     public void ResetTimer()
     {
         timeLeft = startTime;
         isRunning = false;
+        _lastShakeSecond = -1;
 
         timerText.text = Mathf.CeilToInt(timeLeft).ToString();
         timerText.color = startColor;
         timerText.rectTransform.anchoredPosition = originalPosition;
 
         shakeSequence?.Kill();
+        shakeSequence = null;
     }
 }

@@ -8,6 +8,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private PlayerStats playerStats;
 
+    // How long the movement correction is suspended after a knockback so the impulse
+    // can carry. 0 = original game feel: the correction fights knockback immediately,
+    // keeping distances short. Raising this makes hits launch players further.
+    [SerializeField] private float knockbackFreeFlightTime = 0f;
+
     public Vector2 moveInput;
     private Rigidbody2D rb;
     private int playerIndex;
@@ -36,9 +41,11 @@ public class PlayerMovement : MonoBehaviour
         return playerIndex;
     }
 
-    public void SetKnockbackWindow(float duration = 0.2f)
+    // Pass a duration to override; otherwise the serialized knockbackFreeFlightTime
+    // applies (default 0 = original behavior, no free flight).
+    public void SetKnockbackWindow(float duration = -1f)
     {
-        _knockbackEndTime = Time.time + duration;
+        _knockbackEndTime = Time.time + (duration >= 0f ? duration : knockbackFreeFlightTime);
     }
 
     void FixedUpdate()

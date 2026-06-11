@@ -35,6 +35,7 @@ public class GameController : MonoBehaviour
     public GameObject[] maps;
     public bool matchEnded = false;
     [SerializeField] public int pointsToGive = 1;
+    [SerializeField] private  int pointsToWin = 10;
     [SerializeField] private GameObject pointsCanvasPrefab;
     [SerializeField] public int aliveCount;
     private GameObject activePointsCanvas;
@@ -75,12 +76,12 @@ public class GameController : MonoBehaviour
         ClearAllGrenades();
 
         // Map selection: only the server picks the map so all machines load the same one.
-        // Non-host clients receive the map via RoundMapBroadcast → SetMapByIndex().
+        // Non-host clients run the whole round reset via RoundStartBroadcast → OnNetworkRoundStart().
         if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
             SelectRandomMap();
 
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
-            NetworkGameManager.Instance?.ServerBroadcastRoundMap(CurrentMapIndex());
+            NetworkGameManager.Instance?.ServerBroadcastRoundStart(CurrentMapIndex());
 
         GameManager.instance.playersCanMove = false;
         GameManager.instance.destroyProyectiles = true;
@@ -101,6 +102,9 @@ public class GameController : MonoBehaviour
                 foreach (PlayerStats player in playerStats)
                 {
                     if (player == null) continue;
+                    // Only respawn slots that are actually in the match — re-activating
+                    // unowned slots made all 4 players appear on client machines.
+                    if (!IsSlotPlayable(player.playerIndex)) continue;
                     var netCtrl = player.GetComponent<NetworkPlayerController>();
                     if (netCtrl != null) netCtrl.ServerRespawn();
                     else                player.Respawn();
@@ -133,13 +137,135 @@ public class GameController : MonoBehaviour
                 if (g.IsSpawned) InstanceFinder.ServerManager.Despawn(g.NetworkObject);
                 else             Destroy(g.gameObject);
             }
-            else if (!GameSession.IsOnline)
+            else if (GameSession.IsOnline)
+            {
+                // Clients destroy local-only grenades; spawned ones despawn via server.
+                if (!g.IsSpawned) Destroy(g.gameObject);
+            }
+            else
             {
                 Destroy(g.gameObject);
             }
         }
     }
 
+
+    // -------------------------------------------------------------------------
+    // Network round flow — non-host clients mirror the server's round lifecycle
+    // through these handlers instead of running their own timers / win detection.
+    // -------------------------------------------------------------------------
+
+    // True when this player slot is part of the current match.
+    public bool IsSlotPlayable(int slot)
+    {
+        if (GameManager.instance == null) return false;
+        switch (slot)
+        {
+            case 0: return GameManager.instance.player1Playable;
+            case 1: return GameManager.instance.player2Playable;
+            case 2: return GameManager.instance.player3Playable;
+            case 3: return GameManager.instance.player4Playable;
+            default: return false;
+        }
+    }
+
+    public Transform GetPlayerTransform(int slot) =>
+        (players != null && slot >= 0 && slot < players.Length && players[slot] != null)
+            ? players[slot].transform : null;
+
+    // Client-side NextMatch: same reset as the host but the map comes from the server
+    // and respawns arrive via NetworkPlayerController RPCs.
+    public void OnNetworkRoundStart(int mapIndex)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+
+        pointsToGive = 1;
+
+        if (poisonStormController != null)
+            poisonStormController.OnMatchReset();
+
+        if (levelTimer != null) levelTimer.ResetTimer();
+        ClearAllMutators();
+        ClearAllWeaponPickups();
+        ClearAllGrenades();
+
+        GameManager.instance.playersCanMove = false;
+        GameManager.instance.destroyProyectiles = true;
+        RemovePointsCanvas();
+
+        foreach (GameObject splatter in PlayerVisuals.allSplatters)
+        {
+            if (splatter != null) Destroy(splatter);
+        }
+        PlayerVisuals.allSplatters.Clear();
+
+        SetMapByIndex(mapIndex);
+
+        matchEnded = false;
+        AssignPlayerPositions();
+        CancelInvoke(nameof(StartGame));
+        Invoke(nameof(StartGame), 0.5f);
+    }
+
+    // Client-side round end: play the same points/transition sequence as the host.
+    public void OnNetworkRoundEnd(int winnerSlot, int points, bool matchOver)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+        if (matchEnded) return;
+        matchEnded = true;
+        StartCoroutine(HandleNetworkRoundEnd(winnerSlot, points, matchOver));
+    }
+
+    private IEnumerator HandleNetworkRoundEnd(int winnerSlot, int points, bool matchOver)
+    {
+        if (levelTimer != null) levelTimer.StopTimer();
+        GameManager.instance.playersCanPowerUp = false;
+
+        if (winnerSlot >= 0 && winnerSlot < playerStats.Length && playerStats[winnerSlot] != null)
+        {
+            PlayerStats winner = playerStats[winnerSlot];
+            winner.PlayPointsSound();
+            ShowPointsCanvas(winner.transform, points);
+        }
+
+        yield return new WaitForSeconds(2f);
+        if (transitionAnim != null) transitionAnim.SetTrigger("FadeIn");
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.DoorClose, transform.position);
+        yield return new WaitForSeconds(0.5f);
+
+        if (matchOver)
+            SceneManager.LoadScene("VictoryScene");
+        // Otherwise wait for the server's RoundStartBroadcast → OnNetworkRoundStart().
+    }
+
+    public void OnNetworkTimerSync(float serverTimeLeft)
+    {
+        if (levelTimer != null) levelTimer.NetworkSyncTime(serverTimeLeft);
+    }
+
+    // Client-side mutator spawn indicator (cosmetic, mirrors the server's 1.5s warning).
+    public void OnNetworkMutatorIndicator(Vector2 pos)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+        if (mutatorSpawnIndicator != null)
+            Instantiate(mutatorSpawnIndicator, pos, Quaternion.identity);
+    }
+
+    // Client-side mutator spawn: instantiate the same prefab as a puppet that
+    // follows the server's streamed state instead of simulating its own AI.
+    public void OnNetworkMutatorSpawn(int mutatorId, int prefabIndex, Vector2 pos, bool golden)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+        if (Mutators == null || prefabIndex < 0 || prefabIndex >= Mutators.Length) return;
+        if (Mutators[prefabIndex] == null) return;
+
+        GameObject instance = Instantiate(Mutators[prefabIndex], pos, Quaternion.identity);
+        activeMutators.Add(instance);
+
+        var chicken = instance.GetComponent<RainbowChicken>();
+        if (chicken != null) chicken.InitPuppet(mutatorId, golden);
+    }
 
     private void SpawnMutators()
     {
@@ -178,11 +304,15 @@ public class GameController : MonoBehaviour
             // Check if area is free (no overlap with walls)
             if (Physics2D.OverlapCircle(worldPos, 1.0f, collisionMask) == null)
             {
-                GameObject prefab = Mutators[Random.Range(0, Mutators.Length)];
+                int prefabIndex = Random.Range(0, Mutators.Length);
+                GameObject prefab = Mutators[prefabIndex];
+                bool isServerOnline = GameSession.IsOnline && InstanceFinder.IsServerStarted;
 
                 //  Spawn indicator first (optional visual feedback)
                 if (mutatorSpawnIndicator != null)
                 {
+                    if (isServerOnline)
+                        NetworkGameManager.Instance?.ServerBroadcastMutatorIndicator(worldPos);
                     Instantiate(mutatorSpawnIndicator, worldPos, Quaternion.identity);
                     yield return new WaitForSeconds(1.5f); // small delay before spawning mutator
                 }
@@ -191,6 +321,17 @@ public class GameController : MonoBehaviour
                 GameObject instance = Instantiate(prefab, worldPos, Quaternion.identity);
                 activeMutators.Add(instance);
                 spawned++;
+
+                // Tell clients to spawn the matching puppet (server simulates, clients render).
+                if (isServerOnline)
+                {
+                    var chicken = instance.GetComponent<RainbowChicken>();
+                    NetworkGameManager.Instance?.ServerBroadcastMutatorSpawn(
+                        chicken != null ? chicken.NetId : 0,
+                        prefabIndex,
+                        worldPos,
+                        chicken != null && chicken.IsGolden);
+                }
 
                 // Wait 1.5 seconds before next spawn
                 yield return new WaitForSeconds(.5f);
@@ -227,11 +368,19 @@ public class GameController : MonoBehaviour
 
             if (GameSession.IsOnline)
             {
-                // Only the server despawns NetworkObjects; clients wait for the despawn event.
-                if (!InstanceFinder.IsServerStarted) continue;
                 var no = pickup.GetComponent<NetworkObject>();
-                if (no != null && no.IsSpawned) InstanceFinder.ServerManager.Despawn(no);
-                else                             Destroy(pickup.gameObject);
+                bool spawned = no != null && no.IsSpawned;
+                if (InstanceFinder.IsServerStarted)
+                {
+                    if (spawned) InstanceFinder.ServerManager.Despawn(no);
+                    else         Destroy(pickup.gameObject);
+                }
+                else if (!spawned)
+                {
+                    // Clients destroy local-only leftovers (chicken drops, strays);
+                    // spawned pickups are removed by the server's Despawn.
+                    Destroy(pickup.gameObject);
+                }
             }
             else
             {
@@ -277,6 +426,13 @@ public class GameController : MonoBehaviour
             if (spawnPoint != null && players[i] != null)
             {
                 players[i].transform.position = spawnPoint.transform.position;
+
+                // Flag the jump as a teleport so other machines snap players to their
+                // spawn instead of smoothly sliding them across the map. Teleport()
+                // no-ops on machines that don't control the player, so it's safe to
+                // call for all of them.
+                if (GameSession.IsOnline)
+                    players[i].GetComponent<FishNet.Component.Transforming.NetworkTransform>()?.Teleport();
             }
             else
             {
@@ -404,10 +560,16 @@ public class GameController : MonoBehaviour
         GameManager.instance.playersCanMove  = true;
         GameManager.instance.playersCanPowerUp = true;
 
-        int randomMutatorID = Random.Range(1, mutator1InChance+1); // 1 en 10
-        if(randomMutatorID == 1)
+        // Mutator roll is server-only online — each machine rolling independently
+        // meant host and clients disagreed on whether a chicken spawned at all.
+        // Clients receive MutatorIndicator/MutatorSpawn broadcasts instead.
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
         {
-            SpawnMutators();
+            int randomMutatorID = Random.Range(1, mutator1InChance+1); // 1 en 10
+            if(randomMutatorID == 1)
+            {
+                SpawnMutators();
+            }
         }
     }
 
@@ -426,10 +588,19 @@ public class GameController : MonoBehaviour
             go.tag = "Player";
         }
 
+        // Catch-all: a match starting with no client AND no server is a local match,
+        // whatever IsOnline claims (e.g., the user opened the online menu and backed
+        // out). A stale true here disables ammo consumption, damage and box breaking.
+        if (GameSession.IsOnline && !InstanceFinder.IsClientStarted && !InstanceFinder.IsServerStarted)
+        {
+            Debug.LogWarning("[GameController] IsOnline was true with no network running — forcing offline mode.");
+            GameSession.IsOnline = false;
+        }
+
         GameManager.instance.assignController = true;
         GameManager.instance.playersCanMove = false;
 
-        // Online clients wait for the server's MatchStartBroadcast / RoundMapBroadcast
+        // Online clients wait for the server's MatchStartBroadcast / RoundStartBroadcast
         // to tell them which map to load — picking randomly here desyncs from the host.
         if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
             SelectRandomMap();
@@ -495,6 +666,9 @@ public class GameController : MonoBehaviour
             wasInAssignmentPhase = GameManager.instance.assignController;
         }
         
+#if UNITY_EDITOR
+        // Editor-only debug shortcuts. Never ship these: reloading the scene
+        // mid-session desyncs every connected machine in online play.
         if (Input.GetKeyDown(KeyCode.L))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -505,6 +679,7 @@ public class GameController : MonoBehaviour
             foreach (var cursor in PlayerCursor.All)
                 if (cursor != null && cursor.IsAssigned) cursor.UnassignPlayer();
         }
+#endif
 
         // Win condition is now driven by PlayerStats.KillPlayer() calling OnPlayerDied(),
         // so no per-frame polling is needed here. aliveCount is initialized in
@@ -516,6 +691,15 @@ public class GameController : MonoBehaviour
     public void OnPlayerDied(PlayerStats deadPlayer)
     {
         if (matchEnded) return;
+
+        // Online clients only mirror the alive count — round end is decided by the
+        // server and arrives via RoundEndBroadcast → OnNetworkRoundEnd().
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted)
+        {
+            aliveCount = Mathf.Max(0, aliveCount - 1);
+            return;
+        }
+
         if (GameManager.instance == null || !GameManager.instance.playersCanMove) return;
 
         aliveCount--;
@@ -548,6 +732,13 @@ public class GameController : MonoBehaviour
 
     public IEnumerator HandleDraw()
     {
+        // Round end is server-authoritative — clients receive it via RoundEndBroadcast.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) yield break;
+
+        matchEnded = true;
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            NetworkGameManager.Instance?.ServerBroadcastRoundEnd(-1, 0, false);
+
         Debug.Log("Draw! No players alive.");
         yield return new WaitForSeconds(2f);
         if (transitionAnim != null) transitionAnim.SetTrigger("FadeIn");
@@ -632,15 +823,28 @@ public class GameController : MonoBehaviour
         if (levelTimer != null) levelTimer.StopTimer();
         GameManager.instance.playersCanPowerUp = false;
 
-        // Award points once — server-authoritative online, local for offline
+        // Award points once — server-authoritative online, local for offline.
         if (GameSession.IsOnline)
         {
             if (InstanceFinder.IsServerStarted)
             {
-                if (winner.TryGetComponent(out NetworkPlayerController netCtrl))
+                // Mirror the offline pacing: the point lands 1.5s after the win, and
+                // only if the winner is still alive (same rules as AddPointsAfterDelay).
+                yield return new WaitForSeconds(1.5f);
+
+                bool awardPoints = winner.playerAlive;
+                if (awardPoints && winner.TryGetComponent(out NetworkPlayerController netCtrl))
                     netCtrl.ServerAddScore(pointsToGive);
+
+                // Broadcast AFTER the award decision so MatchOver (and the points the
+                // clients display) are facts, not predictions — clients then play their
+                // own canvas/sound immediately on receive, matching this timing.
+                bool matchOver = GetGlobalScore(winner.playerIndex) >= pointsToWin;
+                NetworkGameManager.Instance?.ServerBroadcastRoundEnd(
+                    winner.playerIndex, awardPoints ? pointsToGive : 0, matchOver);
+
+                if (awardPoints) winner.PlayPointsSound();
             }
-            winner.PlayPointsSound();
         }
         else
         {
@@ -657,7 +861,6 @@ public class GameController : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         int finalScore = GetGlobalScore(winner.playerIndex);
-        int pointsToWin = 3;
 
         if (finalScore >= pointsToWin)
         {

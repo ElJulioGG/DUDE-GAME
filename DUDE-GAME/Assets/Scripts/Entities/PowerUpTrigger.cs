@@ -7,16 +7,15 @@ public class PowerUpTrigger : MonoBehaviour
 
     [SerializeField] private int powerUpType = 0;  //0 = no power, 1 = instakill, 2 = doublePoints, 3 = OpenFire, 4 = MaxAmmo, 5 = fireSale, 6 = kaboom, 7 = carpinter, 8 = death machine
     private SpriteRenderer spriteRenderer;
+
     void Start()
     {
+        // The icon never changes after spawn — assigning it every frame (the old
+        // Update) re-dirtied the renderer for nothing.
         spriteRenderer = GetComponent<SpriteRenderer>();
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        spriteRenderer.sprite = GameManager.instance.powerUpIcons[powerUpType];
+        if (GameManager.instance != null && powerUpType >= 0
+            && powerUpType < GameManager.instance.powerUpIcons.Length)
+            spriteRenderer.sprite = GameManager.instance.powerUpIcons[powerUpType];
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

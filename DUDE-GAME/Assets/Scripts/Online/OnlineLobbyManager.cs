@@ -111,6 +111,8 @@ public class OnlineLobbyManager : MonoBehaviour
 
     public void PrepareOnlineSession()
     {
+        // Setting IsOnline also applies the online runtime settings
+        // (runInBackground, tick rate) — see GameSession.
         GameSession.IsOnline = true;
         Debug.Log("[OnlineLobbyManager] Online session prepared.");
     }

@@ -47,6 +47,10 @@ public class StageHazzard : MonoBehaviour
         }
 
         var dmg = other.GetComponentInParent<IDamageable>();
+        // Players are only damaged through the tag check above (their root collider).
+        // Child colliders like the melee fist hitbox walk up to PlayerStats here —
+        // punching a killbox must not count as the player touching it.
+        if (dmg is PlayerStats) return;
         dmg?.TakeDamage(damage);
     }
 

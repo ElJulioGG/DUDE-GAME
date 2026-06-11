@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using FishNet;
+using FishNet.Object;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -6,6 +8,31 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider2D))]
 public class RainbowChicken : MonoBehaviour, IDamageable
 {
+    // ================== NETWORK SYNC (online) ==================
+    // Online: the server simulates the chicken and streams its state through
+    // NetworkGameManager broadcasts. Clients spawn the same prefab as a "puppet"
+    // (InitPuppet) that renders the streamed state without running AI or damage.
+
+    public const byte ChildDrop = 0, ChildRevengeMini = 1, ChildEgg = 2, ChildSpeedTrail = 3;
+
+    private static readonly Dictionary<int, RainbowChicken> _byNetId = new();
+    private static int _nextNetId;
+
+    private int _netId;
+    private bool _isPuppet;
+    private bool _despawnSent;
+    private Vector2 _puppetTarget;
+    private bool _puppetHasTarget;
+    private bool _puppetHeadless;
+    private float _netSendTimer;
+    private const float NetSendInterval = 0.05f;
+
+    public int NetId => _netId;
+    public bool IsGolden => _isGolden;
+
+    private static bool IsOnlineServer => GameSession.IsOnline && InstanceFinder.IsServerStarted;
+    private static bool IsOnlineClient => GameSession.IsOnline && !InstanceFinder.IsServerStarted;
+
     // ================== VIDA / DROP ==================
     [Header("Vida")]
     [SerializeField, Min(1)] private int maxHP = 5;
@@ -222,15 +249,22 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         _nearbyPlayerCount = 0;
         _nextSpeedTrailDrop = 0f;
 
+        // --- Network registration (server assigns the id, puppets get it via InitPuppet) ---
+        _despawnSent = false;
+        _puppetHasTarget = false;
+        if (IsOnlineServer)
+        {
+            _netId = ++_nextNetId;
+            _byNetId[_netId] = this;
+        }
+
         // --- Golden Chicken roll (Feature 4) ---
+        // Clients never roll — golden state comes from the server through InitPuppet.
         moveSpeed = _baseMoveSpeed;
-        _isGolden = Random.value < goldenChance;
+        _isGolden = !IsOnlineClient && Random.value < goldenChance;
         if (_isGolden)
         {
-            _hp = goldenMaxHP;
-            moveSpeed *= goldenSpeedMult;
-            if (sprite != null) sprite.color = goldenTint;
-            if (goldenAuraParticlePrefab != null) Instantiate(goldenAuraParticlePrefab, transform);
+            ApplyGoldenVisual();
         }
         else
         {
@@ -275,8 +309,209 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         _dir = _desiredDir;
     }
 
+    // ================== NETWORK: puppet + streaming ==================
+
+    private void ApplyGoldenVisual()
+    {
+        _hp = goldenMaxHP;
+        moveSpeed = _baseMoveSpeed * goldenSpeedMult;
+        if (sprite != null) sprite.color = goldenTint;
+        if (goldenAuraParticlePrefab != null) Instantiate(goldenAuraParticlePrefab, transform);
+    }
+
+    // Called on non-host clients right after Instantiate (GameController.OnNetworkMutatorSpawn).
+    public void InitPuppet(int netId, bool golden)
+    {
+        _isPuppet = true;
+        _netId = netId;
+        _byNetId[netId] = this;
+
+        if (golden && !_isGolden)
+        {
+            _isGolden = true;
+            ApplyGoldenVisual();
+        }
+    }
+
+    // Server: stream position/visual state to clients ~20 times per second.
+    private void ServerStreamState()
+    {
+        if (!IsOnlineServer || _netId == 0) return;
+        _netSendTimer -= Time.fixedDeltaTime;
+        if (_netSendTimer > 0f) return;
+        _netSendTimer = NetSendInterval;
+
+        float tiltZ = visualRoot != null ? visualRoot.localEulerAngles.z : 0f;
+        bool flipX = sprite != null && sprite.flipX;
+        NetworkGameManager.Instance?.ServerBroadcastMutatorState(_netId, _rb.position, flipX, tiltZ, _isHeadless);
+    }
+
+    // Client puppet: follow the streamed position, no AI/physics decisions.
+    private void PuppetUpdate()
+    {
+        if (_puppetHasTarget)
+        {
+            Vector2 cur = _rb.position;
+            Vector2 next = ((cur - _puppetTarget).sqrMagnitude > 4f)
+                ? _puppetTarget // teleport when too far behind
+                : Vector2.Lerp(cur, _puppetTarget, 0.35f);
+            _rb.MovePosition(next);
+
+            // Drive the animator from actual motion; facing/tilt come from the stream.
+            if (animator != null)
+            {
+                float speed = ((next - _prevPos) / Time.fixedDeltaTime).magnitude;
+                animator.SetBool(animParamMoving, speed > idleSpeedThreshold);
+                animator.SetFloat(animParamSpeed, speed * speedToAnimMultiplier);
+            }
+            _prevPos = next;
+        }
+
+        // Headless flash is cosmetic — run it locally from the synced flag.
+        if (_puppetHeadless && sprite != null && Time.time >= _nextFlashToggle)
+        {
+            _flashIsRed = !_flashIsRed;
+            sprite.color = _flashIsRed ? headlessFlashColor : (_isGolden ? goldenTint : _originalSpriteColor);
+            _nextFlashToggle = Time.time + headlessFlashInterval;
+        }
+    }
+
+    private void ApplyNetworkState(Vector2 pos, bool flipX, float tiltZ, bool headless)
+    {
+        _puppetTarget = pos;
+        _puppetHasTarget = true;
+        if (sprite != null) sprite.flipX = flipX;
+        if (visualRoot != null) visualRoot.localRotation = Quaternion.Euler(0f, 0f, tiltZ);
+
+        if (_puppetHeadless != headless)
+        {
+            _puppetHeadless = headless;
+            if (!headless && sprite != null)
+                sprite.color = _isGolden ? goldenTint : _originalSpriteColor;
+        }
+    }
+
+    private void PlayHitFeedback()
+    {
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.ChickenHit, transform.position);
+        int randomIndexSound = Random.Range(0, 2);
+        Instantiate(randomIndexSound == 0 ? spawnFeatherParticles : spawnFeatherParticles2,
+                    transform.position, Quaternion.identity);
+        if (shakeOnHit) _shaker?.Shake();
+    }
+
+    // Spawns drops/minis/eggs/trail on the simulating machine (server or offline).
+    // Networked prefabs replicate themselves through FishNet; everything else is
+    // mirrored to client puppets via MutatorChildSpawnBroadcast.
+    private void SpawnChild(byte type, int prefabIndex, Vector2 pos, int targetSlot)
+    {
+        GameObject prefab = GetChildPrefab(type, prefabIndex);
+        if (prefab == null) return;
+
+        GameObject child = InstantiateChild(prefab, type, pos, targetSlot);
+        if (!IsOnlineServer || child == null) return;
+
+        if (child.TryGetComponent<NetworkObject>(out var nob))
+        {
+            nob.SetIsNetworked(true); // prefab may ship with _isNetworked=0
+            InstanceFinder.ServerManager.Spawn(child);
+        }
+        else if (_netId != 0)
+        {
+            NetworkGameManager.Instance?.ServerBroadcastMutatorChild(_netId, type, prefabIndex, pos, targetSlot);
+        }
+    }
+
+    private GameObject GetChildPrefab(byte type, int prefabIndex)
+    {
+        switch (type)
+        {
+            case ChildDrop:
+                return (possiblePickupPrefabs != null && prefabIndex >= 0 && prefabIndex < possiblePickupPrefabs.Count)
+                    ? possiblePickupPrefabs[prefabIndex] : null;
+            case ChildRevengeMini: return revengeChickenPrefab;
+            case ChildEgg:         return revengeEggPrefab;
+            case ChildSpeedTrail:  return speedBoostPrefab;
+            default: return null;
+        }
+    }
+
+    private GameObject InstantiateChild(GameObject prefab, byte type, Vector2 pos, int targetSlot)
+    {
+        GameObject child = Instantiate(prefab, pos, Quaternion.identity);
+        if (type == ChildRevengeMini)
+        {
+            var revenge = child.GetComponent<MiniChickenRevenge>();
+            Transform target = GameController.instance != null
+                ? GameController.instance.GetPlayerTransform(targetSlot) : null;
+            if (revenge != null && target != null) revenge.SetTarget(target);
+        }
+        return child;
+    }
+
+    // Client puppets: instantiate non-networked children received via broadcast.
+    private void SpawnChildLocal(byte type, int prefabIndex, Vector2 pos, int targetSlot)
+    {
+        GameObject prefab = GetChildPrefab(type, prefabIndex);
+        if (prefab == null) return;
+        // Networked prefabs arrive through FishNet replication — never duplicate locally.
+        if (prefab.GetComponent<NetworkObject>() != null) return;
+        InstantiateChild(prefab, type, pos, targetSlot);
+    }
+
+    private void OnDestroy()
+    {
+        if (_netId != 0 && _byNetId.TryGetValue(_netId, out var registered) && registered == this)
+            _byNetId.Remove(_netId);
+
+        // Round resets destroy the server chicken directly — make sure puppets die too.
+        if (IsOnlineServer && _netId != 0 && !_despawnSent)
+        {
+            _despawnSent = true;
+            NetworkGameManager.Instance?.ServerBroadcastMutatorDespawn(_netId, false);
+        }
+    }
+
+    // ----- Static entry points used by NetworkGameManager's client handlers -----
+
+    public static void OnNetworkState(int id, Vector2 pos, bool flipX, float tiltZ, bool headless)
+    {
+        if (_byNetId.TryGetValue(id, out var c) && c != null && c._isPuppet)
+            c.ApplyNetworkState(pos, flipX, tiltZ, headless);
+    }
+
+    public static void OnNetworkHit(int id)
+    {
+        if (_byNetId.TryGetValue(id, out var c) && c != null && c._isPuppet)
+            c.PlayHitFeedback();
+    }
+
+    public static void OnNetworkDespawn(int id, bool died)
+    {
+        if (!_byNetId.TryGetValue(id, out var c) || c == null) return;
+        _byNetId.Remove(id);
+        if (!c._isPuppet) return;
+
+        if (died)
+        {
+            c.PlayRandomDeathNoises();
+            Instantiate(c.spawnFeatherParticles, c.transform.position, Quaternion.identity);
+            Instantiate(c.spawnFeatherParticles2, c.transform.position, Quaternion.identity);
+            c.onDeath?.Invoke();
+        }
+        Destroy(c.gameObject);
+    }
+
+    public static void OnNetworkChild(int id, byte type, int prefabIndex, Vector2 pos, int targetSlot)
+    {
+        if (_byNetId.TryGetValue(id, out var c) && c != null && c._isPuppet)
+            c.SpawnChildLocal(type, prefabIndex, pos, targetSlot);
+    }
+
     private void FixedUpdate()
     {
+        if (_isPuppet) { PuppetUpdate(); return; }
+        ServerStreamState();
         if (!_hasBounds) CacheArenaBounds();
 
         // === HEADLESS RUN (Feature 2) — takes over all movement ===
@@ -289,7 +524,7 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         // === Speed Trail during panic (Feature 6) ===
         if (_inPanic && speedBoostPrefab != null && Time.time >= _nextSpeedTrailDrop)
         {
-            Instantiate(speedBoostPrefab, _rb.position, Quaternion.identity);
+            SpawnChild(ChildSpeedTrail, 0, _rb.position, -1);
             _nextSpeedTrailDrop = Time.time + speedTrailInterval;
         }
 
@@ -568,6 +803,7 @@ public class RainbowChicken : MonoBehaviour, IDamageable
     // ================== DAÑO / DROP ==================
     public void TakeDamage(int amount = 1)
     {
+        if (_isPuppet) return;   // server-authoritative — puppets only render
         if (_isHeadless) return; // invulnerable during headless run
         if (Time.time < _nextHitAllowedTime) return;
         _nextHitAllowedTime = Time.time + hitWindowSeconds;
@@ -604,22 +840,12 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         PickBestDirection();
         _nextDirTime = Time.time + RandomizeInterval(directionChangeInterval * 0.6f);
 
-        //PlaySfx(hitSfxName, hitVolume, RandomPitch(hitPitchMin, hitPitchMax));
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.ChickenHit, transform.position);
-
-        // BUGFIX: Random.Range(0, 1) always returns 0 (int overload, exclusive upper bound)
-        int randomIndexSound = Random.Range(0, 2);
-        if (randomIndexSound == 0)
-        {
-            Instantiate(spawnFeatherParticles, transform.position, Quaternion.identity);
-        }
-        else
-        {
-            Instantiate(spawnFeatherParticles2, transform.position, Quaternion.identity);
-        }
-
-        if (shakeOnHit) _shaker?.Shake();
+        PlayHitFeedback();
         onDamaged?.Invoke();
+
+        // Mirror the hit feedback on client puppets.
+        if (IsOnlineServer && _netId != 0)
+            NetworkGameManager.Instance?.ServerBroadcastMutatorHit(_netId);
 
         DropOnePickup();
 
@@ -727,18 +953,24 @@ public class RainbowChicken : MonoBehaviour, IDamageable
         if (killer != null && revengeChickenPrefab != null)
         {
             int count = _isGolden ? revengeCount + 2 : revengeCount;
+            int killerSlot = killer.playerIndex;
             for (int i = 0; i < count; i++)
             {
                 Vector2 offset = Random.insideUnitCircle * 0.5f;
-                var mini = Instantiate(revengeChickenPrefab, (Vector2)transform.position + offset, Quaternion.identity);
-                var revenge = mini.GetComponent<MiniChickenRevenge>();
-                if (revenge != null) revenge.SetTarget(killer.transform);
+                SpawnChild(ChildRevengeMini, 0, (Vector2)transform.position + offset, killerSlot);
             }
         }
 
         // --- Revenge Egg (Feature 5) ---
         if (revengeEggPrefab != null)
-            Instantiate(revengeEggPrefab, transform.position, Quaternion.identity);
+            SpawnChild(ChildEgg, 0, transform.position, -1);
+
+        // Tell client puppets to play death effects and destroy themselves.
+        if (IsOnlineServer && _netId != 0 && !_despawnSent)
+        {
+            _despawnSent = true;
+            NetworkGameManager.Instance?.ServerBroadcastMutatorDespawn(_netId, true);
+        }
 
         onDeath?.Invoke();
         Destroy(gameObject);
@@ -753,14 +985,12 @@ public class RainbowChicken : MonoBehaviour, IDamageable
 
     private void DropOnePickup()
     {
-        Vector2 spawnPos = _rb.position + Random.insideUnitCircle * dropSpawnRadius;
+        if (_isPuppet) return; // drops arrive via MutatorChildSpawnBroadcast
+        if (possiblePickupPrefabs == null || possiblePickupPrefabs.Count == 0) return;
 
-        if (possiblePickupPrefabs != null && possiblePickupPrefabs.Count > 0)
-        {
-            var prefab = possiblePickupPrefabs[Random.Range(0, possiblePickupPrefabs.Count)];
-            if (prefab != null) Instantiate(prefab, spawnPos, Quaternion.identity);
-            return;
-        }
+        Vector2 spawnPos = _rb.position + Random.insideUnitCircle * dropSpawnRadius;
+        int index = Random.Range(0, possiblePickupPrefabs.Count);
+        SpawnChild(ChildDrop, index, spawnPos, -1);
     }
 
     // ============== SFX utils ==============

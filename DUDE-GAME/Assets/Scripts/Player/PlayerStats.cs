@@ -1,4 +1,5 @@
 using System.Collections;
+using FishNet;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour, IDamageable
@@ -69,6 +70,20 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public void TakeDamage(int damageAmount = 1)
     {
         if (!playerAlive) return;
+
+        // Online: ALL damage must flow through the server so the health/death SyncVars
+        // stay authoritative. Damage sources calling TakeDamage directly (revenge
+        // chickens, eggs, traps, storms...) were silently desyncing health and deaths.
+        if (GameSession.IsOnline)
+        {
+            if (!InstanceFinder.IsServerStarted) return; // clients never apply damage locally
+            var netCtrl = GetComponent<NetworkPlayerController>();
+            if (netCtrl != null && netCtrl.IsSpawned)
+            {
+                netCtrl.ServerTakeDamage(damageAmount);
+                return;
+            }
+        }
 
         health -= damageAmount;
 
@@ -164,6 +179,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
     }
 
+    // When the last knockback was applied on this machine. Lets the server's fallback
+    // knockback RPC detect that the owning client already predicted the push locally.
+    public float LastKnockbackTime { get; private set; } = -999f;
+
     public void ApplyKnockback(Vector2 origin, float force)
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
@@ -172,6 +191,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
             Vector2 knockDirection = (transform.position - (Vector3)origin).normalized;
             rb.AddForce(knockDirection * force, ForceMode2D.Impulse);
             playerMovement?.SetKnockbackWindow();
+            LastKnockbackTime = Time.time;
         }
     }
 
@@ -182,6 +202,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         {
             rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
             playerMovement?.SetKnockbackWindow();
+            LastKnockbackTime = Time.time;
         }
     }
 

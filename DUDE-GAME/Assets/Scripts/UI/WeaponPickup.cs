@@ -18,6 +18,10 @@ public class WeaponPickup : MonoBehaviour
     public float throwSpeed = 10f;
     public float minDamageSpeed = 4f;
     public int damageOnHit = 10;
+    // Drag while flying after a throw. 3 = original game feel (throws decelerate
+    // quickly and land close). 0 was added during the online work and made thrown
+    // weapons glide across the whole map.
+    [SerializeField] private float flightDamping = 3f;
 
     private bool hasBeenThrown = false;
 
@@ -44,6 +48,23 @@ public class WeaponPickup : MonoBehaviour
 
     private void Start()
     {
+        // On non-server machines the NetworkTransform drives this pickup's position.
+        // A dynamic rigidbody would fight it (local physics vs. synced transform),
+        // so the local copy becomes kinematic and just renders where the server says.
+        // Its physics collider also stays OFF: hit/knockback from thrown weapons is
+        // decided by the server, and a leftover client-side hitbox blocks players.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted)
+        {
+            if (rb != null)
+            {
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+            if (physicsCollider != null)
+                physicsCollider.enabled = false;
+        }
+
         RefreshSprite();
 
         Sequence anim = DOTween.Sequence();
@@ -91,7 +112,7 @@ public class WeaponPickup : MonoBehaviour
         {
             if (AudioManager.Instance != null && FMODEvents.Instance != null)
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.Throw, transform.position);
-            rb.linearDamping = 0f;
+            rb.linearDamping = flightDamping;
             rb.linearVelocity = direction.normalized * throwSpeed;
             rb.AddTorque(Random.Range(-100f, 100f));
             hasBeenThrown = true;

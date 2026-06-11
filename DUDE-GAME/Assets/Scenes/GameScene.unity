@@ -80945,8 +80945,8 @@ MonoBehaviour:
     Scale: 0
   _useScaledTime: 1
   _interpolation: 2
-  _extrapolation: 2
-  _enableTeleport: 0
+  _extrapolation: 0
+  _enableTeleport: 1
   _teleportThreshold: 1
   _clientAuthoritative: 1
   _sendToOwner: 1
@@ -91457,8 +91457,8 @@ MonoBehaviour:
     Scale: 0
   _useScaledTime: 1
   _interpolation: 2
-  _extrapolation: 2
-  _enableTeleport: 0
+  _extrapolation: 0
+  _enableTeleport: 1
   _teleportThreshold: 1
   _clientAuthoritative: 1
   _sendToOwner: 1
@@ -167314,8 +167314,8 @@ MonoBehaviour:
     Scale: 0
   _useScaledTime: 1
   _interpolation: 2
-  _extrapolation: 2
-  _enableTeleport: 0
+  _extrapolation: 0
+  _enableTeleport: 1
   _teleportThreshold: 1
   _clientAuthoritative: 1
   _sendToOwner: 1
@@ -193163,8 +193163,8 @@ MonoBehaviour:
     Scale: 0
   _useScaledTime: 1
   _interpolation: 2
-  _extrapolation: 2
-  _enableTeleport: 0
+  _extrapolation: 0
+  _enableTeleport: 1
   _teleportThreshold: 1
   _clientAuthoritative: 1
   _sendToOwner: 1
@@ -218009,6 +218009,7 @@ MonoBehaviour:
   - {fileID: 1722222614}
   matchEnded: 0
   pointsToGive: 1
+  pointsToWin: 10
   pointsCanvasPrefab: {fileID: 1471025704}
   aliveCount: 0
   controllerMapper: {fileID: 2092558071}

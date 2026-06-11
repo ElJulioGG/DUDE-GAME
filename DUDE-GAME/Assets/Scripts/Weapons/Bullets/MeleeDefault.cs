@@ -17,14 +17,12 @@ public class MeleeDefault : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Online: only the server applies damage so it's authoritative.
-        // The owning client still sees the hitbox visually for feedback.
-        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
-
+        // The swing plays on every machine (melee broadcast). Damage stays
+        // server-authoritative, but knockback is applied directly on the machine
+        // that OWNS the victim's physics — that removes the server → TargetRpc leg,
+        // so getting punched (and seeing it) is one network hop faster. The server
+        // still sends its knockback RPC as a fallback; the owner ignores it when a
+        // local push already happened (LastKnockbackTime dedupe).
         var stats = other.GetComponentInParent<PlayerStats>();
         if (stats != null)
         {
@@ -33,10 +31,16 @@ public class MeleeDefault : MonoBehaviour
                 var netCtrl = stats.GetComponent<NetworkPlayerController>();
                 if (netCtrl != null)
                 {
-                    netCtrl.ServerTakeDamage(damage);
-                    // Knockback must be applied on the owning client (who has physics authority
-                    // for their own player). Routing through TargetRpc.
-                    netCtrl.ServerApplyKnockbackDirection(aimDirection, knockbackForce);
+                    if (InstanceFinder.IsServerStarted)
+                    {
+                        netCtrl.ServerTakeDamage(damage);
+                        netCtrl.ServerApplyKnockbackDirection(aimDirection, knockbackForce);
+                    }
+                    else if (netCtrl.IsOwner)
+                    {
+                        // Victim-side prediction: this machine owns the victim's body.
+                        stats.ApplyKnockbackDirection(aimDirection, knockbackForce);
+                    }
                 }
             }
             else
@@ -51,7 +55,10 @@ public class MeleeDefault : MonoBehaviour
         var dmg = other.GetComponentInParent<IDamageable>();
         if (dmg != null)
         {
-            dmg.TakeDamage(damage);
+            // Non-player damage (chicken, eggs...) is authority-only; cosmetic swings
+            // on other machines still consume the hitbox for visual parity.
+            if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
+                dmg.TakeDamage(damage);
             gameObject.SetActive(false);
         }
     }

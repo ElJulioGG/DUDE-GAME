@@ -77,6 +77,12 @@ public class WeaponBase : MonoBehaviour
     private bool initialized = false;
     private NetworkPlayerController _netCtrl;
 
+    // True on machines that only render this weapon (online, not the server, not the
+    // owner). Their ammo state is meaningless, so cosmetic shots ignore and never
+    // mutate it — real ammo lives on the server and is synced to the owner only.
+    private bool IsCosmeticOnly =>
+        GameSession.IsOnline && !InstanceFinder.IsServerStarted && (_netCtrl == null || !_netCtrl.IsOwner);
+
     private void Start()
     {
         reloadFillImage.gameObject.SetActive(false);
@@ -90,10 +96,15 @@ public class WeaponBase : MonoBehaviour
         InitializeWeapon();
     }
 
+    // True while the local Reload() coroutine is animating the bar — the server's
+    // synced reload state must not stomp it (their timings differ slightly).
+    private bool _localReloadActive;
+
     // Called by the server's NetworkPlayerController TargetRpc on the owning client
     // to display the reload progress (real ammo + reload state are server-authoritative).
     public void SetExternalReloadingState(bool reloading)
     {
+        if (_localReloadActive) return;
         isReloading = reloading;
         if (reloadFillImage != null)
             reloadFillImage.gameObject.SetActive(reloading);
@@ -105,6 +116,73 @@ public class WeaponBase : MonoBehaviour
         if (!GameSession.IsOnline || !InstanceFinder.IsServerStarted) return;
         if (_netCtrl == null) return;
         _netCtrl.ServerSyncAmmo(currentClipAmmo, reserveAmmo, isReloading);
+        SyncIndicatorsToObservers();
+    }
+
+    // Server-side: tell every OTHER machine when this weapon's visible indicator
+    // state changes (reloading / completely dry), so players can read remote guns.
+    // Piggybacks on SyncAmmoToOwner's call sites, sends only on change.
+    private bool _lastSentReloading;
+    private bool _lastSentEmpty;
+
+    private void SyncIndicatorsToObservers()
+    {
+        bool empty = currentClipAmmo <= 0 && reserveAmmo <= 0;
+        if (isReloading == _lastSentReloading && empty == _lastSentEmpty) return;
+        _lastSentReloading = isReloading;
+        _lastSentEmpty = empty;
+        _netCtrl.ServerSyncWeaponIndicators(isReloading, empty);
+    }
+
+    // Remote machines: mirror the holder's indicators on the cosmetic weapon visual.
+    // The reload bar animates locally over reloadTime (same prefab, same duration).
+    private Coroutine _remoteReloadCo;
+
+    public void ApplyRemoteIndicators(bool reloading, bool outOfAmmo)
+    {
+        if (noAmmoImage != null)
+            noAmmoImage.gameObject.SetActive(outOfAmmo);
+
+        if (reloading)
+        {
+            if (_remoteReloadCo == null)
+                _remoteReloadCo = StartCoroutine(RemoteReloadBar());
+        }
+        else if (_remoteReloadCo != null)
+        {
+            StopCoroutine(_remoteReloadCo);
+            _remoteReloadCo = null;
+            if (reloadFillImage != null)
+            {
+                reloadFillImage.fillAmount = 0f;
+                reloadFillImage.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private IEnumerator RemoteReloadBar()
+    {
+        if (reloadFillImage != null)
+        {
+            reloadFillImage.gameObject.SetActive(true);
+            reloadFillImage.fillAmount = 0f;
+        }
+
+        float timer = 0f;
+        while (timer < reloadTime)
+        {
+            timer += Time.deltaTime;
+            if (reloadFillImage != null)
+                reloadFillImage.fillAmount = timer / reloadTime;
+            yield return null;
+        }
+
+        if (reloadFillImage != null)
+        {
+            reloadFillImage.fillAmount = 0f;
+            reloadFillImage.gameObject.SetActive(false);
+        }
+        _remoteReloadCo = null;
     }
 
 
@@ -124,6 +202,9 @@ public class WeaponBase : MonoBehaviour
             noAmmoImage.gameObject.SetActive(false);
         }
         UpdateUI();
+        // Fresh pickups initialize on the server — push the starting ammo to the
+        // owning client so their local (cosmetic) weapon doesn't think it's empty.
+        SyncAmmoToOwner();
     }
 
     private void OnEnable()
@@ -205,17 +286,25 @@ public class WeaponBase : MonoBehaviour
         float cooldown = isAuto ? autoFireRate : shootCooldown;
         return !isReloading &&
                Time.time >= lastShootTime + cooldown &&
-               currentClipAmmo > 0;
+               (currentClipAmmo > 0 || IsCosmeticOnly);
     }
+
+    // Reused per shot to avoid allocations.
+    private readonly List<float> _shotAngles = new List<float>();
 
     public virtual void Shoot()
     {
         lastShootTime = Time.time;
         nextAutoShotTime = Time.time + autoFireRate;
-        currentClipAmmo--;
+        if (!IsCosmeticOnly) currentClipAmmo--;
 
         float baseAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
 
+        // Build the exact shot first (per-bullet angles). Online, the server relays
+        // origin + angles to non-owner machines (ServerSendShotData) so their cosmetic
+        // bullets start from identical state — bounce trajectories and spread then
+        // match the authoritative bullets instead of each machine rolling its own.
+        _shotAngles.Clear();
         if (spreadFireEnabled && bulletsPerShot > 1)
         {
             if (randomSpread)
@@ -236,8 +325,7 @@ public class WeaponBase : MonoBehaviour
                     while (usedAngles.Any(a => Mathf.Abs(a - randomAngle) < minAngleBetweenBullets));
 
                     usedAngles.Add(randomAngle);
-                    float currentAngle = baseAngle + randomAngle;
-                    SpawnBullet(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, currentAngle));
+                    _shotAngles.Add(baseAngle + randomAngle);
                 }
             }
             else
@@ -246,15 +334,43 @@ public class WeaponBase : MonoBehaviour
                 float startAngle = baseAngle - spreadAngle;
 
                 for (int i = 0; i < bulletsPerShot; i++)
-                {
-                    float currentAngle = startAngle + angleStep * i;
-                    SpawnBullet(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, currentAngle));
-                }
+                    _shotAngles.Add(startAngle + angleStep * i);
             }
         }
         else
         {
-            SpawnBullet(bulletPrefab, firePoint.position, Quaternion.Euler(0, 0, baseAngle));
+            _shotAngles.Add(baseAngle);
+        }
+
+        // Cosmetic-only machines (online, neither server nor owner) skip spawning —
+        // their bullets arrive via the server's shot data so they match exactly.
+        // They still play the sound/shake feedback below.
+        if (!IsCosmeticOnly)
+        {
+            Vector3 origin = firePoint.position;
+            bool isOnlineServer = GameSession.IsOnline && InstanceFinder.IsServerStarted;
+            bool isRemoteOwner  = GameSession.IsOnline && !InstanceFinder.IsServerStarted
+                                  && _netCtrl != null && _netCtrl.IsOwner;
+
+            // Server: adopt the owner's exact shot (sent just before RpcShootStart) so
+            // the authoritative bullets equal the shooter's instant local ones. Clamp
+            // the origin so lag (or tampering) can't shoot from across the map.
+            if (isOnlineServer && _netCtrl != null
+                && _netCtrl.TryConsumeShotData(out Vector2 ownerOrigin, out float[] ownerAngles))
+            {
+                if (((Vector2)origin - ownerOrigin).sqrMagnitude <= 9f)
+                    origin = new Vector3(ownerOrigin.x, ownerOrigin.y, firePoint.position.z);
+                _shotAngles.Clear();
+                _shotAngles.AddRange(ownerAngles);
+            }
+
+            foreach (float angle in _shotAngles)
+                SpawnBullet(bulletPrefab, origin, Quaternion.Euler(0, 0, angle));
+
+            if (isOnlineServer && _netCtrl != null)
+                _netCtrl.ServerSendShotData(origin, _shotAngles.ToArray());
+            else if (isRemoteOwner)
+                _netCtrl.RpcSubmitShotData(origin, _shotAngles.ToArray());
         }
 
         // Play shoot sound
@@ -270,18 +386,22 @@ public class WeaponBase : MonoBehaviour
             playerRb.AddForce(-aimDirection * recoilForce, ForceMode2D.Impulse);
         }
 
-        UpdateUI();
-        SyncAmmoToOwner();
-
-        if (currentClipAmmo <= 0 && reserveAmmo > 0)
+        if (!IsCosmeticOnly)
         {
-            StartCoroutine(Reload());
+            UpdateUI();
+            SyncAmmoToOwner();
+
+            if (currentClipAmmo <= 0 && reserveAmmo > 0)
+            {
+                StartCoroutine(Reload());
+            }
         }
     }
 
     public IEnumerator Reload()
     {
         isReloading = true;
+        _localReloadActive = true;
         UpdateAimSight();
         SyncAmmoToOwner();
 
@@ -315,6 +435,7 @@ public class WeaponBase : MonoBehaviour
         currentClipAmmo += ammoToLoad;
         reserveAmmo -= ammoToLoad;
         isReloading = false;
+        _localReloadActive = false;
 
         if (reloadFillImage != null)
         {
@@ -348,12 +469,18 @@ public class WeaponBase : MonoBehaviour
         aimSight.SetActive(canShow);
     }
 
+    // Cached last-displayed values — Update() calls this every frame, and setting
+    // UI text allocates a string and dirties the canvas even when nothing changed.
+    private int _uiClip = int.MinValue;
+    private int _uiReserve = int.MinValue;
+
     private void UpdateUI()
     {
-        if (ammoText != null)
-        {
-            ammoText.text = $"{currentClipAmmo}/{reserveAmmo}";
-        }
+        if (ammoText == null) return;
+        if (currentClipAmmo == _uiClip && reserveAmmo == _uiReserve) return;
+        _uiClip = currentClipAmmo;
+        _uiReserve = reserveAmmo;
+        ammoText.text = $"{currentClipAmmo}/{reserveAmmo}";
     }
 
     // Public methods
@@ -362,6 +489,12 @@ public class WeaponBase : MonoBehaviour
     public bool IsReloading() => isReloading;
     public void AddAmmo(int amount) => reserveAmmo = Mathf.Min(reserveAmmo + amount, maxAmmo - currentClipAmmo);
     public void SetAmmo(int clip, int reserve) { currentClipAmmo = clip; reserveAmmo = reserve; UpdateUI(); SyncAmmoToOwner(); }
+
+    // Applies ammo received FROM the server without re-triggering the owner sync.
+    // Using SetAmmo for that on a host ping-pongs TargetSyncAmmo with itself forever
+    // (thousands of RPCs, and the loop re-applies stale values so the clip never
+    // empties — the "unlimited ammo on the host" bug).
+    public void ApplySyncedAmmo(int clip, int reserve) { currentClipAmmo = clip; reserveAmmo = reserve; UpdateUI(); }
     public void ToggleFireMode() => fullAutoMode = !fullAutoMode;
     public void SetRandomSpread(bool useRandom) => randomSpread = useRandom;
     public void SetSpreadFire(bool enabled) => spreadFireEnabled = enabled;
@@ -373,15 +506,22 @@ public class WeaponBase : MonoBehaviour
         StopAllCoroutines();
     }
 
-    // Instantiates a bullet and, when online on the server, network-spawns it so all clients see it.
-    // Online + non-server: skip entirely — the server-spawned networked bullet will replicate to us.
+    // Bullets are LOCAL simulations on every machine — the shot event itself is what
+    // replicates (owner input → ServerRpc → ObserversRpc, same pattern as melee).
+    // Replicating fast short-lived bullets through NetworkTransform looked stuttery
+    // and arrived a round-trip late; local sims are instant and perfectly smooth.
+    // Only the server's bullets apply damage (gated inside BulletBehavior).
     protected void SpawnBullet(GameObject prefab, Vector3 pos, Quaternion rot)
     {
-        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
+        Instantiate(prefab, pos, rot);
+    }
 
-        var go = Instantiate(prefab, pos, rot);
-        if (GameSession.IsOnline && InstanceFinder.IsServerStarted
-            && go.TryGetComponent<NetworkObject>(out _))
-            InstanceFinder.ServerManager.Spawn(go);
+    // Spawns this machine's cosmetic bullets from the server's authoritative shot
+    // data (exact origin + angles), so trajectories match the server's bullets.
+    public void SpawnShotData(Vector2 origin, float[] angles)
+    {
+        if (bulletPrefab == null || angles == null) return;
+        foreach (float angle in angles)
+            Instantiate(bulletPrefab, origin, Quaternion.Euler(0, 0, angle));
     }
 }

@@ -12,12 +12,31 @@ public class PlayerInputHandler : MonoBehaviour
 
     private NetworkPlayerController _netController;
 
+    // Aim replication throttle: gamepad sticks fire OnAim every frame, which was
+    // ~60 reliable RPCs/sec per aiming player (each relayed back out by the server).
+    // Local aim stays full-rate for responsiveness; the network only needs ~20 Hz.
+    private const float AimSendInterval = 0.05f;
+    private float _nextAimSendTime;
+    private Vector2 _pendingAim;
+    private bool _aimDirty;
+
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         index = playerInput.playerIndex;
         LinkComponents(index);
         DetectAndSetControllerType();
+    }
+
+    void Update()
+    {
+        // Flush the latest aim at the throttled rate so the final direction always
+        // reaches the server even when the last input event landed inside the window.
+        if (!_aimDirty || _netController == null) return;
+        if (Time.unscaledTime < _nextAimSendTime) return;
+        _aimDirty = false;
+        _nextAimSendTime = Time.unscaledTime + AimSendInterval;
+        _netController.RpcAim(_pendingAim);
     }
 
     public void reasignController(int newIndex)
@@ -105,9 +124,12 @@ public class PlayerInputHandler : MonoBehaviour
         if (GameManager.instance == null || !GameManager.instance.playersCanAim) return;
         if (playerStats == null || !playerStats.playerAlive) return;
         var dir = context.ReadValue<Vector2>();
-        if (gunHolder != null) gunHolder.SetAimDirection(dir);
+        if (gunHolder != null) gunHolder.SetAimDirection(dir); // local: full rate
         if (GameSession.IsOnline && _netController != null)
-            _netController.RpcAim(dir);
+        {
+            _pendingAim = dir;     // network: throttled flush in Update()
+            _aimDirty = true;
+        }
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -127,19 +149,18 @@ public class PlayerInputHandler : MonoBehaviour
         if (playerStats == null || !playerStats.playerAlive) return;
         if (GameSession.IsOnline && _netController != null)
         {
-            // Local execution is only useful for MELEE — it gives instant swing feedback.
-            // For ranged weapons, ammo lives on the server (client's local copy is wrong),
-            // so running HandleShoot locally would just show "no ammo" indicators.
-            // Bullets come back to the owner via FishNet's networked spawn replication.
-            bool isMelee = gunHolder != null && gunHolder.IsMeleeActive;
+            // Run HandleShoot locally for instant feedback (sound, recoil, camera shake,
+            // melee swing). Real bullets/damage stay server-side: WeaponBase.SpawnBullet
+            // early-returns on non-server machines, and the owner's ammo is kept accurate
+            // by the server via TargetSyncAmmo, so the local cosmetic shot stays in sync.
             if (context.performed)
             {
-                if (isMelee) gunHolder.HandleShoot();
+                if (gunHolder != null) gunHolder.HandleShoot();
                 _netController.RpcShootStart();
             }
             else if (context.canceled)
             {
-                if (isMelee) gunHolder.HandleStopShoot();
+                if (gunHolder != null) gunHolder.HandleStopShoot();
                 _netController.RpcShootStop();
             }
         }
@@ -156,7 +177,13 @@ public class PlayerInputHandler : MonoBehaviour
         if (playerStats == null || !playerStats.playerAlive) return;
         if (!context.performed) return;
         if (GameSession.IsOnline && _netController != null)
+        {
+            // Run the reload locally too — the owner's ammo is server-synced, and the
+            // local coroutine is what animates the reload bar (the server's sync only
+            // toggles it, leaving a frozen empty bar otherwise).
+            if (gunHolder != null) gunHolder.HandleReload();
             _netController.RpcReload();
+        }
         else if (gunHolder != null)
             gunHolder.HandleReload();
     }

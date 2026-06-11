@@ -62,16 +62,85 @@ public class NetworkGameManager : NetworkBehaviour
         public int Char0, Char1, Char2, Char3;
     }
 
-    // Sent by server at the start of every new round so all machines load the same map.
-    public struct RoundMapBroadcast : IBroadcast
+    // Sent by server at the start of every new round. Clients run the full local round
+    // reset (timer, mutators, map, intro sequence) so the whole round flow stays in sync.
+    public struct RoundStartBroadcast : IBroadcast
     {
         public int MapIndex;
+    }
+
+    // Sent by server the moment a round ends so all machines play the points canvas,
+    // fade transition and (when the match is over) load the victory screen together.
+    public struct RoundEndBroadcast : IBroadcast
+    {
+        public int WinnerSlot;   // -1 = draw
+        public int Points;
+        public bool MatchOver;   // true → victory screen instead of next round
+    }
+
+    // Periodic timer sync so client round timers can't drift from the host.
+    public struct RoundTimerBroadcast : IBroadcast
+    {
+        public float TimeLeft;
     }
 
     // Sent by server when a WeaponBox breaks. Clients find the box by world position and deactivate it.
     public struct BoxBrokenBroadcast : IBroadcast
     {
         public float X, Y;
+    }
+
+    // Sent by server when a black hole forms — clients render it at the server's
+    // position so the visible hole matches the authoritative kill zone.
+    public struct BlackHoleSpawnBroadcast : IBroadcast
+    {
+        public float X, Y;
+    }
+
+    // ----- Mutator (chicken) sync: server simulates, clients render puppets -----
+
+    public struct MutatorIndicatorBroadcast : IBroadcast
+    {
+        public float X, Y;
+    }
+
+    public struct MutatorSpawnBroadcast : IBroadcast
+    {
+        public int MutatorId;
+        public int PrefabIndex;
+        public float X, Y;
+        public bool Golden;
+    }
+
+    // Streamed ~20 fps while a mutator is alive.
+    public struct MutatorStateBroadcast : IBroadcast
+    {
+        public int MutatorId;
+        public float X, Y;
+        public bool FlipX;
+        public float TiltZ;
+        public bool Headless;
+    }
+
+    public struct MutatorHitBroadcast : IBroadcast
+    {
+        public int MutatorId;
+    }
+
+    public struct MutatorDespawnBroadcast : IBroadcast
+    {
+        public int MutatorId;
+        public bool Died; // true = play death effects, false = silent cleanup
+    }
+
+    // Children the chicken spawns (drops, revenge minis, egg, speed trail).
+    public struct MutatorChildSpawnBroadcast : IBroadcast
+    {
+        public int MutatorId;
+        public byte ChildType;   // see RainbowChicken.ChildType
+        public int PrefabIndex;
+        public float X, Y;
+        public int TargetSlot;   // revenge minis home toward this player slot (-1 = none)
     }
 
     // Streamed at ~20 fps during CSS so all machines can render remote ghost cursors.
@@ -91,6 +160,8 @@ public class NetworkGameManager : NetworkBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        // Networked play must keep running while the window is unfocused.
+        Application.runInBackground = true;
         // Scene NetworkObjects with _isNetworked=0 are skipped by FishNet's spawn pass,
         // leaving NetworkManager null and crashing GiveOwnership. Force true before Start.
         var nob = GetComponent<NetworkObject>();
@@ -129,16 +200,62 @@ public class NetworkGameManager : NetworkBehaviour
         _matchStarted = false;
     }
 
+    // Client broadcast handlers are registered in OnEnable — NOT OnStartClient — because
+    // OnStartClient only runs if this scene NetworkObject successfully spawns on the
+    // client, which FishNet does not guarantee for scene objects in this project.
+    // ClientManager.RegisterBroadcast works regardless of any NetworkObject state.
+    private bool _clientBroadcastsRegistered;
+
+    private void OnEnable() => TryRegisterClientBroadcasts();
+
+    private void TryRegisterClientBroadcasts()
+    {
+        if (_clientBroadcastsRegistered) return;
+        if (InstanceFinder.ClientManager == null) return;
+        _clientBroadcastsRegistered = true;
+        InstanceFinder.ClientManager.RegisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
+        InstanceFinder.ClientManager.RegisterBroadcast<RoundStartBroadcast>(OnClientReceiveRoundStart);
+        InstanceFinder.ClientManager.RegisterBroadcast<RoundEndBroadcast>(OnClientReceiveRoundEnd);
+        InstanceFinder.ClientManager.RegisterBroadcast<RoundTimerBroadcast>(OnClientReceiveRoundTimer);
+        InstanceFinder.ClientManager.RegisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
+        InstanceFinder.ClientManager.RegisterBroadcast<BlackHoleSpawnBroadcast>(OnClientReceiveBlackHole);
+        InstanceFinder.ClientManager.RegisterBroadcast<MutatorIndicatorBroadcast>(OnClientReceiveMutatorIndicator);
+        InstanceFinder.ClientManager.RegisterBroadcast<MutatorSpawnBroadcast>(OnClientReceiveMutatorSpawn);
+        InstanceFinder.ClientManager.RegisterBroadcast<MutatorStateBroadcast>(OnClientReceiveMutatorState);
+        InstanceFinder.ClientManager.RegisterBroadcast<MutatorHitBroadcast>(OnClientReceiveMutatorHit);
+        InstanceFinder.ClientManager.RegisterBroadcast<MutatorDespawnBroadcast>(OnClientReceiveMutatorDespawn);
+        InstanceFinder.ClientManager.RegisterBroadcast<MutatorChildSpawnBroadcast>(OnClientReceiveMutatorChild);
+    }
+
+    private void OnDisable()
+    {
+        if (!_clientBroadcastsRegistered) return;
+        if (InstanceFinder.ClientManager == null) return;
+        _clientBroadcastsRegistered = false;
+        InstanceFinder.ClientManager.UnregisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
+        InstanceFinder.ClientManager.UnregisterBroadcast<RoundStartBroadcast>(OnClientReceiveRoundStart);
+        InstanceFinder.ClientManager.UnregisterBroadcast<RoundEndBroadcast>(OnClientReceiveRoundEnd);
+        InstanceFinder.ClientManager.UnregisterBroadcast<RoundTimerBroadcast>(OnClientReceiveRoundTimer);
+        InstanceFinder.ClientManager.UnregisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
+        InstanceFinder.ClientManager.UnregisterBroadcast<BlackHoleSpawnBroadcast>(OnClientReceiveBlackHole);
+        InstanceFinder.ClientManager.UnregisterBroadcast<MutatorIndicatorBroadcast>(OnClientReceiveMutatorIndicator);
+        InstanceFinder.ClientManager.UnregisterBroadcast<MutatorSpawnBroadcast>(OnClientReceiveMutatorSpawn);
+        InstanceFinder.ClientManager.UnregisterBroadcast<MutatorStateBroadcast>(OnClientReceiveMutatorState);
+        InstanceFinder.ClientManager.UnregisterBroadcast<MutatorHitBroadcast>(OnClientReceiveMutatorHit);
+        InstanceFinder.ClientManager.UnregisterBroadcast<MutatorDespawnBroadcast>(OnClientReceiveMutatorDespawn);
+        InstanceFinder.ClientManager.UnregisterBroadcast<MutatorChildSpawnBroadcast>(OnClientReceiveMutatorChild);
+    }
+
     public override void OnStartClient()
     {
         base.OnStartClient();
         // MatchStartBroadcast is handled by OnlineLobbyManager.OnEnable (always registered).
-        InstanceFinder.ClientManager.RegisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
-        InstanceFinder.ClientManager.RegisterBroadcast<RoundMapBroadcast>(OnClientReceiveRoundMap);
-        InstanceFinder.ClientManager.RegisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
-
+        // Round/box/mutator broadcasts are registered in OnEnable above.
         if (FindFirstObjectByType<CSSCursorSync>() == null)
             new GameObject("[CSSCursorSync]").AddComponent<CSSCursorSync>();
+
+        if (FindFirstObjectByType<NetworkStatsHud>() == null)
+            new GameObject("[NetworkStatsHud]").AddComponent<NetworkStatsHud>();
 
         // Required by the match-start flow — auto-create if the user didn't place them in a scene.
         if (LocalPlayerRegistry.Instance == null)
@@ -146,14 +263,6 @@ public class NetworkGameManager : NetworkBehaviour
         if (OnlineLobbyManager.Instance == null)
             new GameObject("[OnlineLobbyManager]").AddComponent<OnlineLobbyManager>();
         OnlineLobbyManager.Instance?.ResetForNewSession();
-    }
-
-    public override void OnStopClient()
-    {
-        base.OnStopClient();
-        InstanceFinder.ClientManager.UnregisterBroadcast<LobbyStateBroadcast>(OnClientReceiveLobbyState);
-        InstanceFinder.ClientManager.UnregisterBroadcast<RoundMapBroadcast>(OnClientReceiveRoundMap);
-        InstanceFinder.ClientManager.UnregisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
     }
 
     // Server: tell all machines a box at this position broke.
@@ -164,9 +273,21 @@ public class NetworkGameManager : NetworkBehaviour
     }
 
     // Client: find the WeaponBox at this position and deactivate it.
+    // If no box matches yet (map still switching, box momentarily inactive) the message
+    // is queued and retried for a few seconds instead of being dropped silently.
+    private struct PendingBoxBreak { public Vector2 Pos; public float Expire; }
+    private readonly List<PendingBoxBreak> _pendingBoxBreaks = new();
+
     private void OnClientReceiveBoxBroken(BoxBrokenBroadcast msg, Channel channel)
     {
         if (InstanceFinder.IsServerStarted) return; // host already handled it
+        var pos = new Vector2(msg.X, msg.Y);
+        if (!TryBreakBoxAt(pos))
+            _pendingBoxBreaks.Add(new PendingBoxBreak { Pos = pos, Expire = Time.time + 3f });
+    }
+
+    private bool TryBreakBoxAt(Vector2 pos)
+    {
         var boxes = FindObjectsByType<WeaponBox>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         const float tolerance = 0.25f;
         WeaponBox match = null;
@@ -174,16 +295,29 @@ public class NetworkGameManager : NetworkBehaviour
         foreach (var box in boxes)
         {
             if (box == null) continue;
-            float dx = box.transform.position.x - msg.X;
-            float dy = box.transform.position.y - msg.Y;
+            float dx = box.transform.position.x - pos.x;
+            float dy = box.transform.position.y - pos.y;
             float sqr = dx * dx + dy * dy;
             if (sqr <= bestSqr) { bestSqr = sqr; match = box; }
         }
-        if (match != null)
+        if (match == null) return false;
+
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.BoxBreak, match.transform.position);
+        match.gameObject.SetActive(false);
+        return true;
+    }
+
+    private void Update()
+    {
+        // ClientManager may not exist yet when OnEnable ran — keep trying.
+        if (!_clientBroadcastsRegistered) TryRegisterClientBroadcasts();
+
+        if (_pendingBoxBreaks.Count == 0) return;
+        for (int i = _pendingBoxBreaks.Count - 1; i >= 0; i--)
         {
-            if (AudioManager.Instance != null && FMODEvents.Instance != null)
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.BoxBreak, match.transform.position);
-            match.gameObject.SetActive(false);
+            if (TryBreakBoxAt(_pendingBoxBreaks[i].Pos) || Time.time >= _pendingBoxBreaks[i].Expire)
+                _pendingBoxBreaks.RemoveAt(i);
         }
     }
 
@@ -315,20 +449,159 @@ public class NetworkGameManager : NetworkBehaviour
     private void OnClientReceiveLobbyState(LobbyStateBroadcast msg, Channel channel) { }
 
     // -------------------------------------------------------------------------
-    // Round map sync — called by GameController.NextMatch() on the server
+    // Round lifecycle sync — the server drives the round state machine and
+    // clients mirror it through these broadcasts.
     // -------------------------------------------------------------------------
 
-    public void ServerBroadcastRoundMap(int mapIndex)
+    public void ServerBroadcastRoundStart(int mapIndex)
     {
-        if (!IsServerStarted) return;
-        InstanceFinder.ServerManager.Broadcast(new RoundMapBroadcast { MapIndex = mapIndex });
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new RoundStartBroadcast { MapIndex = mapIndex });
     }
 
-    // Received by non-host clients — host already applied the map inside GameController.NextMatch().
-    private void OnClientReceiveRoundMap(RoundMapBroadcast msg, Channel channel)
+    public void ServerBroadcastRoundEnd(int winnerSlot, int points, bool matchOver)
     {
-        if (InstanceFinder.IsHostStarted) return;
-        GameController.instance?.SetMapByIndex(msg.MapIndex);
-        GameController.instance?.AssignPlayerPositions();
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new RoundEndBroadcast
+        {
+            WinnerSlot = winnerSlot,
+            Points     = points,
+            MatchOver  = matchOver,
+        });
+    }
+
+    public void ServerBroadcastRoundTimer(float timeLeft)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new RoundTimerBroadcast { TimeLeft = timeLeft });
+    }
+
+    private void OnClientReceiveRoundStart(RoundStartBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host runs NextMatch directly
+        _pendingBoxBreaks.Clear(); // stale break messages must not hit freshly reset boxes
+        GameController.instance?.OnNetworkRoundStart(msg.MapIndex);
+    }
+
+    private void OnClientReceiveRoundEnd(RoundEndBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        GameController.instance?.OnNetworkRoundEnd(msg.WinnerSlot, msg.Points, msg.MatchOver);
+    }
+
+    private void OnClientReceiveRoundTimer(RoundTimerBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        GameController.instance?.OnNetworkTimerSync(msg.TimeLeft);
+    }
+
+    // -------------------------------------------------------------------------
+    // Black hole sync — server's bullet decides the position, clients render it
+    // -------------------------------------------------------------------------
+
+    public void ServerBroadcastBlackHole(Vector2 pos)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new BlackHoleSpawnBroadcast { X = pos.x, Y = pos.y });
+    }
+
+    private void OnClientReceiveBlackHole(BlackHoleSpawnBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host spawned it directly
+        BulletBlackHoleSpawner.SpawnFromNetwork(new Vector2(msg.X, msg.Y));
+    }
+
+    // -------------------------------------------------------------------------
+    // Mutator (chicken) sync — the server simulates, clients render puppets
+    // -------------------------------------------------------------------------
+
+    public void ServerBroadcastMutatorIndicator(Vector2 pos)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new MutatorIndicatorBroadcast { X = pos.x, Y = pos.y });
+    }
+
+    public void ServerBroadcastMutatorSpawn(int mutatorId, int prefabIndex, Vector2 pos, bool golden)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new MutatorSpawnBroadcast
+        {
+            MutatorId   = mutatorId,
+            PrefabIndex = prefabIndex,
+            X = pos.x, Y = pos.y,
+            Golden      = golden,
+        });
+    }
+
+    public void ServerBroadcastMutatorState(int mutatorId, Vector2 pos, bool flipX, float tiltZ, bool headless)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new MutatorStateBroadcast
+        {
+            MutatorId = mutatorId,
+            X = pos.x, Y = pos.y,
+            FlipX = flipX, TiltZ = tiltZ, Headless = headless,
+        }, channel: Channel.Unreliable);
+    }
+
+    public void ServerBroadcastMutatorHit(int mutatorId)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new MutatorHitBroadcast { MutatorId = mutatorId });
+    }
+
+    public void ServerBroadcastMutatorDespawn(int mutatorId, bool died)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new MutatorDespawnBroadcast { MutatorId = mutatorId, Died = died });
+    }
+
+    public void ServerBroadcastMutatorChild(int mutatorId, byte childType, int prefabIndex, Vector2 pos, int targetSlot)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new MutatorChildSpawnBroadcast
+        {
+            MutatorId   = mutatorId,
+            ChildType   = childType,
+            PrefabIndex = prefabIndex,
+            X = pos.x, Y = pos.y,
+            TargetSlot  = targetSlot,
+        });
+    }
+
+    private void OnClientReceiveMutatorIndicator(MutatorIndicatorBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        GameController.instance?.OnNetworkMutatorIndicator(new Vector2(msg.X, msg.Y));
+    }
+
+    private void OnClientReceiveMutatorSpawn(MutatorSpawnBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        GameController.instance?.OnNetworkMutatorSpawn(msg.MutatorId, msg.PrefabIndex, new Vector2(msg.X, msg.Y), msg.Golden);
+    }
+
+    private void OnClientReceiveMutatorState(MutatorStateBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        RainbowChicken.OnNetworkState(msg.MutatorId, new Vector2(msg.X, msg.Y), msg.FlipX, msg.TiltZ, msg.Headless);
+    }
+
+    private void OnClientReceiveMutatorHit(MutatorHitBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        RainbowChicken.OnNetworkHit(msg.MutatorId);
+    }
+
+    private void OnClientReceiveMutatorDespawn(MutatorDespawnBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        RainbowChicken.OnNetworkDespawn(msg.MutatorId, msg.Died);
+    }
+
+    private void OnClientReceiveMutatorChild(MutatorChildSpawnBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return;
+        RainbowChicken.OnNetworkChild(msg.MutatorId, msg.ChildType, msg.PrefabIndex, new Vector2(msg.X, msg.Y), msg.TargetSlot);
     }
 }

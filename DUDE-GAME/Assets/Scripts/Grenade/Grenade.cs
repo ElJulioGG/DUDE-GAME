@@ -1,4 +1,5 @@
 using System.Collections;
+using FishNet;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
@@ -53,6 +54,20 @@ public class Grenade : NetworkBehaviour
     // Syncs grenade state to remote clients in online mode.
     private readonly SyncVar<byte> _netState = new SyncVar<byte>((byte)State.Safe);
 
+    // Which player slot is holding/cooking this grenade — lets non-server machines
+    // mirror the cooking visuals (hidden weapon body, pin pop) on their local copy
+    // of that player's grenade weapon.
+    private readonly SyncVar<int> _netOwnerIndex = new SyncVar<int>(-1);
+
+    // The local weapon visual whose body we hid; restored on throw/despawn.
+    private GrenadeWeapon _cosmeticWeapon;
+
+    // While held the grenade FOLLOWS this transform instead of being parented to it.
+    // NetworkTransform syncs localPosition — a parented grenade would send hand-local
+    // offsets that unparented client copies apply as world coordinates, leaving them
+    // invisible at the world origin.
+    private Transform _followHand;
+
     private Color baseColor = Color.white;
     private Coroutine blinkCo;
     private Coroutine beepCo;
@@ -69,12 +84,22 @@ public class Grenade : NetworkBehaviour
     {
         base.OnStartNetwork();
         _netState.OnChange += OnNetStateChanged;
+        _netOwnerIndex.OnChange += OnNetOwnerChanged;
     }
 
     public override void OnStopNetwork()
     {
         base.OnStopNetwork();
         _netState.OnChange -= OnNetStateChanged;
+        _netOwnerIndex.OnChange -= OnNetOwnerChanged;
+    }
+
+    // Restore the hidden weapon body when the grenade leaves (exploded in hand,
+    // despawned at round reset...) so client weapons never get stuck invisible.
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+        RestoreCosmeticWeapon();
     }
 
     // On remote clients, disable physics so NetworkTransform drives position.
@@ -87,12 +112,47 @@ public class Grenade : NetworkBehaviour
             if (!col) col = GetComponent<Collider2D>();
             if (rb) rb.bodyType = RigidbodyType2D.Kinematic;
             if (col) col.enabled = false;
+
+            // Init() never runs on clients — resolve the sprite so the open/blink
+            // visuals work, and mirror the server's forceGrenadeOnTop sorting fix,
+            // otherwise the replicated grenade renders behind the player/map and
+            // looks invisible from arming until it explodes.
+            if (!spriteRenderer) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            ApplyClientSorting();
+
+            // The server arms the grenade in the same frame it spawns it, so the Armed
+            // state often arrives inside the spawn payload without firing OnChange.
+            // Apply whatever state we spawned with so the open sprite / blink / beep
+            // play on clients. (Safe is ignored by the handler, so this is harmless.)
+            OnNetStateChanged((byte)State.Safe, _netState.Value, asServer: false);
+        }
+    }
+
+    private void ApplyClientSorting()
+    {
+        var weapon = FindOwnerWeaponVisual();
+        if (weapon != null)
+        {
+            weapon.ApplyGrenadeSorting(this);
+            return;
+        }
+
+        // Fallback: render just above the owner player's sprite.
+        Transform player = GameController.instance != null
+            ? GameController.instance.GetPlayerTransform(_netOwnerIndex.Value) : null;
+        var playerSprite = player != null ? player.GetComponentInChildren<SpriteRenderer>() : null;
+        if (playerSprite != null && spriteRenderer != null)
+        {
+            spriteRenderer.sortingLayerID = playerSprite.sortingLayerID;
+            spriteRenderer.sortingOrder = playerSprite.sortingOrder + 2;
         }
     }
 
     private void OnNetStateChanged(byte prev, byte next, bool asServer)
     {
-        if (asServer || !GameSession.IsOnline) return;
+        // Non-server machines only — the server (and host) already runs the real
+        // logic in Arm()/Throw(), and host-mode invokes this with asServer=false too.
+        if (asServer || IsServerStarted || !GameSession.IsOnline) return;
         switch ((State)next)
         {
             case State.Armed:
@@ -102,13 +162,49 @@ public class Grenade : NetworkBehaviour
                 SetOpenVisual();
                 if (useBlink && blinkCo == null) blinkCo = StartCoroutine(BlinkRoutine());
                 if (useBeep && beepCo == null) beepCo = StartCoroutine(BeepRoutine());
+                // Mirror the holder's weapon: hide its body sprite and pop the pin,
+                // exactly like the server's GrenadeWeapon.Shoot does locally.
+                if (_cosmeticWeapon == null)
+                {
+                    _cosmeticWeapon = FindOwnerWeaponVisual();
+                    _cosmeticWeapon?.ShowCookingVisuals();
+                }
                 break;
             case State.Thrown:
                 state = State.Thrown;
                 heldInHand = false;
                 SetOpenVisual();
+                RestoreCosmeticWeapon();
                 break;
         }
+    }
+
+    // The cooked grenade changed hands (hot-potato steal/adopt) — move the hidden
+    // weapon body from the old holder's local weapon visual to the new one.
+    private void OnNetOwnerChanged(int prev, int next, bool asServer)
+    {
+        if (asServer || IsServerStarted || !GameSession.IsOnline) return;
+        if (_cosmeticWeapon == null) return;
+        RestoreCosmeticWeapon();
+        _cosmeticWeapon = FindOwnerWeaponVisual();
+        _cosmeticWeapon?.ShowCookingVisuals(playPin: false);
+    }
+
+    private GrenadeWeapon FindOwnerWeaponVisual()
+    {
+        int slot = _netOwnerIndex.Value;
+        Transform player = GameController.instance != null
+            ? GameController.instance.GetPlayerTransform(slot) : null;
+        if (player == null) return null;
+        var holder = player.GetComponentInChildren<GunHolder>(true);
+        return holder != null ? holder.CurrentGunScript as GrenadeWeapon : null;
+    }
+
+    private void RestoreCosmeticWeapon()
+    {
+        if (_cosmeticWeapon == null) return;
+        _cosmeticWeapon.HideCookingVisuals();
+        _cosmeticWeapon = null;
     }
 
     public bool IsSafe => state == State.Safe;
@@ -134,6 +230,8 @@ public class Grenade : NetworkBehaviour
 
         definition = def;
         ownerIndex = ownerPlayerIndex;
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            _netOwnerIndex.Value = ownerPlayerIndex;
 
         if (!spriteRenderer) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
@@ -219,7 +317,9 @@ public class Grenade : NetworkBehaviour
 //#endif
 
         ownerIndex = newOwnerIndex;
-        transform.SetParent(newHand, true);
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            _netOwnerIndex.Value = newOwnerIndex;
+        _followHand = newHand;
         transform.position = newHand.position;
         SetHeldInHand(true);
         if (state == State.Safe)
@@ -269,7 +369,7 @@ public class Grenade : NetworkBehaviour
 
         float speed = definition.throwSpeed + Mathf.Clamp01(charge01) * definition.maxExtraThrow;
 
-        transform.SetParent(null, true);
+        _followHand = null;
         SetHeldInHand(false);
 
         if (dir.sqrMagnitude <= 0.0001f)
@@ -297,7 +397,7 @@ public class Grenade : NetworkBehaviour
     {
         if (state == State.Safe) Arm();
         SetOpenVisual();
-        transform.SetParent(null, true);
+        _followHand = null;
         SetHeldInHand(false);
 
 //#if GRENADE_DEBUG
@@ -315,9 +415,17 @@ public class Grenade : NetworkBehaviour
 //        Debug.Log($"[GRENADE][{_id}] DetachFromHand owner={ownerIndex} state={state} fuseLeft={fuseLeft:F2}");
 //#endif
 
-        transform.SetParent(null, true);
+        _followHand = null;
         SetHeldInHand(false);
         ownerWeapon = null;
+    }
+
+    // Track the holder's hand while held. Done by position copy instead of parenting
+    // so NetworkTransform keeps syncing world-space coordinates.
+    private void LateUpdate()
+    {
+        if (heldInHand && _followHand != null)
+            transform.position = _followHand.position;
     }
 
     private void Update()

@@ -51,11 +51,16 @@ public class BulletBehavior : MonoBehaviour
         direction = transform.right;
         previousPosition = rb.position;
 
-        if (!destroyOnInvisible)
+        if (GameSession.IsOnline)
         {
-            // Timed destruction is managed by the server (or locally in offline mode)
-            if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
-                Invoke(nameof(DestroyBullet), destroyTime);
+            // Online: every machine simulates its own local bullets, and visibility-based
+            // destruction is unreliable (depends on what each window renders), so all
+            // machines clean up with the timer instead.
+            Invoke(nameof(DestroyBullet), destroyTime);
+        }
+        else if (!destroyOnInvisible)
+        {
+            Invoke(nameof(DestroyBullet), destroyTime);
         }
     }
 
@@ -63,14 +68,15 @@ public class BulletBehavior : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Bullets are local simulations on every machine (the shot event is what gets
+        // replicated). Each machine moves, bounces and cleans up its own bullets;
+        // only the server's bullets apply damage (see HandleDamage).
         if (GameManager.instance == null || GameManager.instance.destroyProyectiles)
         {
             DestroyBullet();
             return;
         }
         if (isQuitting) return;
-        // Non-server machines let NetworkTransform drive the bullet position.
-        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
 
         Vector2 newPosition = previousPosition + direction * speed * Time.fixedDeltaTime;
         float distance = Vector2.Distance(previousPosition, newPosition);
@@ -123,21 +129,28 @@ public class BulletBehavior : MonoBehaviour
 
     void HandleDamage(RaycastHit2D hit)
     {
+        // Only the authority applies damage; cosmetic bullets on other machines still
+        // stop/destroy on impact so they don't visually fly through players.
+        bool isAuthority = !GameSession.IsOnline || InstanceFinder.IsServerStarted;
+
         // Check for player first so damage always routes through the correct online/offline path.
         var playerStats = hit.collider.GetComponentInParent<PlayerStats>();
         if (playerStats != null)
         {
-            if (GameSession.IsOnline)
+            if (isAuthority)
             {
-                var netCtrl = hit.collider.GetComponentInParent<NetworkPlayerController>();
-                if (netCtrl != null)
-                    netCtrl.ServerTakeDamage(damage);
+                if (GameSession.IsOnline)
+                {
+                    var netCtrl = hit.collider.GetComponentInParent<NetworkPlayerController>();
+                    if (netCtrl != null)
+                        netCtrl.ServerTakeDamage(damage);
+                    else
+                        playerStats.TakeDamage(damage);
+                }
                 else
+                {
                     playerStats.TakeDamage(damage);
-            }
-            else
-            {
-                playerStats.TakeDamage(damage);
+                }
             }
 
             if (destroyOnPlayerHit)
@@ -152,7 +165,7 @@ public class BulletBehavior : MonoBehaviour
         var dmgTarget = hit.collider.GetComponentInParent<IDamageable>();
         if (dmgTarget != null)
         {
-            dmgTarget.TakeDamage(damage);
+            if (isAuthority) dmgTarget.TakeDamage(damage);
             if (destroyOnPlayerHit)
             {
                 StopAllCoroutines();
@@ -197,12 +210,13 @@ public class BulletBehavior : MonoBehaviour
 
     void OnBecameInvisible()
     {
+        // Online: never destroy from visibility — what the server's window renders is
+        // not gameplay state (an unfocused editor can fire this instantly and kill
+        // every bullet before clients see them). The Start() timer handles cleanup.
+        if (GameSession.IsOnline) return;
+
         if (destroyOnInvisible && !isQuitting)
-        {
-            // Only the server (or offline) should trigger destruction
-            if (!GameSession.IsOnline || InstanceFinder.IsServerStarted)
-                DestroyBullet();
-        }
+            DestroyBullet();
     }
     IEnumerator MoveToCollisionAndDestroy(Vector2 targetPoint, Vector2 normal)
     {
@@ -225,6 +239,15 @@ public class BulletBehavior : MonoBehaviour
 
     void DestroyBullet()
     {
+        // Clients must never locally destroy a server-spawned bullet — the server's
+        // Despawn removes it everywhere. Locally destroying spawned NetworkObjects
+        // desyncs FishNet's object tracking.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted)
+        {
+            var clientNo = GetComponent<NetworkObject>();
+            if (clientNo != null && clientNo.IsSpawned) return;
+        }
+
         // Detach particles before destruction
         ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
         foreach (ParticleSystem ps in particles)
@@ -241,11 +264,14 @@ public class BulletBehavior : MonoBehaviour
         if (onDestroyMethod)
             onDestroyCallback?.Invoke();
 
-        // In online play the server despawns the NetworkObject which destroys it on all clients.
+        // Bullets are plain local objects now — only despawn through FishNet if this
+        // one was actually network-spawned (legacy safety). Calling Despawn on a
+        // never-spawned object warns and returns, which used to skip Destroy and
+        // leave immortal bullets re-firing their onDestroy callback on every impact.
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
         {
             var no = GetComponent<NetworkObject>();
-            if (no != null) { InstanceFinder.ServerManager.Despawn(no); return; }
+            if (no != null && no.IsSpawned) { InstanceFinder.ServerManager.Despawn(no); return; }
         }
         Destroy(gameObject);
     }

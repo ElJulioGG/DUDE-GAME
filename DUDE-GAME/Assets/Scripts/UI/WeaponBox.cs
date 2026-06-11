@@ -108,7 +108,14 @@ public class WeaponBox : NetworkBehaviour
 
         var go = Instantiate(weaponPickups[index], transform.position, Quaternion.identity);
         if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
-            InstanceFinder.ServerManager.Spawn(go);
+        {
+            var no = go.GetComponent<NetworkObject>();
+            if (no != null)
+            {
+                no.SetIsNetworked(true); // prefab may ship with _isNetworked=0
+                InstanceFinder.ServerManager.Spawn(go);
+            }
+        }
     }
 
     [ObserversRpc(ExcludeServer = true)]
