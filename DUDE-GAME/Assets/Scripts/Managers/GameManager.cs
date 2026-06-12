@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem; // ----TESTING----
 
 public class GameManager : MonoBehaviour
 {
@@ -40,6 +41,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int player2ControllerType = 0;
     [SerializeField] public int player3ControllerType = 0;
     [SerializeField] public int player4ControllerType = 0;
+    
+    // ----TESTING----
+    public InputDevice player1Device;
+    public InputDevice player2Device;
+    public InputDevice player3Device;
+    public InputDevice player4Device;
 
     //0 = no power, 1 = instakill, 2 = doublePoints, 3 = OpenFire, 4 = MaxAmmo, *5 = fireSale*, 6 = kaboom, *7 = carpinter*, 8 = death machine
     [SerializeField] public Sprite[] powerUpIcons; 

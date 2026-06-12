@@ -96,12 +96,25 @@ public class PlayerInputHandler : MonoBehaviour
             controllerType = 2;
 
         if (GameManager.instance == null) return;
+
         switch (index)
         {
-            case 0: GameManager.instance.player1ControllerType = controllerType; break;
-            case 1: GameManager.instance.player2ControllerType = controllerType; break;
-            case 2: GameManager.instance.player3ControllerType = controllerType; break;
-            case 3: GameManager.instance.player4ControllerType = controllerType; break;
+            case 0:
+                GameManager.instance.player1ControllerType = controllerType;
+                GameManager.instance.player1Device = device; // <-- WE SAVE IT HERE
+                break;
+            case 1:
+                GameManager.instance.player2ControllerType = controllerType;
+                GameManager.instance.player2Device = device;
+                break;
+            case 2:
+                GameManager.instance.player3ControllerType = controllerType;
+                GameManager.instance.player3Device = device;
+                break;
+            case 3:
+                GameManager.instance.player4ControllerType = controllerType;
+                GameManager.instance.player4Device = device;
+                break;
         }
 
         Debug.Log($"Player {index} is using controller: {device.displayName}, type: {controllerType}, raw name: {device.name}");

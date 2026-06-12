@@ -1,0 +1,215 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
+
+public class VictoryCursor : MonoBehaviour
+{
+    [Header("Cursor Settings")]
+    [SerializeField] private int playerIndex;
+    [SerializeField] private float moveSpeed = 600f;
+    [SerializeField] private float deadZone = 0.1f;
+
+    [Header("UI References")]
+    [SerializeField] private RectTransform rectTransform;
+    [SerializeField] private Canvas parentCanvas;
+    [SerializeField] private Image cursorImage;
+
+    private GraphicRaycaster raycaster;
+    private EventSystem eventSystem;
+    private PointerEventData pointerEventData;
+    private List<RaycastResult> raycastResults = new List<RaycastResult>();
+    private Button hoveredButton = null;
+
+    // --- Dynamic Input Tracking ---
+    private Gamepad myGamepad = null;
+    private bool useKeyboard = false;
+
+    private Color[] playerColors = {
+        Color.red,
+        Color.blue,
+        Color.green,
+        new Color(0.5f, 0f, 0.5f)
+    };
+
+    private void Awake()
+    {
+        // Auto-find Canvas
+        if (parentCanvas == null) parentCanvas = GetComponentInParent<Canvas>();
+        if (parentCanvas != null) raycaster = parentCanvas.GetComponent<GraphicRaycaster>();
+
+        // Auto-find Cursor Image
+        if (cursorImage == null)
+        {
+            Transform imgTransform = transform.Find("CursorImage");
+            if (imgTransform != null) cursorImage = imgTransform.GetComponent<Image>();
+        }
+
+        // Clean up UI junk
+        Transform label = transform.Find("PlayerLabel");
+        if (label != null) label.gameObject.SetActive(false);
+        Transform indicator = transform.Find("AssignmentIndicator");
+        if (indicator != null) indicator.gameObject.SetActive(false);
+
+        eventSystem = EventSystem.current;
+        pointerEventData = new PointerEventData(eventSystem);
+    }
+
+    private void Start()
+    {
+        bool isPlaying = false;
+        if (GameManager.instance != null)
+        {
+            switch (playerIndex)
+            {
+                case 0: isPlaying = GameManager.instance.player1Playable; break;
+                case 1: isPlaying = GameManager.instance.player2Playable; break;
+                case 2: isPlaying = GameManager.instance.player3Playable; break;
+                case 3: isPlaying = GameManager.instance.player4Playable; break;
+            }
+        }
+
+        gameObject.SetActive(isPlaying);
+
+        if (cursorImage != null && playerIndex >= 0 && playerIndex < playerColors.Length)
+        {
+            Color finalColor = playerColors[playerIndex];
+            finalColor.a = 1f;
+            cursorImage.color = finalColor;
+        }
+    }
+
+    private void Update()
+    {
+        // If this cursor doesn't have a controller yet, look for one!
+        if (myGamepad == null && !useKeyboard)
+        {
+            AssignInputDevice();
+        }
+
+        HandleMovement();
+        HandleRaycast();
+        HandleClick();
+    }
+
+    private void AssignInputDevice()
+    {
+        // Player 1 gets first dibs on the Keyboard if they press WASD
+        if (playerIndex == 0 && Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.isPressed || Keyboard.current.aKey.isPressed ||
+                Keyboard.current.sKey.isPressed || Keyboard.current.dKey.isPressed)
+            {
+                useKeyboard = true;
+                return;
+            }
+        }
+
+        // If any Gamepad joystick is wiggled, claim it!
+        foreach (var pad in Gamepad.all)
+        {
+            if (pad.leftStick.ReadValue().magnitude > 0.2f || pad.buttonSouth.wasPressedThisFrame)
+            {
+                bool isClaimed = false;
+                VictoryCursor[] allCursors = FindObjectsByType<VictoryCursor>(FindObjectsSortMode.None);
+
+                // Check if another cursor already claimed this exact controller
+                foreach (var cursor in allCursors)
+                {
+                    if (cursor != this && cursor.myGamepad == pad)
+                    {
+                        isClaimed = true;
+                        break;
+                    }
+                }
+
+                // If it's free, it's ours!
+                if (!isClaimed)
+                {
+                    myGamepad = pad;
+                    useKeyboard = false;
+                    return;
+                }
+            }
+        }
+    }
+
+    private void HandleMovement()
+    {
+        Vector2 moveInput = Vector2.zero;
+
+        if (useKeyboard && Keyboard.current != null)
+        {
+            moveInput.x = (Keyboard.current.dKey.isPressed ? 1 : 0) - (Keyboard.current.aKey.isPressed ? 1 : 0);
+            moveInput.y = (Keyboard.current.wKey.isPressed ? 1 : 0) - (Keyboard.current.sKey.isPressed ? 1 : 0);
+        }
+        else if (myGamepad != null)
+        {
+            moveInput = myGamepad.leftStick.ReadValue();
+            if (moveInput.magnitude < deadZone) moveInput = Vector2.zero;
+        }
+
+        if (moveInput != Vector2.zero)
+        {
+            rectTransform.anchoredPosition += moveInput.normalized * moveSpeed * Time.unscaledDeltaTime;
+            ClampToScreenBounds();
+        }
+    }
+
+    private void HandleRaycast()
+    {
+        Vector2 screenPos = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? rectTransform.position
+            : RectTransformUtility.WorldToScreenPoint(parentCanvas.worldCamera, rectTransform.position);
+
+        pointerEventData.position = screenPos;
+        raycastResults.Clear();
+        raycaster.Raycast(pointerEventData, raycastResults);
+
+        hoveredButton = raycastResults.Count > 0 ? raycastResults[0].gameObject.GetComponentInParent<Button>() : null;
+    }
+
+    private void HandleClick()
+    {
+        bool pressedSelect = false;
+
+        if (useKeyboard && Keyboard.current != null)
+        {
+            if (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame)
+                pressedSelect = true;
+        }
+        else if (myGamepad != null)
+        {
+            if (myGamepad.buttonSouth.wasPressedThisFrame) pressedSelect = true;
+        }
+
+        if (pressedSelect && hoveredButton != null)
+        {
+            hoveredButton.onClick.Invoke();
+
+            if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            {
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.CharSelectSelect, transform.position);
+            }
+        }
+    }
+
+    private void ClampToScreenBounds()
+    {
+        if (parentCanvas == null || rectTransform == null) return;
+
+        // Uses the scaled Canvas rect instead of raw pixel size to prevent corner-trapping
+        RectTransform canvasRect = parentCanvas.GetComponent<RectTransform>();
+        Vector2 canvasSize = canvasRect.rect.size;
+        Vector2 currentPos = rectTransform.anchoredPosition;
+
+        float halfWidth = rectTransform.rect.width * 0.5f;
+        float halfHeight = rectTransform.rect.height * 0.5f;
+
+        currentPos.x = Mathf.Clamp(currentPos.x, -canvasSize.x * 0.5f + halfWidth, canvasSize.x * 0.5f - halfWidth);
+        currentPos.y = Mathf.Clamp(currentPos.y, -canvasSize.y * 0.5f + halfHeight, canvasSize.y * 0.5f - halfHeight);
+
+        rectTransform.anchoredPosition = currentPos;
+    }
+}

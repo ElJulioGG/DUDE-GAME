@@ -107,7 +107,32 @@ public class VictoryScreenManager : MonoBehaviour
         // --- Set Winner Text ---
         if (winnerIndex != -1)
         {
-            winnerText.text = $"PLAYER {winnerIndex} WINS!";
+            string colorName = "PLAYER";
+            string hexColor = "#FFFFFF"; // Default to white
+
+            // Map the winning index (1-4) to your specific character colors
+            switch (winnerIndex)
+            {
+                case 1:
+                    colorName = "RED";
+                    hexColor = "#FF0000";
+                    break;
+                case 2:
+                    colorName = "BLUE";
+                    hexColor = "#0000FF";
+                    break;
+                case 3:
+                    colorName = "GREEN";
+                    hexColor = "#00FF00";
+                    break;
+                case 4:
+                    colorName = "PURPLE";
+                    hexColor = "#800080";
+                    break;
+            }
+
+            // Apply the text and use TMPro Rich Text to color it!
+            winnerText.text = $"<color={hexColor}>{colorName}</color>";
         }
     }
 
