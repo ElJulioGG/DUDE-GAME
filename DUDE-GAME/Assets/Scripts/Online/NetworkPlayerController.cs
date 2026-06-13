@@ -332,14 +332,45 @@ public class NetworkPlayerController : NetworkBehaviour
     // own local simulation and the host's weapon is the server instance, so both
     // are excluded.
     [Server]
-    public void ServerSyncWeaponIndicators(bool reloading, bool outOfAmmo) =>
-        BroadcastWeaponIndicators(reloading, outOfAmmo);
+    public void ServerSyncWeaponIndicators(bool reloading, bool clipEmpty, bool outOfAmmo) =>
+        BroadcastWeaponIndicators(reloading, clipEmpty, outOfAmmo);
+
+    // Buffered indicator state — the broadcast can arrive before ShowWeaponVisual
+    // has created the local cosmetic weapon (same race as _pendingClip above).
+    private bool _hasPendingIndicators;
+    private bool _pendingIndReloading;
+    private bool _pendingIndClipEmpty;
+    private bool _pendingIndOutOfAmmo;
 
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
-    private void BroadcastWeaponIndicators(bool reloading, bool outOfAmmo)
+    private void BroadcastWeaponIndicators(bool reloading, bool clipEmpty, bool outOfAmmo)
+    {
+        _hasPendingIndicators = true;
+        _pendingIndReloading = reloading;
+        _pendingIndClipEmpty = clipEmpty;
+        _pendingIndOutOfAmmo = outOfAmmo;
+        var weapon = _gunHolder != null ? _gunHolder.CurrentGunScript : null;
+        if (weapon != null) weapon.ApplyRemoteIndicators(reloading, clipEmpty, outOfAmmo);
+    }
+
+    // Applies the buffered indicator state to a freshly created cosmetic weapon visual.
+    public void ApplyPendingIndicatorsTo(WeaponBase weapon)
+    {
+        if (weapon == null || !_hasPendingIndicators) return;
+        weapon.ApplyRemoteIndicators(_pendingIndReloading, _pendingIndClipEmpty, _pendingIndOutOfAmmo);
+    }
+
+    // Server → everyone else: the holder pulled the trigger on an empty chamber.
+    // An event (not state) so remote machines play the click/shake at the exact
+    // attempt, mirroring what the holder experiences.
+    [Server]
+    public void ServerDryFire(bool outOfAmmo) => BroadcastDryFire(outOfAmmo);
+
+    [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
+    private void BroadcastDryFire(bool outOfAmmo)
     {
         var weapon = _gunHolder != null ? _gunHolder.CurrentGunScript : null;
-        if (weapon != null) weapon.ApplyRemoteIndicators(reloading, outOfAmmo);
+        if (weapon != null) weapon.PlayDryFireFeedback(outOfAmmo);
     }
 
     [ObserversRpc(ExcludeServer = true)]

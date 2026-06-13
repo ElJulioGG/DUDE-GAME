@@ -169,10 +169,12 @@ public class Grenade : NetworkBehaviour
                     _cosmeticWeapon = FindOwnerWeaponVisual();
                     _cosmeticWeapon?.ShowCookingVisuals();
                 }
+                BeginLocalHandFollow();
                 break;
             case State.Thrown:
                 state = State.Thrown;
                 heldInHand = false;
+                _followHand = null; // NetworkTransform drives the flight from here
                 SetOpenVisual();
                 RestoreCosmeticWeapon();
                 break;
@@ -188,6 +190,7 @@ public class Grenade : NetworkBehaviour
         RestoreCosmeticWeapon();
         _cosmeticWeapon = FindOwnerWeaponVisual();
         _cosmeticWeapon?.ShowCookingVisuals(playPin: false);
+        BeginLocalHandFollow(); // re-pin to the new holder's hand
     }
 
     private GrenadeWeapon FindOwnerWeaponVisual()
@@ -420,10 +423,29 @@ public class Grenade : NetworkBehaviour
         ownerWeapon = null;
     }
 
+    // Client machines: pin a held primed grenade to the holder's LOCAL hand, exactly
+    // like the server/offline does with its own hand. Without this the grenade is
+    // dragged by NetworkTransform updates that arrive ticks late, so it visibly
+    // trailed behind the moving holder instead of sitting in their hand.
+    private void BeginLocalHandFollow()
+    {
+        var weapon = _cosmeticWeapon != null ? _cosmeticWeapon : FindOwnerWeaponVisual();
+        if (weapon == null) return;
+        _followHand = weapon.HandPoint;
+        heldInHand = true;
+        if (_followHand != null)
+            transform.position = _followHand.position;
+    }
+
     // Track the holder's hand while held. Done by position copy instead of parenting
     // so NetworkTransform keeps syncing world-space coordinates.
     private void LateUpdate()
     {
+        // The holder's weapon visual may not exist yet when Armed arrives (spawn
+        // races) — keep retrying until the hand is resolved.
+        if (GameSession.IsOnline && !IsServerStarted && state == State.Armed && _followHand == null)
+            BeginLocalHandFollow();
+
         if (heldInHand && _followHand != null)
             transform.position = _followHand.position;
     }

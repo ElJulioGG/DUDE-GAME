@@ -97,6 +97,24 @@ public class NetworkGameManager : NetworkBehaviour
         public float X, Y;
     }
 
+    // Sent by server when a player walks over a powerup pickup. Clients mirror the
+    // grant (HUD icon), consume their local copy of the pickup (found by position —
+    // they spawn at identical coordinates on every machine) and play the feedback.
+    public struct PowerUpPickupBroadcast : IBroadcast
+    {
+        public int Slot;
+        public int Type;
+        public float X, Y;
+    }
+
+    // Sent by server when a player activates their held powerup. Clients play the
+    // same banner/voice/particles — gameplay (damage, points) stays server-side.
+    public struct PowerUpUseBroadcast : IBroadcast
+    {
+        public int Slot;
+        public int Type;
+    }
+
     // ----- Mutator (chicken) sync: server simulates, clients render puppets -----
 
     public struct MutatorIndicatorBroadcast : IBroadcast
@@ -219,6 +237,8 @@ public class NetworkGameManager : NetworkBehaviour
         InstanceFinder.ClientManager.RegisterBroadcast<RoundTimerBroadcast>(OnClientReceiveRoundTimer);
         InstanceFinder.ClientManager.RegisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
         InstanceFinder.ClientManager.RegisterBroadcast<BlackHoleSpawnBroadcast>(OnClientReceiveBlackHole);
+        InstanceFinder.ClientManager.RegisterBroadcast<PowerUpPickupBroadcast>(OnClientReceivePowerUpPickup);
+        InstanceFinder.ClientManager.RegisterBroadcast<PowerUpUseBroadcast>(OnClientReceivePowerUpUse);
         InstanceFinder.ClientManager.RegisterBroadcast<MutatorIndicatorBroadcast>(OnClientReceiveMutatorIndicator);
         InstanceFinder.ClientManager.RegisterBroadcast<MutatorSpawnBroadcast>(OnClientReceiveMutatorSpawn);
         InstanceFinder.ClientManager.RegisterBroadcast<MutatorStateBroadcast>(OnClientReceiveMutatorState);
@@ -238,6 +258,8 @@ public class NetworkGameManager : NetworkBehaviour
         InstanceFinder.ClientManager.UnregisterBroadcast<RoundTimerBroadcast>(OnClientReceiveRoundTimer);
         InstanceFinder.ClientManager.UnregisterBroadcast<BoxBrokenBroadcast>(OnClientReceiveBoxBroken);
         InstanceFinder.ClientManager.UnregisterBroadcast<BlackHoleSpawnBroadcast>(OnClientReceiveBlackHole);
+        InstanceFinder.ClientManager.UnregisterBroadcast<PowerUpPickupBroadcast>(OnClientReceivePowerUpPickup);
+        InstanceFinder.ClientManager.UnregisterBroadcast<PowerUpUseBroadcast>(OnClientReceivePowerUpUse);
         InstanceFinder.ClientManager.UnregisterBroadcast<MutatorIndicatorBroadcast>(OnClientReceiveMutatorIndicator);
         InstanceFinder.ClientManager.UnregisterBroadcast<MutatorSpawnBroadcast>(OnClientReceiveMutatorSpawn);
         InstanceFinder.ClientManager.UnregisterBroadcast<MutatorStateBroadcast>(OnClientReceiveMutatorState);
@@ -270,6 +292,32 @@ public class NetworkGameManager : NetworkBehaviour
     {
         if (!IsServerStarted) return;
         InstanceFinder.ServerManager.Broadcast(new BoxBrokenBroadcast { X = worldPos.x, Y = worldPos.y });
+    }
+
+    // ----- Powerups: server decides pickups/activations, clients mirror -----
+
+    public void ServerBroadcastPowerUpPickup(int slot, int type, Vector2 pos)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new PowerUpPickupBroadcast { Slot = slot, Type = type, X = pos.x, Y = pos.y });
+    }
+
+    public void ServerBroadcastPowerUpUse(int slot, int type)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        InstanceFinder.ServerManager.Broadcast(new PowerUpUseBroadcast { Slot = slot, Type = type });
+    }
+
+    private void OnClientReceivePowerUpPickup(PowerUpPickupBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host already handled it
+        GameController.instance?.OnNetworkPowerUpPickup(msg.Slot, msg.Type, new Vector2(msg.X, msg.Y));
+    }
+
+    private void OnClientReceivePowerUpUse(PowerUpUseBroadcast msg, Channel channel)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host already handled it
+        GameController.instance?.OnNetworkPowerUpUse(msg.Slot, msg.Type);
     }
 
     // Client: find the WeaponBox at this position and deactivate it.

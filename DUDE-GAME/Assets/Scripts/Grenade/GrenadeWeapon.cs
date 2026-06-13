@@ -31,6 +31,10 @@ public class GrenadeWeapon : WeaponBase
     public bool HasCooking => cooking != null;
     public int OwnerPlayerIndex => GetOwnerIndexSafe();
 
+    // Where a held grenade sits — same resolution order the server uses when
+    // attaching. Lets client copies pin a primed grenade to their LOCAL hand.
+    public Transform HandPoint => handPoint != null ? handPoint : (firePoint != null ? firePoint : transform);
+
     private void Awake()
     {
         holder = GetComponentInParent<GunHolder>();

@@ -397,8 +397,15 @@ public class GunHolder : MonoBehaviour
                 currentMeleeScript?.SetAimDirection(lastAimDirection);
                 // The server's ammo sync may have arrived before this weapon existed —
                 // apply the buffered values so the owner's local weapon fires correctly.
-                if (currentGunScript != null && _netController != null && _netController.IsOwner)
-                    _netController.ApplyPendingAmmoTo(currentGunScript);
+                // Non-owners get the buffered indicator state instead (reloading/dry),
+                // which gates the cosmetic copy's fire feedback.
+                if (currentGunScript != null && _netController != null)
+                {
+                    if (_netController.IsOwner)
+                        _netController.ApplyPendingAmmoTo(currentGunScript);
+                    else
+                        _netController.ApplyPendingIndicatorsTo(currentGunScript);
+                }
                 return;
             }
         }

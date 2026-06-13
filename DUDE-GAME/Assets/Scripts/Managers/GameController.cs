@@ -782,10 +782,58 @@ public class GameController : MonoBehaviour
                 currentPowerUp = GameManager.instance.player4PowerUp;
                 GameManager.instance.player4PowerUp = 0;
                 break;
-            
+
         }
 
-        switch (currentPowerUp)
+        // Mirror the activation to clients (banner UI, voice, particles) — this
+        // only ever runs on the server online, since usingPowerUp is set via
+        // ServerRpc there.
+        if (GameSession.IsOnline && InstanceFinder.IsServerStarted)
+            NetworkGameManager.Instance?.ServerBroadcastPowerUpUse(playerIndex, currentPowerUp);
+
+        ApplyPowerUp(playerIndex, currentPowerUp);
+    }
+
+    // Client mirror of a pickup the server detected: consume this machine's copy of
+    // the pickup object (same spawn coordinates on every machine) and grant the slot.
+    public void OnNetworkPowerUpPickup(int slot, int type, Vector2 pos)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+
+        PowerUpTrigger best = null;
+        float bestSqr = 4f; // within 2 units
+        foreach (var p in FindObjectsByType<PowerUpTrigger>(FindObjectsSortMode.None))
+        {
+            float sqr = ((Vector2)p.transform.position - pos).sqrMagnitude;
+            if (sqr < bestSqr) { bestSqr = sqr; best = p; }
+        }
+
+        if (best != null)
+        {
+            best.ApplyPickup(slot, type);
+        }
+        else
+        {
+            // No local copy found — still grant it so the HUD icon stays correct.
+            PowerUpTrigger.Grant(slot, type);
+            if (AudioManager.Instance != null && FMODEvents.Instance != null)
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.PickUpPowerUp, pos);
+        }
+    }
+
+    // Client mirror of an activation: clear the HUD slot and play the same feedback.
+    // Gameplay inside the effects is authority-gated (Instakill damages nothing on
+    // clients), so only the banner/voice/particles run here.
+    public void OnNetworkPowerUpUse(int slot, int type)
+    {
+        if (!GameSession.IsOnline || InstanceFinder.IsServerStarted) return;
+        PowerUpTrigger.Grant(slot, 0); // consume — the server already decided the type
+        ApplyPowerUp(slot, type);
+    }
+
+    private void ApplyPowerUp(int playerIndex, int type)
+    {
+        switch (type)
         {
             case 0:
                 AudioManager.Instance.PlaySound(FMODEvents.Instance.NoPowerUp, transform.position);
@@ -800,7 +848,7 @@ public class GameController : MonoBehaviour
                 playerVisuals[playerIndex].ActivateParticlesPowerUP();
                 DoublePoints();
                 break;
-            
+
                 // Other powerup cases...
         }
     }

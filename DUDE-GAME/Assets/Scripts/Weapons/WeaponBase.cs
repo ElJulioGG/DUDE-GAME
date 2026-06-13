@@ -123,27 +123,50 @@ public class WeaponBase : MonoBehaviour
     // state changes (reloading / completely dry), so players can read remote guns.
     // Piggybacks on SyncAmmoToOwner's call sites, sends only on change.
     private bool _lastSentReloading;
-    private bool _lastSentEmpty;
+    private bool _lastSentClipEmpty;
+    private bool _lastSentDry;
+    private bool _indicatorsSentOnce;
 
     private void SyncIndicatorsToObservers()
     {
-        bool empty = currentClipAmmo <= 0 && reserveAmmo <= 0;
-        if (isReloading == _lastSentReloading && empty == _lastSentEmpty) return;
+        bool clipEmpty = currentClipAmmo <= 0;
+        bool dry = clipEmpty && reserveAmmo <= 0;
+        // Always send once per weapon instance so cosmetic copies start from the
+        // holder's real state (a re-picked-up dry gun would otherwise stay silent).
+        if (_indicatorsSentOnce && isReloading == _lastSentReloading
+            && clipEmpty == _lastSentClipEmpty && dry == _lastSentDry) return;
+        _indicatorsSentOnce = true;
         _lastSentReloading = isReloading;
-        _lastSentEmpty = empty;
-        _netCtrl.ServerSyncWeaponIndicators(isReloading, empty);
+        _lastSentClipEmpty = clipEmpty;
+        _lastSentDry = dry;
+        _netCtrl.ServerSyncWeaponIndicators(isReloading, clipEmpty, dry);
     }
 
-    // Remote machines: mirror the holder's indicators on the cosmetic weapon visual.
+    // Remote machines: the holder's real ammo state, mirrored from the server's
+    // indicator broadcasts. Cosmetic copies have no real ammo of their own, so this
+    // is what gates their fire feedback — no gunshot sound/camera shake while the
+    // real gun has an empty chamber or is reloading.
+    private bool _remoteReloading;
+    private bool _remoteClipEmpty;
+
     // The reload bar animates locally over reloadTime (same prefab, same duration).
     private Coroutine _remoteReloadCo;
 
-    public void ApplyRemoteIndicators(bool reloading, bool outOfAmmo)
+    public void ApplyRemoteIndicators(bool reloading, bool clipEmpty, bool outOfAmmo)
     {
-        if (noAmmoImage != null)
-            noAmmoImage.gameObject.SetActive(outOfAmmo);
+        Debug.Log($"[IND-DIAG] {name} ApplyRemoteIndicators reloading={reloading} clipEmpty={clipEmpty} outOfAmmo={outOfAmmo}");
 
-        if (reloading)
+        _remoteReloading = reloading;
+        _remoteClipEmpty = clipEmpty;
+
+        // Only CLEAR the icon here (holder regained ammo). Showing it happens in
+        // TryShoot's dry-fire branch — the icon appears when the holder pulls the
+        // trigger on a dry gun, exactly like on their own machine, not the moment
+        // their ammo count hits zero.
+        if (!outOfAmmo && noAmmoImage != null)
+            noAmmoImage.gameObject.SetActive(false);
+
+        if (reloading && !outOfAmmo)
         {
             if (_remoteReloadCo == null)
                 _remoteReloadCo = StartCoroutine(RemoteReloadBar());
@@ -244,19 +267,17 @@ public class WeaponBase : MonoBehaviour
             Shoot();
             emptySoundPlayed = false;
         }
-        else if (currentClipAmmo <= 0 && !isReloading&&!emptySoundPlayed)
+        // Cosmetic copies don't detect dry-fire themselves (their ammo fields are
+        // meaningless) — their feedback arrives as a server event (BroadcastDryFire),
+        // so it mirrors the holder's real attempts exactly.
+        else if (!IsCosmeticOnly && currentClipAmmo <= 0 && !isReloading && !emptySoundPlayed)
         {
-            // Play empty clip sound
-            if (SoundFXManager.instance != null)
-            {
-                //SoundFXManager.instance.PlaySoundByName("EmptyMag", transform, 0.5f, 1f, false);
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.EmptyMag, transform.position);
-                noAmmoImage.gameObject.SetActive(currentClipAmmo <= 0 && reserveAmmo <= 0);
+            emptySoundPlayed = true;
+            PlayDryFireFeedback(reserveAmmo <= 0);
 
-                emptySoundPlayed = true;
-
-                TriggerOutOfAmmoShake();
-            }
+            // Mirror the dry-fire (click + shake, icon when fully dry) to observers.
+            if (GameSession.IsOnline && InstanceFinder.IsServerStarted && _netCtrl != null)
+                _netCtrl.ServerDryFire(reserveAmmo <= 0);
 
             // Auto-reload if possible
             if (reserveAmmo > 0)
@@ -264,6 +285,21 @@ public class WeaponBase : MonoBehaviour
                 StartCoroutine(Reload());
             }
         }
+    }
+
+    // Empty-chamber feedback: click + gun shake; the no-ammo icon only when the gun
+    // is completely dry (clip AND reserve). Runs locally for the shooter/server and
+    // on remote machines via the server's dry-fire broadcast. Deliberately NOT gated
+    // on SoundFXManager — that legacy check silently swallowed the whole feedback
+    // block (no click, no shake) when the manager wasn't in the scene, even though
+    // the sound actually plays through AudioManager.
+    public void PlayDryFireFeedback(bool outOfAmmo)
+    {
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
+            AudioManager.Instance.PlaySound(FMODEvents.Instance.EmptyMag, transform.position);
+        if (noAmmoImage != null)
+            noAmmoImage.gameObject.SetActive(outOfAmmo);
+        TriggerOutOfAmmoShake();
     }
     private void TriggerOutOfAmmoShake()
     {
@@ -284,9 +320,12 @@ public class WeaponBase : MonoBehaviour
     private bool CanShoot(bool isAuto)
     {
         float cooldown = isAuto ? autoFireRate : shootCooldown;
-        return !isReloading &&
-               Time.time >= lastShootTime + cooldown &&
-               (currentClipAmmo > 0 || IsCosmeticOnly);
+        if (isReloading || Time.time < lastShootTime + cooldown) return false;
+        // Cosmetic copies gate on the holder's broadcast state — their own ammo is
+        // meaningless, and firing the gunshot sound + camera shake while the real
+        // gun was empty or reloading was a visible desync on remote machines.
+        if (IsCosmeticOnly) return !_remoteReloading && !_remoteClipEmpty;
+        return currentClipAmmo > 0;
     }
 
     // Reused per shot to avoid allocations.
@@ -390,11 +429,9 @@ public class WeaponBase : MonoBehaviour
         {
             UpdateUI();
             SyncAmmoToOwner();
-
-            if (currentClipAmmo <= 0 && reserveAmmo > 0)
-            {
-                StartCoroutine(Reload());
-            }
+            // No auto-reload here: the reload starts on the NEXT trigger pull, via
+            // TryShoot's dry-fire branch, so the player gets the click + shake
+            // feedback that an instant post-shot reload was swallowing.
         }
     }
 
@@ -487,7 +524,12 @@ public class WeaponBase : MonoBehaviour
     public int GetCurrentClipAmmo() => currentClipAmmo;
     public int GetReserveAmmo() => reserveAmmo;
     public bool IsReloading() => isReloading;
-    public void AddAmmo(int amount) => reserveAmmo = Mathf.Min(reserveAmmo + amount, maxAmmo - currentClipAmmo);
+    public void AddAmmo(int amount)
+    {
+        reserveAmmo = Mathf.Min(reserveAmmo + amount, maxAmmo - currentClipAmmo);
+        UpdateUI();
+        SyncAmmoToOwner(); // keeps owner HUD and observer indicators current
+    }
     public void SetAmmo(int clip, int reserve) { currentClipAmmo = clip; reserveAmmo = reserve; UpdateUI(); SyncAmmoToOwner(); }
 
     // Applies ammo received FROM the server without re-triggering the owner sync.

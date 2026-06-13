@@ -1,4 +1,5 @@
 using System.Collections;
+using FishNet;
 using UnityEngine;
 
 public class PowerUpTrigger : MonoBehaviour
@@ -19,27 +20,41 @@ public class PowerUpTrigger : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
-        {
-            PlayerStats player = collision.GetComponent<PlayerStats>();
+        if (!collision.CompareTag("Player")) return;
+
+        // Online: only the server decides who picked it up — every machine running
+        // its own trigger detection desynced who got which powerup. Clients consume
+        // their copy via the PowerUpPickupBroadcast mirror instead.
+        if (GameSession.IsOnline && !InstanceFinder.IsServerStarted) return;
+
+        PlayerStats player = collision.GetComponent<PlayerStats>();
+        if (player == null) return;
+
+        if (GameSession.IsOnline)
+            NetworkGameManager.Instance?.ServerBroadcastPowerUpPickup(player.playerIndex, powerUpType, transform.position);
+
+        ApplyPickup(player.playerIndex, powerUpType);
+    }
+
+    // Grants the powerup and consumes this pickup — runs on every machine.
+    public void ApplyPickup(int slot, int type)
+    {
+        if (AudioManager.Instance != null && FMODEvents.Instance != null)
             AudioManager.Instance.PlaySound(FMODEvents.Instance.PickUpPowerUp, transform.position);
-            switch (player.playerIndex)
-            {
-                case 0:
-                    GameManager.instance.player1PowerUp = powerUpType;
-                    break;
-                case 1:
-                    GameManager.instance.player2PowerUp = powerUpType;
-                    break;
-                case 2:
-                    GameManager.instance.player3PowerUp = powerUpType;
-                    break;
-                case 3:
-                    GameManager.instance.player4PowerUp = powerUpType;
-                    break;
-            }
-            DetachAndFadeParticles();
-            Destroy(gameObject);
+        Grant(slot, type);
+        DetachAndFadeParticles();
+        Destroy(gameObject);
+    }
+
+    public static void Grant(int slot, int type)
+    {
+        if (GameManager.instance == null) return;
+        switch (slot)
+        {
+            case 0: GameManager.instance.player1PowerUp = type; break;
+            case 1: GameManager.instance.player2PowerUp = type; break;
+            case 2: GameManager.instance.player3PowerUp = type; break;
+            case 3: GameManager.instance.player4PowerUp = type; break;
         }
     }
 
