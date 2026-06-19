@@ -25,6 +25,10 @@ public class PlayerCursor : MonoBehaviour
     [SerializeField] private Button player3Button;
     [SerializeField] private Button player4Button;
 
+    [Header("Debug / Testing")]
+    // TODO: TEMPORARY for solo testing — revert to 2 before shipping (offline matches need 2+).
+    [SerializeField] private int minOfflinePlayers = 1;
+
     [Header("Colors")]
     [SerializeField] private Color unassignedColor = Color.black;
 
@@ -413,7 +417,7 @@ public class PlayerCursor : MonoBehaviour
         // Online: at least 1 local player selected is enough — we're already in a lobby.
         // Offline: need at least 2 players on this machine.
         if (GameSession.IsOnline) return true;
-        return localAssigned >= 2;
+        return localAssigned >= minOfflinePlayers;
     }
 
     private void AssignPlayer(int playerIndex)
@@ -536,7 +540,7 @@ public class PlayerCursor : MonoBehaviour
         if (GameSession.IsOnline)
             canStart = localAssigned >= 1; // lobby guarantees other players exist
         else
-            canStart = allLocalReady && localAssigned >= 2;
+            canStart = allLocalReady && localAssigned >= minOfflinePlayers;
         if (readyImage != null) readyImage.SetActive(canStart);
     }
 

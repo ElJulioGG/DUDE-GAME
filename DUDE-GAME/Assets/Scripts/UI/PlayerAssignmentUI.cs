@@ -15,6 +15,11 @@ public class PlayerAssignmentUI : MonoBehaviour
     [SerializeField] private GameObject playerSlotsContainer;
     [SerializeField] private GameObject[] playerSlotPanels;
 
+    [Header("Char Select Settings")]
+    [SerializeField] private int minPlayers = 1;
+    [SerializeField] private int maxPlayers = 4;
+    
+
     [Header("Player Slot UI")]
     [SerializeField] private Image[] playerSlotBackgrounds;
     [SerializeField] private Image[] playerSlotDarkenImages;
@@ -149,7 +154,7 @@ public class PlayerAssignmentUI : MonoBehaviour
     {
         if (startGameButton == null) return;
 
-        bool canStart = assignedCount >= 2 && assignedCount <= 4;
+        bool canStart = assignedCount >= minPlayers && assignedCount <= maxPlayers;
         startGameButton.interactable = canStart;
 
         if (_startButtonText != null)

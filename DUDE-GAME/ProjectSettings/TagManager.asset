@@ -22,7 +22,7 @@ TagManager:
   - Hazard
   - Destructible
   - Pickup
-  - 
+  - BlackHole
   - 
   - 
   - 
@@ -57,6 +57,9 @@ TagManager:
     locked: 0
   - name: Entities
     uniqueID: 42864455
+    locked: 0
+  - name: BlackHoleVisual
+    uniqueID: 119332569
     locked: 0
   - name: UI
     uniqueID: 3733455475

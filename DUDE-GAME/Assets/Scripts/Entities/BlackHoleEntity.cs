@@ -22,6 +22,10 @@ public class BlackHoleEntity : MonoBehaviour
 
     void Start()
     {
+        // Asegura que exista la camara de captura (_SceneTex) en esta escena, sin importar
+        // cual sea. Si ya hay una, no hace nada. Sin esto, el agujero no deforma al instanciarse.
+        BlackHoleSceneCapture.EnsureExists();
+
         var circle = rangeTransform.GetComponent<CircleCollider2D>();
         _rangeBaseRadius = circle != null ? circle.radius : 0.5f;
 
@@ -40,7 +44,8 @@ public class BlackHoleEntity : MonoBehaviour
 
         yield return WaitHold;
 
-        yield return rangeTransform.DOScale(Vector3.one, 1f)
+        // Implosiona casi hasta 0 para que se encoja y se desvanezca (no un "pop" a escala 1).
+        yield return rangeTransform.DOScale(Vector3.one * 0.05f, 1f)
             .SetEase(Ease.InExpo)
             .WaitForCompletion();
 
