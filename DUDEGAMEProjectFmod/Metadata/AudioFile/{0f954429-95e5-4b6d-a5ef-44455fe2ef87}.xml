@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{0f954429-95e5-4b6d-a5ef-44455fe2ef87}">
+		<property name="assetPath">
+			<value>WEAPONS/Dude_Sfx 36 ReloadScifiGun.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>7.2000000000000002</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{529d3c55-efc0-414c-81aa-b43e7c032cb4}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -43,6 +43,8 @@
 	<object class="MasterTrack" id="{1e66a747-6d5e-4cab-9bed-df9ed7405ee8}">
 		<relationship name="modules">
 			<destination>{d770d80f-44d8-4b4c-b57f-99170f6f5e1c}</destination>
+			<destination>{5d4aa5bc-3d04-4c33-b90e-c1eefaede538}</destination>
+			<destination>{1322703f-a808-48ef-86d0-8636affd3bb1}</destination>
 		</relationship>
 		<relationship name="mixerGroup">
 			<destination>{d1f8c3f1-1bb0-495b-baed-4bd49874dd7a}</destination>
@@ -62,9 +64,10 @@
 	<object class="EventAutomatableProperties" id="{06995642-672c-42d1-8183-84541edc2818}" />
 	<object class="MarkerTrack" id="{3d563fd1-11f7-4702-ad18-3c79a77c724f}" />
 	<object class="Timeline" id="{df1808e2-ffb7-497b-8f5d-249a98d063df}">
-		<property name="isProxyEnabled">
-			<value>false</value>
-		</property>
+		<relationship name="modules">
+			<destination>{5d4aa5bc-3d04-4c33-b90e-c1eefaede538}</destination>
+			<destination>{1322703f-a808-48ef-86d0-8636affd3bb1}</destination>
+		</relationship>
 	</object>
 	<object class="ActionSheet" id="{0361a9cf-45da-4a01-a5dd-dc08e650f938}">
 		<relationship name="modules">
@@ -85,6 +88,28 @@
 	<object class="MultiSound" id="{d770d80f-44d8-4b4c-b57f-99170f6f5e1c}">
 		<relationship name="sounds">
 			<destination>{3e3aa6b3-c75a-46a6-99d8-850ea23949b9}</destination>
+		</relationship>
+	</object>
+	<object class="SingleSound" id="{5d4aa5bc-3d04-4c33-b90e-c1eefaede538}">
+		<property name="length">
+			<value>0.15000000000000002</value>
+		</property>
+		<property name="timelockedOffset">
+			<value>0.65000000000000013</value>
+		</property>
+		<relationship name="audioFile">
+			<destination>{bb52abab-d64d-4c45-9873-e59f73760852}</destination>
+		</relationship>
+	</object>
+	<object class="SingleSound" id="{1322703f-a808-48ef-86d0-8636affd3bb1}">
+		<property name="length">
+			<value>6.1718045112781974</value>
+		</property>
+		<property name="timelockedOffset">
+			<value>1.0281954887218043</value>
+		</property>
+		<relationship name="audioFile">
+			<destination>{bb52abab-d64d-4c45-9873-e59f73760852}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusEffectChain" id="{454acc2c-93b7-4370-8e74-f5603380dea9}">
