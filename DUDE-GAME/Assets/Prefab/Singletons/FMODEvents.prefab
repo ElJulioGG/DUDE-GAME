@@ -99,7 +99,7 @@ MonoBehaviour:
       Data2: 1243128290
       Data3: 890870679
       Data4: 868002616
-    Path: event:/SFX/Weapons/Reload
+    Path: event:/SFX/Weapons/ReloadShotGun
   <EmptyMag>k__BackingField:
     Guid:
       Data1: 1783194789
