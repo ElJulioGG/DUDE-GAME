@@ -120,7 +120,7 @@ public class WeaponPickup : MonoBehaviour
         else
         {
             if (AudioManager.Instance != null && FMODEvents.Instance != null)
-                AudioManager.Instance.PlaySound(FMODEvents.Instance.Reload, transform.position);
+                AudioManager.Instance.PlaySound(FMODEvents.Instance.WeaponPickup, transform.position);
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
             rb.Sleep();

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using FMODUnity;
+using FMOD.Studio;
 
 public class WeaponBase : MonoBehaviour
 {
@@ -63,9 +64,16 @@ public class WeaponBase : MonoBehaviour
 
     [Header("SFX")]
     [SerializeField] private EventReference shootSoundName;
+    [SerializeField] private EventReference reloadSoundName;
 
     private Tween shakeTween;
     private Tween rotateTween;
+
+    // Managed handle for the reload SFX so a dropped/destroyed weapon can cut it
+    // short. The reload one-shot is created through AudioManager.PlayStoppableSound
+    // (PlayOneShot is fire-and-forget and can't be stopped) and stopped in OnDestroy,
+    // which fires on every drop path (all of them Destroy the weapon GameObject).
+    private EventInstance _reloadSoundInstance;
     private Vector3 originalLocalPos;
     private Quaternion originalLocalRot;
 
@@ -447,7 +455,10 @@ public class WeaponBase : MonoBehaviour
         {
             SoundFXManager.instance.PlaySoundByName("Reload", transform, 0.5f, 1f, false);
         } */
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.Reload, transform.position);
+        // Keep the handle so dropping the weapon mid-reload can cut the sound.
+        StopReloadSound();
+        if (AudioManager.Instance != null && !reloadSoundName.IsNull)
+            _reloadSoundInstance = AudioManager.Instance.PlayStoppableSound(reloadSoundName, transform.position);
 
         if (reloadFillImage != null)
         {
@@ -543,8 +554,19 @@ public class WeaponBase : MonoBehaviour
     public void SetBulletsPerShot(int count) => bulletsPerShot = Mathf.Max(1, count);
     public void SetSpreadAngle(float angle) => spreadAngle = Mathf.Clamp(angle, 0f, 90f);
 
+    // Cuts the reload SFX immediately. Safe to call when nothing is playing.
+    private void StopReloadSound()
+    {
+        if (_reloadSoundInstance.isValid())
+            _reloadSoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        _reloadSoundInstance = default;
+    }
+
     void OnDestroy()
     {
+        // OnDestroy is the single catch-all for "weapon dropped in any way" — every
+        // drop/swap/death path Destroys this GameObject — so stop the reload sound here.
+        StopReloadSound();
         StopAllCoroutines();
     }
 

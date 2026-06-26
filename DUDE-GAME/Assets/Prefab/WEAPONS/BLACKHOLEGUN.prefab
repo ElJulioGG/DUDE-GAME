@@ -530,7 +530,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 42864455
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 11
   m_Sprite: {fileID: 7377304605938665827, guid: a086ab5d6e2d9bf488c13e440e394d02, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -697,7 +697,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 42864455
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 11
   m_Sprite: {fileID: 21300000, guid: c447b9b5bf750f84fa61113c7d6a42f5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -754,8 +754,15 @@ MonoBehaviour:
   shootShakeDuration: 0.1
   shootSoundName:
     Guid:
-      Data1: -2047901254
-      Data2: 1098702738
-      Data3: 23003527
-      Data4: -2099322734
-    Path: event:/SFX/Weapons/BHBounce
+      Data1: 417412611
+      Data2: 1202592501
+      Data3: -1886361196
+      Data4: -527487797
+    Path: event:/SFX/Weapons/BHShoot
+  reloadSoundName:
+    Guid:
+      Data1: -1499530676
+      Data2: 1206549170
+      Data3: 1126137733
+      Data4: 1997128058
+    Path: event:/SFX/Weapons/ReloadBH

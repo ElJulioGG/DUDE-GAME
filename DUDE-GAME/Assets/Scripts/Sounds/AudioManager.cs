@@ -44,6 +44,18 @@ public class AudioManager : MonoBehaviour
     {
         RuntimeManager.PlayOneShot(sound, worldPos);
     }
+    // Like PlaySound, but returns a handle so the caller can stop the sound early
+    // (PlayOneShot is fire-and-forget and can't be stopped). The instance is marked
+    // for release immediately, so FMOD frees it when it finishes naturally; the
+    // returned handle stays valid for an early stop until then.
+    public EventInstance PlayStoppableSound(EventReference sound, Vector3 worldPos)
+    {
+        EventInstance instance = RuntimeManager.CreateInstance(sound);
+        instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPos));
+        instance.start();
+        instance.release();
+        return instance;
+    }
     public void SetMusicArea(MusicTracks trackIndex)
     {
         

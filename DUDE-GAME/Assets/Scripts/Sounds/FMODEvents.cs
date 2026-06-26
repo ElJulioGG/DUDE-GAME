@@ -13,7 +13,10 @@ public class FMODEvents : MonoBehaviour
 
 
     [field: Header("WeaponSFX")]
-    [field: SerializeField] public EventReference Reload { get; private set; }
+    [field: SerializeField] public EventReference ReloadShotGun { get; private set; }
+    [field: SerializeField] public EventReference ReloadPNK { get; private set; }
+    [field: SerializeField] public EventReference ReloadBH { get; private set; }
+    [field: SerializeField] public EventReference ReloadRailGun { get; private set; }
     [field: SerializeField] public EventReference EmptyMag { get; private set; }
     [field: SerializeField] public EventReference BHBounce { get; private set; }
     [field: SerializeField] public EventReference Throw { get; private set; }
@@ -21,6 +24,7 @@ public class FMODEvents : MonoBehaviour
     [field: SerializeField] public EventReference GranadePin { get; private set; }
     [field: SerializeField] public EventReference GranadeBeep { get; private set; }
     [field: SerializeField] public EventReference Explosion { get; private set; }
+    [field: SerializeField] public EventReference WeaponPickup { get; private set; }
     
 
     [field: Header("PlayerSFX")]
@@ -44,6 +48,8 @@ public class FMODEvents : MonoBehaviour
 
     [field: Header("EntitiesSFX")]
     [field: SerializeField] public EventReference BoxBreak { get; private set; }
+    [field: SerializeField] public EventReference BHLinger { get; private set; }
+
     [field: Header("DoorSFX")]
     [field: SerializeField] public EventReference DoorOpen { get; private set; }
     [field: SerializeField] public EventReference DoorClose { get; private set; }

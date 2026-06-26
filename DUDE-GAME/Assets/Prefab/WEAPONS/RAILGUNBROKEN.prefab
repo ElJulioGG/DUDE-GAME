@@ -701,6 +701,13 @@ MonoBehaviour:
       Data3: -762386528
       Data4: 1733300089
     Path: event:/SFX/Weapons/ShootRailGun
+  reloadSoundName:
+    Guid:
+      Data1: 1153050798
+      Data2: 1160347716
+      Data3: 620190865
+      Data4: -485728864
+    Path: event:/SFX/Weapons/ReloadRailGun
 --- !u!1 &8968908634940306781
 GameObject:
   m_ObjectHideFlags: 0

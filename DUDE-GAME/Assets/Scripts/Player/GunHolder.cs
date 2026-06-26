@@ -680,7 +680,7 @@ public class GunHolder : MonoBehaviour
 
         if (victimHolder != null)
             victimHolder.lastStealTime = Time.time;
-        AudioManager.Instance.PlaySound(FMODEvents.Instance.Reload, transform.position);
+        AudioManager.Instance.PlaySound(FMODEvents.Instance.WeaponPickup, transform.position);
 
         return true;
     }

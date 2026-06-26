@@ -530,7 +530,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 42864455
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 11
   m_Sprite: {fileID: 1761730726769117966, guid: bbba64817f391d6438064ffa732bf1ea, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -697,7 +697,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 42864455
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 11
   m_Sprite: {fileID: 21300000, guid: c447b9b5bf750f84fa61113c7d6a42f5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -759,3 +759,10 @@ MonoBehaviour:
       Data3: 40675216
       Data4: -1958289353
     Path: event:/SFX/Weapons/PNKShot
+  reloadSoundName:
+    Guid:
+      Data1: -1171337347
+      Data2: 1077394892
+      Data3: -1104225619
+      Data4: -1929519615
+    Path: event:/SFX/Weapons/ReloadPNK

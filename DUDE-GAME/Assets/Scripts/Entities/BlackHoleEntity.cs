@@ -29,7 +29,8 @@ public class BlackHoleEntity : MonoBehaviour
         var circle = rangeTransform.GetComponent<CircleCollider2D>();
         _rangeBaseRadius = circle != null ? circle.radius : 0.5f;
 
-        SoundFXManager.instance.PlaySoundByName("BlackHoleSpawn", transform, 1f, 1f, false);
+        //SoundFXManager.instance.PlaySoundByName("BlackHoleSpawn", transform, 1f, 1f, false);
+        AudioManager.Instance?.PlaySound(FMODEvents.Instance.BHLinger, transform.position);
         rangeTransform.localScale = Vector3.one;
         StartCoroutine(BlackHoleSequence());
     }

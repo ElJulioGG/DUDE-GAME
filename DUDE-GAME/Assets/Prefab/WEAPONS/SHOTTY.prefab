@@ -605,7 +605,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 42864455
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 11
   m_Sprite: {fileID: 8356373866930346531, guid: 63ac31e6ce434d8429aff459cdfda832, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -697,7 +697,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 42864455
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 11
   m_Sprite: {fileID: 8356373866930346531, guid: 63ac31e6ce434d8429aff459cdfda832, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -759,3 +759,10 @@ MonoBehaviour:
       Data3: 2052808069
       Data4: 1934042476
     Path: event:/SFX/Weapons/ShotgunShot
+  reloadSoundName:
+    Guid:
+      Data1: 358690860
+      Data2: 1243128290
+      Data3: 890870679
+      Data4: 868002616
+    Path: event:/SFX/Weapons/ReloadShotGun

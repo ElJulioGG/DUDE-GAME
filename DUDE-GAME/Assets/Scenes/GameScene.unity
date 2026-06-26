@@ -125506,43 +125506,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1051311896638437063, guid: f532a7aa3a61dff429b1a78cd059e204, type: 3}
   m_PrefabInstance: {fileID: 611565965}
   m_PrefabAsset: {fileID: 0}
---- !u!84 &1107261077
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: BlackHoleSceneRT
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 6
-  m_Width: 1920
-  m_Height: 1080
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 4
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 1
-  m_UseDynamicScale: 0
-  m_UseDynamicScaleExplicit: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &1112882323
 GameObject:
   m_ObjectHideFlags: 0
@@ -166704,7 +166667,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294963167
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 1107261077}
+  m_TargetTexture: {fileID: 2108113036}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -231796,6 +231759,43 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1722222615}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -314.39}
+--- !u!84 &2108113036
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BlackHoleSceneRT
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 6
+  m_Width: 1920
+  m_Height: 1080
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 4
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_UseDynamicScaleExplicit: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &2113652054
 GameObject:
   m_ObjectHideFlags: 0
@@ -235585,6 +235585,654 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHLinger>k__BackingField.Path
+      value: event:/SFX/Weapons/BHLinger
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadBH>k__BackingField.Path
+      value: event:/SFX/Weapons/ReloadBH
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadPNK>k__BackingField.Path
+      value: event:/SFX/Weapons/ReloadPNK
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Throw>k__BackingField.Guid.Data1
+      value: 1020030739
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Throw>k__BackingField.Guid.Data2
+      value: 1331927115
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Throw>k__BackingField.Guid.Data3
+      value: 1919304351
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Throw>k__BackingField.Guid.Data4
+      value: 1364004768
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <WeaponPickup>k__BackingField.Path
+      value: event:/SFX/Weapons/WeaponPickUp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadRailGun>k__BackingField.Path
+      value: event:/SFX/Weapons/ReloadRailGun
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadShotGun>k__BackingField.Path
+      value: event:/SFX/Weapons/ReloadShotGun
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHBounce>k__BackingField.Guid.Data1
+      value: -2047901254
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHBounce>k__BackingField.Guid.Data2
+      value: 1098702738
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHBounce>k__BackingField.Guid.Data3
+      value: 23003527
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHBounce>k__BackingField.Guid.Data4
+      value: -2099322734
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHLinger>k__BackingField.Guid.Data1
+      value: -1586736048
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHLinger>k__BackingField.Guid.Data2
+      value: 1235338661
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHLinger>k__BackingField.Guid.Data3
+      value: -1800576583
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BHLinger>k__BackingField.Guid.Data4
+      value: 1074562797
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BoxBreak>k__BackingField.Guid.Data1
+      value: 465677710
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BoxBreak>k__BackingField.Guid.Data2
+      value: 1211763951
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BoxBreak>k__BackingField.Guid.Data3
+      value: -1785816690
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <BoxBreak>k__BackingField.Guid.Data4
+      value: 1200280885
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorOpen>k__BackingField.Guid.Data1
+      value: -924236268
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorOpen>k__BackingField.Guid.Data2
+      value: 1257490059
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorOpen>k__BackingField.Guid.Data3
+      value: 845199785
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorOpen>k__BackingField.Guid.Data4
+      value: -1141961914
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <EmptyMag>k__BackingField.Guid.Data1
+      value: 1783194789
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <EmptyMag>k__BackingField.Guid.Data2
+      value: 1339898103
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <EmptyMag>k__BackingField.Guid.Data3
+      value: 501541041
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <EmptyMag>k__BackingField.Guid.Data4
+      value: -420124958
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp1>k__BackingField.Guid.Data1
+      value: 841687630
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp1>k__BackingField.Guid.Data2
+      value: 1279388366
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp1>k__BackingField.Guid.Data3
+      value: -1326023496
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp1>k__BackingField.Guid.Data4
+      value: 935254870
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp2>k__BackingField.Guid.Data1
+      value: -838618595
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp2>k__BackingField.Guid.Data2
+      value: 1084604738
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp2>k__BackingField.Guid.Data3
+      value: 1854655104
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PowerUp2>k__BackingField.Guid.Data4
+      value: -298317557
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadBH>k__BackingField.Guid.Data1
+      value: -1499530676
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadBH>k__BackingField.Guid.Data2
+      value: 1206549170
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadBH>k__BackingField.Guid.Data3
+      value: 1126137733
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadBH>k__BackingField.Guid.Data4
+      value: 1997128058
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorClose>k__BackingField.Guid.Data1
+      value: 1076970886
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorClose>k__BackingField.Guid.Data2
+      value: 1280846378
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorClose>k__BackingField.Guid.Data3
+      value: -883152470
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorClose>k__BackingField.Guid.Data4
+      value: -1592768195
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorSlide>k__BackingField.Guid.Data1
+      value: 73674958
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorSlide>k__BackingField.Guid.Data2
+      value: 1297965975
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorSlide>k__BackingField.Guid.Data3
+      value: -722516
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <DoorSlide>k__BackingField.Guid.Data4
+      value: 1634866637
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Explosion>k__BackingField.Guid.Data1
+      value: -1034993735
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Explosion>k__BackingField.Guid.Data2
+      value: 1203882956
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Explosion>k__BackingField.Guid.Data3
+      value: -141322095
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <Explosion>k__BackingField.Guid.Data4
+      value: 951830527
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <NoPowerUp>k__BackingField.Guid.Data1
+      value: -211486126
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <NoPowerUp>k__BackingField.Guid.Data2
+      value: 1138977285
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <NoPowerUp>k__BackingField.Guid.Data3
+      value: -1318648647
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <NoPowerUp>k__BackingField.Guid.Data4
+      value: -2097836706
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PointGain>k__BackingField.Guid.Data1
+      value: -2090004311
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PointGain>k__BackingField.Guid.Data2
+      value: 1227236903
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PointGain>k__BackingField.Guid.Data3
+      value: -1209202256
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PointGain>k__BackingField.Guid.Data4
+      value: -1138549441
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadPNK>k__BackingField.Guid.Data1
+      value: -1171337347
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadPNK>k__BackingField.Guid.Data2
+      value: 1077394892
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadPNK>k__BackingField.Guid.Data3
+      value: -1104225619
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadPNK>k__BackingField.Guid.Data4
+      value: -1929519615
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay1>k__BackingField.Guid.Data1
+      value: 2060997555
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay1>k__BackingField.Guid.Data2
+      value: 1285632664
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay1>k__BackingField.Guid.Data3
+      value: -1211097683
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay1>k__BackingField.Guid.Data4
+      value: -864255955
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay2>k__BackingField.Guid.Data1
+      value: -1394307421
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay2>k__BackingField.Guid.Data2
+      value: 1281558391
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay2>k__BackingField.Guid.Data3
+      value: -1649145702
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSay2>k__BackingField.Guid.Data4
+      value: -306659240
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenHit>k__BackingField.Guid.Data1
+      value: 244846696
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenHit>k__BackingField.Guid.Data2
+      value: 1145769041
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenHit>k__BackingField.Guid.Data3
+      value: 1138468745
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenHit>k__BackingField.Guid.Data4
+      value: 985800669
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadePin>k__BackingField.Guid.Data1
+      value: -1586628851
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadePin>k__BackingField.Guid.Data2
+      value: 1078303564
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadePin>k__BackingField.Guid.Data3
+      value: 817665161
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadePin>k__BackingField.Guid.Data4
+      value: 339875344
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SwingPunch>k__BackingField.Guid.Data1
+      value: 1802928048
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SwingPunch>k__BackingField.Guid.Data2
+      value: 1153481126
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SwingPunch>k__BackingField.Guid.Data3
+      value: 134822799
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SwingPunch>k__BackingField.Guid.Data4
+      value: -1370107844
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoicePablo>k__BackingField.Guid.Data1
+      value: -685690529
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoicePablo>k__BackingField.Guid.Data2
+      value: 1270939613
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoicePablo>k__BackingField.Guid.Data3
+      value: -649461322
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoicePablo>k__BackingField.Guid.Data4
+      value: 1132682544
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadeBeep>k__BackingField.Guid.Data1
+      value: 916935578
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadeBeep>k__BackingField.Guid.Data2
+      value: 1321472111
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadeBeep>k__BackingField.Guid.Data3
+      value: -929455205
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <GranadeBeep>k__BackingField.Guid.Data4
+      value: 1900315612
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <MusicTracks>k__BackingField.Guid.Data1
+      value: 2120898435
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <MusicTracks>k__BackingField.Guid.Data2
+      value: 1277643051
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <MusicTracks>k__BackingField.Guid.Data3
+      value: -1385136000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <MusicTracks>k__BackingField.Guid.Data4
+      value: 246990474
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerDeath>k__BackingField.Guid.Data1
+      value: -489033558
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerDeath>k__BackingField.Guid.Data2
+      value: 1168657447
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerDeath>k__BackingField.Guid.Data3
+      value: 96904587
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerDeath>k__BackingField.Guid.Data4
+      value: -2086084154
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenDeath>k__BackingField.Guid.Data1
+      value: 575676808
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenDeath>k__BackingField.Guid.Data2
+      value: 1101753871
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenDeath>k__BackingField.Guid.Data3
+      value: -453069415
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenDeath>k__BackingField.Guid.Data4
+      value: -2084230637
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenSpawn>k__BackingField.Guid.Data1
+      value: 179034137
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenSpawn>k__BackingField.Guid.Data2
+      value: 1296351568
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenSpawn>k__BackingField.Guid.Data3
+      value: 330137216
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ChickenSpawn>k__BackingField.Guid.Data4
+      value: 1460947110
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerCircle>k__BackingField.Guid.Data1
+      value: 1789604988
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerCircle>k__BackingField.Guid.Data2
+      value: 1258972737
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerCircle>k__BackingField.Guid.Data3
+      value: 223331502
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerCircle>k__BackingField.Guid.Data4
+      value: 457727641
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerGetHit>k__BackingField.Guid.Data1
+      value: -950045651
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerGetHit>k__BackingField.Guid.Data2
+      value: 1340238230
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerGetHit>k__BackingField.Guid.Data3
+      value: 2027356560
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PlayerGetHit>k__BackingField.Guid.Data4
+      value: 1388454591
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <WeaponPickup>k__BackingField.Guid.Data1
+      value: 1807834189
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <WeaponPickup>k__BackingField.Guid.Data2
+      value: 1178568224
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <WeaponPickup>k__BackingField.Guid.Data3
+      value: 744226461
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <WeaponPickup>k__BackingField.Guid.Data4
+      value: -1231350485
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PickUpPowerUp>k__BackingField.Guid.Data1
+      value: 1945438804
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PickUpPowerUp>k__BackingField.Guid.Data2
+      value: 1074498975
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PickUpPowerUp>k__BackingField.Guid.Data3
+      value: -1016049246
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <PickUpPowerUp>k__BackingField.Guid.Data4
+      value: -1574581732
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadRailGun>k__BackingField.Guid.Data1
+      value: 1153050798
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadRailGun>k__BackingField.Guid.Data2
+      value: 1160347716
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadRailGun>k__BackingField.Guid.Data3
+      value: 620190865
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadRailGun>k__BackingField.Guid.Data4
+      value: -485728864
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadShotGun>k__BackingField.Guid.Data1
+      value: 358690860
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadShotGun>k__BackingField.Guid.Data2
+      value: 1243128290
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadShotGun>k__BackingField.Guid.Data3
+      value: 890870679
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <ReloadShotGun>k__BackingField.Guid.Data4
+      value: 868002616
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSayFight>k__BackingField.Guid.Data1
+      value: -92617723
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSayFight>k__BackingField.Guid.Data2
+      value: 1248101813
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSayFight>k__BackingField.Guid.Data3
+      value: -501835343
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceSayFight>k__BackingField.Guid.Data4
+      value: -548836442
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceInstakill>k__BackingField.Guid.Data1
+      value: 1431561980
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceInstakill>k__BackingField.Guid.Data2
+      value: 1077129760
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceInstakill>k__BackingField.Guid.Data3
+      value: 399790753
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceInstakill>k__BackingField.Guid.Data4
+      value: -725803835
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectStart>k__BackingField.Guid.Data1
+      value: 96843816
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectStart>k__BackingField.Guid.Data2
+      value: 1298265535
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectStart>k__BackingField.Guid.Data3
+      value: 150316692
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectStart>k__BackingField.Guid.Data4
+      value: 280987941
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectSelect>k__BackingField.Guid.Data1
+      value: -1016033719
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectSelect>k__BackingField.Guid.Data2
+      value: 1312105219
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectSelect>k__BackingField.Guid.Data3
+      value: 740329128
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectSelect>k__BackingField.Guid.Data4
+      value: -1271548028
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceDoublePoints>k__BackingField.Guid.Data1
+      value: 1809955102
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceDoublePoints>k__BackingField.Guid.Data2
+      value: 1292678301
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceDoublePoints>k__BackingField.Guid.Data3
+      value: -1578895699
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <VoiceDoublePoints>k__BackingField.Guid.Data4
+      value: 875526777
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectDeselect>k__BackingField.Guid.Data1
+      value: 251576916
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectDeselect>k__BackingField.Guid.Data2
+      value: 1138690422
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectDeselect>k__BackingField.Guid.Data3
+      value: 318316718
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <CharSelectDeselect>k__BackingField.Guid.Data4
+      value: -1979460785
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SpawnAreaMutatorAlert>k__BackingField.Guid.Data1
+      value: -484831493
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SpawnAreaMutatorAlert>k__BackingField.Guid.Data2
+      value: 1150556851
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SpawnAreaMutatorAlert>k__BackingField.Guid.Data3
+      value: -231588709
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701849407083871621, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
+      propertyPath: <SpawnAreaMutatorAlert>k__BackingField.Guid.Data4
+      value: -1322870119
+      objectReference: {fileID: 0}
     - target: {fileID: 5102563890529565995, guid: dd5a00a8e374a244092a7b548c37d222, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
