@@ -8,6 +8,10 @@ public class BlackHoleEntity : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform rangeTransform;
 
+    [Header("Camera Shake")]
+    [Tooltip("Fuerza del shake continuo cuando el agujero esta a su tamano MAXIMO; escala linealmente con el tamano actual")]
+    [SerializeField] private float lingerShakeAtMaxSize = 0.08f;
+
     [Header("Attraction")]
     [SerializeField] private float rangeMaxScale = 5f;
     [SerializeField] private float maxAttractionForce = 80f;
@@ -16,6 +20,10 @@ public class BlackHoleEntity : MonoBehaviour
 
     private readonly List<Rigidbody2D> _playersInRange = new();
     private float _rangeBaseRadius;
+
+    // Handle del sonido "linger" para poder cortarlo si el agujero muere antes
+    // de tiempo (p. ej. limpieza por cambio de ronda). Un PlayOneShot no se puede parar.
+    private FMOD.Studio.EventInstance _lingerSound;
 
     private static readonly WaitForSeconds WaitShort = new(0.3f);
     private static readonly WaitForSeconds WaitHold = new(4f);
@@ -30,7 +38,8 @@ public class BlackHoleEntity : MonoBehaviour
         _rangeBaseRadius = circle != null ? circle.radius : 0.5f;
 
         //SoundFXManager.instance.PlaySoundByName("BlackHoleSpawn", transform, 1f, 1f, false);
-        AudioManager.Instance?.PlaySound(FMODEvents.Instance.BHLinger, transform.position);
+        if (AudioManager.Instance != null)
+            _lingerSound = AudioManager.Instance.PlayStoppableSound(FMODEvents.Instance.BHLinger, transform.position);
         rangeTransform.localScale = Vector3.one;
         StartCoroutine(BlackHoleSequence());
     }
@@ -52,6 +61,18 @@ public class BlackHoleEntity : MonoBehaviour
 
         yield return WaitShort;
         Destroy(gameObject);
+    }
+
+    void Update()
+    {
+        // Shake continuo proporcional al tamano ACTUAL (sigue el tween de DOTween:
+        // crece al expandirse, baja al implosionar). La fuente se actualiza cada
+        // frame y se quita en OnDestroy.
+        if (CameraShakeManager.Instance != null)
+        {
+            float t = Mathf.Clamp01(rangeTransform.localScale.x / rangeMaxScale);
+            CameraShakeManager.Instance.SetContinuousShake(this, lingerShakeAtMaxSize * t);
+        }
     }
 
     void FixedUpdate()
@@ -104,6 +125,15 @@ public class BlackHoleEntity : MonoBehaviour
 
     void OnDestroy()
     {
+        // Corta el linger tanto en la muerte natural como en la limpieza por
+        // cambio de ronda. Si ya termino solo, isValid() da false y no hace nada.
+        if (_lingerSound.isValid())
+            _lingerSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+
+        // Da de baja la fuente de shake continuo (si no, la camara temblaria para siempre).
+        if (CameraShakeManager.Instance != null)
+            CameraShakeManager.Instance.RemoveContinuousShake(this);
+
         DOTween.Kill(rangeTransform);
     }
 }

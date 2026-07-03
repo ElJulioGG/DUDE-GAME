@@ -36,6 +36,13 @@ public class BlackHoleVisual : MonoBehaviour
     // Valores de inicio: capturados del material (lo que pongas en el inspector)
     private float sStrI, sSwI, sStrO, sSwO, sInner, sBlend, sCore, sRim, sRing;
 
+    // Valores ACTUALES (ya interpolados) que BlackHoleMergeField sube al shader
+    // por agujero, para que dos agujeros en distinta etapa de crecimiento se
+    // mezclen sin costuras. Mismo empaquetado que _BHParamsA/B/C del shader.
+    public Vector4 ParamsA { get; private set; } // strengthInner, swirlInner, strengthOuter, swirlOuter
+    public Vector4 ParamsB { get; private set; } // innerRadius, blendWidth, coreSize, rimSoftness
+    public float CurrentRingIntensity { get; private set; }
+
     private Renderer _r;
     private MaterialPropertyBlock _mpb;
     private static readonly int StrI  = Shader.PropertyToID("_StrengthInner");
@@ -54,12 +61,23 @@ public class BlackHoleVisual : MonoBehaviour
         _mpb = new MaterialPropertyBlock();
         if (scaleSource == null) scaleSource = transform.parent;
 
+        // Auto-anade el registrador del campo de fusion (metaballs) para que
+        // agujeros cercanos se fundan en el shader, sin tener que tocar el prefab.
+        if (GetComponent<BlackHoleMergeField>() == null)
+            gameObject.AddComponent<BlackHoleMergeField>();
+
         var m = _r.sharedMaterial; // los valores del inspector = punto de inicio (pequeno)
         sStrI = m.GetFloat(StrI);  sSwI  = m.GetFloat(SwI);
         sStrO = m.GetFloat(StrO);  sSwO  = m.GetFloat(SwO);
         sInner= m.GetFloat(Inner); sBlend= m.GetFloat(Blend);
         sCore = m.GetFloat(Core);  sRim  = m.GetFloat(Rim);
         sRing = m.HasFloat(Ring) ? m.GetFloat(Ring) : 0.6f;
+
+        // Publica los valores de inicio YA, para que el primer upload del campo
+        // de fusion (que puede correr antes de nuestro primer LateUpdate) no suba ceros.
+        ParamsA = new Vector4(sStrI, sSwI, sStrO, sSwO);
+        ParamsB = new Vector4(sInner, sBlend, sCore, sRim);
+        CurrentRingIntensity = sRing;
     }
 
     void LateUpdate()
@@ -67,16 +85,34 @@ public class BlackHoleVisual : MonoBehaviour
         if (scaleSource == null) return;
         float t = Mathf.InverseLerp(minScale, maxScale, scaleSource.localScale.x);
 
+        float strI  = Mathf.Lerp(sStrI,  endStrengthInner, t);
+        float swI   = Mathf.Lerp(sSwI,   endSwirlInner,    t);
+        float strO  = Mathf.Lerp(sStrO,  endStrengthOuter, t);
+        float swO   = Mathf.Lerp(sSwO,   endSwirlOuter,    t);
+        float inner = Mathf.Lerp(sInner, endInnerRadius,   t);
+        float blend = Mathf.Lerp(sBlend, endBlendWidth,    t);
+        float core  = Mathf.Lerp(sCore,  endCoreSize,      t);
+        float rim   = Mathf.Lerp(sRim,   endRimSoftness,   t);
+        float ring  = Mathf.Lerp(sRing,  endRingIntensity, t);
+
+        // Camino real: el shader lee estos valores POR AGUJERO desde los arrays
+        // globales que sube BlackHoleMergeField.
+        ParamsA = new Vector4(strI, swI, strO, swO);
+        ParamsB = new Vector4(inner, blend, core, rim);
+        CurrentRingIntensity = ring;
+
+        // El MPB queda como respaldo para el modo fallback del shader
+        // (_BlackHoleCount == 0, p. ej. sin BlackHoleMergeField en la escena).
         _r.GetPropertyBlock(_mpb);
-        _mpb.SetFloat(StrI,  Mathf.Lerp(sStrI,  endStrengthInner, t));
-        _mpb.SetFloat(SwI,   Mathf.Lerp(sSwI,   endSwirlInner,    t));
-        _mpb.SetFloat(StrO,  Mathf.Lerp(sStrO,  endStrengthOuter, t));
-        _mpb.SetFloat(SwO,   Mathf.Lerp(sSwO,   endSwirlOuter,    t));
-        _mpb.SetFloat(Inner, Mathf.Lerp(sInner, endInnerRadius,   t));
-        _mpb.SetFloat(Blend, Mathf.Lerp(sBlend, endBlendWidth,    t));
-        _mpb.SetFloat(Core,  Mathf.Lerp(sCore,  endCoreSize,      t));
-        _mpb.SetFloat(Rim,   Mathf.Lerp(sRim,   endRimSoftness,   t));
-        _mpb.SetFloat(Ring,  Mathf.Lerp(sRing,  endRingIntensity, t));
+        _mpb.SetFloat(StrI,  strI);
+        _mpb.SetFloat(SwI,   swI);
+        _mpb.SetFloat(StrO,  strO);
+        _mpb.SetFloat(SwO,   swO);
+        _mpb.SetFloat(Inner, inner);
+        _mpb.SetFloat(Blend, blend);
+        _mpb.SetFloat(Core,  core);
+        _mpb.SetFloat(Rim,   rim);
+        _mpb.SetFloat(Ring,  ring);
         _r.SetPropertyBlock(_mpb);
     }
 }

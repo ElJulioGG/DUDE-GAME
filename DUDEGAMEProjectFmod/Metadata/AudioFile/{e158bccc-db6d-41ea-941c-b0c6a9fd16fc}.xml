@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{e158bccc-db6d-41ea-941c-b0c6a9fd16fc}">
+		<property name="assetPath">
+			<value>Music/DUDE_ST_Loop.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>125.625</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{529d3c55-efc0-414c-81aa-b43e7c032cb4}</destination>
+		</relationship>
+	</object>
+</objects>

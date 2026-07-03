@@ -20,6 +20,10 @@ public class PlayerVisuals : MonoBehaviour
     [SerializeField] private AnimationCurve shakeEaseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private bool useCurveInsteadOfEase = false;
 
+    [Header("Power Up Indicator")]
+    [Tooltip("Sprite que se muestra mientras el jugador TIENE un power-up guardado (sin usar)")]
+    [SerializeField] private GameObject powerUpSprite;
+
     [Header("Particles")]
     [SerializeField] private ParticleSystem RippleParticle;
     [SerializeField] private ParticleSystem AuraParticle;
@@ -28,10 +32,12 @@ public class PlayerVisuals : MonoBehaviour
     [SerializeField] private float deathVelocityMultiplier = 2f;
 
     private Rigidbody2D rb;
+    private PlayerStats stats;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        stats = GetComponent<PlayerStats>();
 
         if (spriteTransform == null)
         {
@@ -63,6 +69,8 @@ public class PlayerVisuals : MonoBehaviour
 
     private void Update()
     {
+        UpdatePowerUpIndicator();
+
         if (rb == null || spriteTransform == null) return;
 
         float velX = rb.linearVelocity.x;
@@ -70,6 +78,18 @@ public class PlayerVisuals : MonoBehaviour
             spriteTransform.localScale = new Vector3(1f, spriteTransform.localScale.y, spriteTransform.localScale.z);
         else if (velX < -0.01f)
             spriteTransform.localScale = new Vector3(-1f, spriteTransform.localScale.y, spriteTransform.localScale.z);
+    }
+
+    // Muestra el sprite indicador mientras el jugador TIENE un power-up guardado
+    // en GameManager (0 = ninguno); lo oculta al usarlo o perderlo. Se compara
+    // activeSelf primero para no llamar SetActive de gratis cada frame.
+    private void UpdatePowerUpIndicator()
+    {
+        if (powerUpSprite == null || stats == null || GameManager.instance == null) return;
+
+        bool hasPowerUp = GameManager.instance.GetPlayerPowerUp(stats.playerIndex) != 0;
+        if (powerUpSprite.activeSelf != hasPowerUp)
+            powerUpSprite.SetActive(hasPowerUp);
     }
 
     public void PlayDamageShake()

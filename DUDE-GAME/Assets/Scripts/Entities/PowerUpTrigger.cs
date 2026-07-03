@@ -68,17 +68,6 @@ public class PowerUpTrigger : MonoBehaviour
         }
     }
 }
-
-[RequireComponent(typeof(ParticleSystem))]
-public class ParticleSelfDestruct : MonoBehaviour
-{
-    [SerializeField] private float lingerDuration = 0.5f;
-
-    private IEnumerator Start()
-    {
-        ParticleSystem ps = GetComponent<ParticleSystem>();
-        yield return new WaitForSeconds(lingerDuration);
-        yield return new WaitWhile(() => ps != null && ps.IsAlive(true));
-        Destroy(gameObject);
-    }
-}
+// ParticleSelfDestruct vivia aqui; ahora esta en su propio archivo
+// (Assets/Scripts/Particles/ParticleSelfDestruct.cs) porque tambien lo usa
+// DetachParticlePlayer.

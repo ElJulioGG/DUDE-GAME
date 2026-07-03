@@ -428,6 +428,7 @@ GameObject:
   - component: {fileID: 6945112149161364355}
   - component: {fileID: 2764727661461805291}
   - component: {fileID: 3084824848158028543}
+  - component: {fileID: 3535082090279868453}
   m_Layer: 12
   m_Name: BlackHoleShader
   m_TagString: Untagged
@@ -529,6 +530,18 @@ MonoBehaviour:
   endCoreSize: 0.66
   endRimSoftness: 0.12
   endRingIntensity: 0.5
+--- !u!114 &3535082090279868453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4986178838553806711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b5ee0b9de5f0b4b8015b4b67b00252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5720442774688053411
 GameObject:
   m_ObjectHideFlags: 0

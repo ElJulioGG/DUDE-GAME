@@ -160,6 +160,17 @@ public class WeaponBase : MonoBehaviour
     // The reload bar animates locally over reloadTime (same prefab, same duration).
     private Coroutine _remoteReloadCo;
 
+    // Reload bar progress: fill + color ramp red -> yellow -> green (t = 0..1).
+    // Single writer for both the local Reload() bar and the remote observer bar.
+    private void SetReloadFill(float t)
+    {
+        if (reloadFillImage == null) return;
+        reloadFillImage.fillAmount = t;
+        reloadFillImage.color = t < 0.5f
+            ? Color.Lerp(Color.red, Color.yellow, t * 2f)
+            : Color.Lerp(Color.yellow, Color.green, (t - 0.5f) * 2f);
+    }
+
     public void ApplyRemoteIndicators(bool reloading, bool clipEmpty, bool outOfAmmo)
     {
         Debug.Log($"[IND-DIAG] {name} ApplyRemoteIndicators reloading={reloading} clipEmpty={clipEmpty} outOfAmmo={outOfAmmo}");
@@ -185,7 +196,7 @@ public class WeaponBase : MonoBehaviour
             _remoteReloadCo = null;
             if (reloadFillImage != null)
             {
-                reloadFillImage.fillAmount = 0f;
+                SetReloadFill(0f);
                 reloadFillImage.gameObject.SetActive(false);
             }
         }
@@ -196,21 +207,20 @@ public class WeaponBase : MonoBehaviour
         if (reloadFillImage != null)
         {
             reloadFillImage.gameObject.SetActive(true);
-            reloadFillImage.fillAmount = 0f;
+            SetReloadFill(0f);
         }
 
         float timer = 0f;
         while (timer < reloadTime)
         {
             timer += Time.deltaTime;
-            if (reloadFillImage != null)
-                reloadFillImage.fillAmount = timer / reloadTime;
+            SetReloadFill(timer / reloadTime);
             yield return null;
         }
 
         if (reloadFillImage != null)
         {
-            reloadFillImage.fillAmount = 0f;
+            SetReloadFill(0f);
             reloadFillImage.gameObject.SetActive(false);
         }
         _remoteReloadCo = null;
@@ -463,17 +473,14 @@ public class WeaponBase : MonoBehaviour
         if (reloadFillImage != null)
         {
             reloadFillImage.gameObject.SetActive(true);
-            reloadFillImage.fillAmount = 0f;
+            SetReloadFill(0f);
         }
 
         float timer = 0f;
         while (timer < reloadTime)
         {
             timer += Time.deltaTime;
-            if (reloadFillImage != null)
-            {
-                reloadFillImage.fillAmount = timer / reloadTime;
-            }
+            SetReloadFill(timer / reloadTime);
             yield return null;
         }
 
@@ -487,7 +494,7 @@ public class WeaponBase : MonoBehaviour
 
         if (reloadFillImage != null)
         {
-            reloadFillImage.fillAmount = 0f;
+            SetReloadFill(0f); // resetea tambien el color a rojo para la proxima recarga
             reloadFillImage.gameObject.SetActive(false);
         }
 

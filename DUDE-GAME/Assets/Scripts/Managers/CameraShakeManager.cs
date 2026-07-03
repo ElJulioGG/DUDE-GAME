@@ -16,6 +16,21 @@ public class CameraShakeManager : MonoBehaviour
 
     private readonly List<ShakeInstance> _shakes = new();
 
+    // Continuous sources (e.g. a lingering black hole): no duration/decay.
+    // The owner re-sets its strength every frame (values are cheap to overwrite)
+    // and MUST remove itself when it dies. Keyed by owner so sources stack.
+    private readonly Dictionary<object, float> _continuous = new();
+
+    public void SetContinuousShake(object source, float strength)
+    {
+        _continuous[source] = Mathf.Max(0f, strength);
+    }
+
+    public void RemoveContinuousShake(object source)
+    {
+        _continuous.Remove(source);
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -31,9 +46,17 @@ public class CameraShakeManager : MonoBehaviour
     private void LateUpdate()
     {
         var cam = Camera.main;
-        if (cam == null || _shakes.Count == 0) return;
+        if (cam == null || (_shakes.Count == 0 && _continuous.Count == 0)) return;
 
         Vector3 offset = Vector3.zero;
+
+        foreach (float strength in _continuous.Values)
+        {
+            if (strength <= 0f) continue;
+            float a = Random.Range(0f, Mathf.PI * 2f);
+            offset.x += Mathf.Cos(a) * strength;
+            offset.y += Mathf.Sin(a) * strength;
+        }
 
         for (int i = _shakes.Count - 1; i >= 0; i--)
         {

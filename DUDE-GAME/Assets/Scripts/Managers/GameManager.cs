@@ -55,6 +55,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int player3PowerUp = 0;
     [SerializeField] public int player4PowerUp = 0;
 
+    // Power-up guardado del jugador por indice 0-based (0 = ninguno).
+    public int GetPlayerPowerUp(int playerIndex) => playerIndex switch
+    {
+        0 => player1PowerUp,
+        1 => player2PowerUp,
+        2 => player3PowerUp,
+        3 => player4PowerUp,
+        _ => 0
+    };
+
     [Header("Display Order")]
     [SerializeField] public int player1DisplayOrder = -1;
     [SerializeField] public int player2DisplayOrder = -1;
