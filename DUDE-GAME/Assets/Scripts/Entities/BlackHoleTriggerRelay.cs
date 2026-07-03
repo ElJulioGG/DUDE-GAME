@@ -5,6 +5,9 @@ public class BlackHoleTriggerRelay : MonoBehaviour
     [SerializeField] private bool isCenter;
     private BlackHoleEntity _parent;
 
+    // Para que BlackHoleEntity encuentre el hitbox central y lo escale con el crecimiento.
+    public bool IsCenter => isCenter;
+
     void Awake()
     {
         _parent = GetComponentInParent<BlackHoleEntity>();

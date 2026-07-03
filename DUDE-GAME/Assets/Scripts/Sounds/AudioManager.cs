@@ -27,6 +27,12 @@ public class AudioManager : MonoBehaviour
     }
     private void Start()
     {
+        // Un AudioManager DUPLICADO (de una escena nueva) se marca para Destroy
+        // en Awake, pero Unity IGUAL le llama Start ese mismo frame. Sin esta
+        // guarda, creaba una segunda instancia de musica huerfana e imparable
+        // (sonaba el track 0 = MENU encimado con el de la escena, solo en build).
+        if (Instance != this) return;
+
         //InitializeAmbience(FMODEvents.Instance.VoiceSay3);
         InitializeMusic(FMODEvents.Instance.MusicTracks);
     }
@@ -37,6 +43,13 @@ public class AudioManager : MonoBehaviour
     }
     public void InitializeMusic(EventReference musicEventReference)
     {
+        // Idempotente: si ya hay musica sonando, se corta antes de crear otra,
+        // para que nunca puedan quedar dos instancias encimadas.
+        if (musicEventInstance.isValid())
+        {
+            musicEventInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            musicEventInstance.release();
+        }
         musicEventInstance = RuntimeManager.CreateInstance(musicEventReference);
         musicEventInstance.start();
     }
@@ -58,13 +71,16 @@ public class AudioManager : MonoBehaviour
     }
     public void SetMusicArea(MusicTracks trackIndex)
     {
-        
-        if (musicEventInstance.isValid())
-        {
-            musicEventInstance.setParameterByName("MusicTrack", (float)trackIndex);
-            print( musicEventInstance.setParameterByName("MusicTrack", (float)trackIndex));
-                                                        //Igual que en fmod, el nombre del parámetro es "MusicTrack" y el valor es el índice del enum MusicTracks
-        }
+        // Si la instancia fue detenida y LIBERADA (CleanUpMusic al salir del menu),
+        // isValid() queda false para siempre y sin esto la musica no volveria a
+        // sonar en ninguna escena. La recreamos aqui: este metodo es el punto de
+        // entrada de todas las escenas (MENU, CHARSELECT, FIGHT).
+        if (!musicEventInstance.isValid())
+            InitializeMusic(FMODEvents.Instance.MusicTracks);
+
+        // Igual que en FMOD: el parametro se llama "MusicTrack" y el valor es el
+        // indice del enum MusicTracks.
+        musicEventInstance.setParameterByName("MusicTrack", (float)trackIndex);
     }
    public EventInstance CreateSoundInstance(EventReference eventReference)
     {
